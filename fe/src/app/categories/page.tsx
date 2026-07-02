@@ -6,6 +6,7 @@ import {
 } from "@/features/catalog/api/catalog-api";
 import { getDictionary, resolveLocale } from "@/shared/i18n";
 import { SiteHeader } from "@/widgets/site-header";
+import type { Locale } from "@/shared/i18n";
 
 type CategoriesPageProps = {
   searchParams?: Promise<{
@@ -13,10 +14,40 @@ type CategoriesPageProps = {
   }>;
 };
 
+const pageCopy: Record<
+  Locale,
+  {
+    title: string;
+    categoryDescription: string;
+    brandsEyebrow: string;
+    brandsTitle: string;
+  }
+> = {
+  vi: {
+    title: "Mua sắm theo danh mục",
+    categoryDescription: "Xem các sản phẩm thuộc danh mục {category}.",
+    brandsEyebrow: "Thương hiệu",
+    brandsTitle: "Lọc sản phẩm theo hãng",
+  },
+  en: {
+    title: "Shop by category",
+    categoryDescription: "View products in the {category} category.",
+    brandsEyebrow: "Brands",
+    brandsTitle: "Filter products by brand",
+  },
+  zh: {
+    title: "按分类选购",
+    categoryDescription: "查看 {category} 分类中的商品。",
+    brandsEyebrow: "品牌",
+    brandsTitle: "按品牌筛选商品",
+  },
+};
+
 export default async function CategoriesPage({ searchParams }: CategoriesPageProps) {
   const params = await searchParams;
   const locale = resolveLocale(params?.lang);
   const dictionary = getDictionary(locale);
+  const copy = pageCopy[locale];
   const [categories, brands] = await Promise.all([
     getCatalogCategories(),
     getCatalogBrands(),
@@ -32,7 +63,7 @@ export default async function CategoriesPage({ searchParams }: CategoriesPagePro
             {dictionary.nav.categories}
           </p>
           <h1 className="mt-2 text-2xl font-semibold text-stone-950">
-            Mua sam theo danh muc
+            {copy.title}
           </h1>
         </div>
 
@@ -47,7 +78,7 @@ export default async function CategoriesPage({ searchParams }: CategoriesPagePro
                 {category.name}
               </h2>
               <p className="mt-2 text-sm text-stone-600">
-                Xem cac san pham thuoc danh muc {category.name}.
+                {copy.categoryDescription.replace("{category}", category.name)}
               </p>
             </Link>
           ))}
@@ -56,9 +87,11 @@ export default async function CategoriesPage({ searchParams }: CategoriesPagePro
 
       <section className="mx-auto max-w-7xl px-6 pb-16 lg:px-8">
         <div className="mb-5">
-          <p className="text-sm font-semibold text-amber-800">Thuong hieu</p>
+          <p className="text-sm font-semibold text-amber-800">
+            {copy.brandsEyebrow}
+          </p>
           <h2 className="mt-2 text-xl font-semibold text-stone-950">
-            Loc san pham theo hang
+            {copy.brandsTitle}
           </h2>
         </div>
 

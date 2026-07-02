@@ -354,7 +354,7 @@ export function SiteHeader({ dictionary, locale, searchQuery }: SiteHeaderProps)
 
   const userAvatarUrl = getUserAvatarUrl(user);
   const userDisplayName =
-    getUserDisplayName(user) ?? user?.email ?? "Tai khoan";
+    getUserDisplayName(user) ?? user?.email ?? dictionary.ui.account.fallbackName;
 
   return (
     <>
@@ -411,7 +411,7 @@ export function SiteHeader({ dictionary, locale, searchQuery }: SiteHeaderProps)
                   setIsSearchOpen(true);
                 }
               }}
-              placeholder="Tim san pham"
+              placeholder={dictionary.ui.search.placeholder}
               className="h-10 min-w-0 flex-1 bg-transparent px-2 text-sm font-medium text-amber-50 outline-none placeholder:text-amber-100/60"
             />
             <input type="hidden" name="lang" value={locale} />
@@ -420,7 +420,7 @@ export function SiteHeader({ dictionary, locale, searchQuery }: SiteHeaderProps)
               <div className="absolute left-0 right-0 top-12 z-20 overflow-hidden rounded-lg border border-amber-900/10 bg-[#fffaf2] py-2 text-stone-800 shadow-xl shadow-stone-950/20">
                 {isSearching ? (
                   <p className="px-4 py-3 text-sm font-semibold text-stone-500">
-                    Dang tim san pham...
+                    {dictionary.ui.search.loading}
                   </p>
                 ) : searchSuggestions.length > 0 ? (
                   <>
@@ -459,12 +459,12 @@ export function SiteHeader({ dictionary, locale, searchQuery }: SiteHeaderProps)
                       type="submit"
                       className="flex w-full items-center justify-center border-t border-amber-900/10 px-4 py-3 text-sm font-semibold text-stone-700 transition hover:bg-amber-100/70 hover:text-amber-900"
                     >
-                      Xem tat ca ket qua
+                      {dictionary.ui.search.viewAll}
                     </button>
                   </>
                 ) : (
                   <p className="px-4 py-3 text-sm font-semibold text-stone-500">
-                    Khong tim thay san pham phu hop.
+                    {dictionary.ui.search.empty}
                   </p>
                 )}
               </div>
@@ -475,7 +475,7 @@ export function SiteHeader({ dictionary, locale, searchQuery }: SiteHeaderProps)
             <div ref={languageMenuRef} className="relative">
               <button
                 type="button"
-                aria-label="Chon ngon ngu"
+                aria-label="Language"
                 aria-expanded={isLanguageMenuOpen}
                 onClick={() => {
                   setIsLanguageMenuOpen((current) => !current);
@@ -517,7 +517,7 @@ export function SiteHeader({ dictionary, locale, searchQuery }: SiteHeaderProps)
               <div ref={accountMenuRef} className="relative">
                 <button
                   type="button"
-                  aria-label="Tai khoan"
+                  aria-label={dictionary.ui.account.aria}
                   aria-expanded={isAccountMenuOpen}
                   onClick={() => {
                     setIsAccountMenuOpen((current) => !current);
@@ -573,7 +573,7 @@ export function SiteHeader({ dictionary, locale, searchQuery }: SiteHeaderProps)
                       className="flex items-center gap-3 px-4 py-3 text-sm font-semibold transition hover:bg-amber-100/70"
                     >
                       <User className="h-4 w-4 text-amber-800" aria-hidden="true" />
-                      Thong tin tai khoan
+                      {dictionary.ui.account.profile}
                     </Link>
 
                     <Link
@@ -582,7 +582,7 @@ export function SiteHeader({ dictionary, locale, searchQuery }: SiteHeaderProps)
                       className="flex items-center gap-3 px-4 py-3 text-sm font-semibold transition hover:bg-amber-100/70"
                     >
                       <ShoppingCart className="h-4 w-4 text-amber-800" aria-hidden="true" />
-                      Gio hang & don mua
+                      {dictionary.ui.account.cartOrders}
                     </Link>
 
                     <button
@@ -591,7 +591,7 @@ export function SiteHeader({ dictionary, locale, searchQuery }: SiteHeaderProps)
                       className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-red-700 transition hover:bg-red-50"
                     >
                       <LogOut className="h-4 w-4" aria-hidden="true" />
-                      Dang xuat
+                      {dictionary.ui.account.signOut}
                     </button>
                   </div>
                 ) : null}
@@ -648,13 +648,13 @@ export function SiteHeader({ dictionary, locale, searchQuery }: SiteHeaderProps)
                       {dictionary.nav.cart}
                     </p>
                     <span className="text-xs font-semibold text-stone-500">
-                      {cart?.totalQuantity ?? 0} san pham
+                      {cart?.totalQuantity ?? 0} {dictionary.ui.cart.itemCount}
                     </span>
                   </div>
 
                   {isCartLoading ? (
                     <p className="px-4 py-5 text-sm font-semibold text-stone-500">
-                      Dang tai gio hang...
+                      {dictionary.ui.cart.loading}
                     </p>
                   ) : cart && cart.items.length > 0 ? (
                     <>
@@ -692,7 +692,7 @@ export function SiteHeader({ dictionary, locale, searchQuery }: SiteHeaderProps)
                             </span>
                             <button
                               type="button"
-                              aria-label="Xoa san pham khoi gio"
+                              aria-label={dictionary.ui.cart.removeItem}
                               disabled={pendingCartItemId !== null}
                               onClick={() => void handleRemoveCartItem(item.id)}
                               className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
@@ -705,7 +705,7 @@ export function SiteHeader({ dictionary, locale, searchQuery }: SiteHeaderProps)
 
                       <div className="border-t border-amber-900/10 px-4 py-3">
                         <div className="flex items-center justify-between text-sm font-semibold">
-                          <span>Tam tinh</span>
+                          <span>{dictionary.ui.cart.subtotal}</span>
                           <span>{formatCurrency(cart.subtotal)}</span>
                         </div>
                         <Link
@@ -713,20 +713,20 @@ export function SiteHeader({ dictionary, locale, searchQuery }: SiteHeaderProps)
                           onClick={() => setIsCartOpen(false)}
                           className="mt-3 flex h-10 w-full items-center justify-center rounded-md border border-amber-900/15 text-sm font-semibold text-stone-700 transition hover:border-amber-700 hover:text-amber-800"
                         >
-                          Chi tiet gio hang
+                          {dictionary.ui.cart.detail}
                         </Link>
                         <Link
                           href="/checkout"
                           onClick={() => setIsCartOpen(false)}
                           className="mt-2 flex h-10 w-full items-center justify-center rounded-md bg-amber-700 text-sm font-semibold text-white transition hover:bg-amber-800"
                         >
-                          Thanh toan
+                          {dictionary.ui.cart.checkout}
                         </Link>
                       </div>
                     </>
                   ) : (
                     <p className="px-4 py-5 text-sm font-semibold text-stone-500">
-                      Gio hang dang trong.
+                      {dictionary.ui.cart.empty}
                     </p>
                   )}
                 </div>
@@ -747,7 +747,7 @@ export function SiteHeader({ dictionary, locale, searchQuery }: SiteHeaderProps)
               type="search"
               value={searchValue}
               onChange={(event) => setSearchValue(event.target.value)}
-              placeholder="Tim san pham"
+              placeholder={dictionary.ui.search.placeholder}
               className="h-10 min-w-0 flex-1 bg-transparent px-2 text-sm font-medium text-amber-50 outline-none placeholder:text-amber-100/60"
             />
             <input type="hidden" name="lang" value={locale} />
@@ -793,7 +793,11 @@ export function SiteHeader({ dictionary, locale, searchQuery }: SiteHeaderProps)
         </div>
       ) : null}
 
-      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
+      <AuthModal
+        dictionary={dictionary}
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+      />
     </>
   );
 }

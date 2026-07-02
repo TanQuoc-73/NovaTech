@@ -16,7 +16,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
   return (
     <main className="min-h-screen bg-[#fff8ed] text-stone-950">
       <SiteHeader dictionary={dictionary} locale={locale} />
-      <AccountProfile />
+      <AccountProfile dictionary={dictionary} />
     </main>
   );
 }

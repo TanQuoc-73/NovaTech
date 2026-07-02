@@ -16,9 +16,10 @@ import {
   type Address,
   type AuthProfile,
 } from "@/features/auth/model/auth-client";
+import type { Dictionary } from "@/shared/i18n";
 import { getSupabaseClient } from "@/shared/lib/supabase/client";
 
-export function AccountProfile() {
+export function AccountProfile({ dictionary }: { dictionary: Dictionary }) {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [profile, setProfile] = useState<AuthProfile | null>(null);
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -81,7 +82,7 @@ export function AccountProfile() {
       <section className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
         <div className="rounded-lg border border-amber-900/10 bg-white p-6 shadow-sm">
           <p className="text-sm font-semibold text-stone-600">
-            Dang tai thong tin tai khoan...
+            Đang tải thông tin tài khoản...
           </p>
         </div>
       </section>
@@ -96,20 +97,24 @@ export function AccountProfile() {
             <div className="grid h-12 w-12 place-items-center rounded-full bg-amber-100 text-amber-900">
               <LogIn className="h-5 w-5" aria-hidden="true" />
             </div>
-            <h1 className="mt-5 text-2xl font-semibold">Tai khoan cua toi</h1>
+            <h1 className="mt-5 text-2xl font-semibold">Tài khoản của tôi</h1>
             <p className="mt-2 max-w-xl text-sm leading-6 text-stone-600">
-              Dang nhap de xem thong tin ca nhan, email va trang thai tai khoan.
+              Đăng nhập để xem thông tin cá nhân, email và trạng thái tài khoản.
             </p>
             <button
               type="button"
               onClick={() => setIsAuthOpen(true)}
               className="mt-5 h-10 rounded-md bg-amber-700 px-4 text-sm font-semibold text-white transition hover:bg-amber-800"
             >
-              Dang nhap
+              {dictionary.nav.signIn}
             </button>
           </div>
         </section>
-        <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
+        <AuthModal
+          dictionary={dictionary}
+          isOpen={isAuthOpen}
+          onClose={() => setIsAuthOpen(false)}
+        />
       </>
     );
   }
@@ -118,7 +123,7 @@ export function AccountProfile() {
     profile?.full_name ??
     getMetadataString(user, "full_name") ??
     getMetadataString(user, "name") ??
-    "Tai khoan NovaTech";
+    "Tài khoản NovaTech";
   const avatarUrl =
     profile?.avatar_url ??
     getMetadataString(user, "avatar_url") ??
@@ -140,9 +145,9 @@ export function AccountProfile() {
       });
 
       setProfile(nextProfile);
-      setMessage("Da luu thong tin ca nhan.");
+      setMessage("Đã lưu thông tin cá nhân.");
     } catch {
-      setMessage("Khong the luu thong tin. Vui long thu lai.");
+      setMessage("Không thể lưu thông tin. Vui lòng thử lại.");
     } finally {
       setIsSaving(false);
     }
@@ -169,9 +174,9 @@ export function AccountProfile() {
         }),
       );
       form.reset();
-      setAddressMessage("Da them dia chi giao hang.");
+      setAddressMessage("Đã thêm địa chỉ giao hàng.");
     } catch {
-      setAddressMessage("Khong the luu dia chi. Kiem tra lai thong tin.");
+      setAddressMessage("Không thể lưu địa chỉ. Kiểm tra lại thông tin.");
     }
   }
 
@@ -181,9 +186,9 @@ export function AccountProfile() {
 
     try {
       setAddresses(await updateAddress(addressId, { isDefault: true }));
-      setAddressMessage("Da dat dia chi mac dinh.");
+      setAddressMessage("Đã đặt địa chỉ mặc định.");
     } catch {
-      setAddressMessage("Khong the cap nhat dia chi.");
+      setAddressMessage("Không thể cập nhật địa chỉ.");
     } finally {
       setPendingAddressId(null);
     }
@@ -195,9 +200,9 @@ export function AccountProfile() {
 
     try {
       setAddresses(await deleteAddress(addressId));
-      setAddressMessage("Da xoa dia chi.");
+      setAddressMessage("Đã xóa địa chỉ.");
     } catch {
-      setAddressMessage("Khong the xoa dia chi.");
+      setAddressMessage("Không thể xóa địa chỉ.");
     } finally {
       setPendingAddressId(null);
     }
@@ -207,9 +212,9 @@ export function AccountProfile() {
     <section className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
       <div>
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-amber-800">
-          Tai khoan
+          Tài khoản
         </p>
-        <h1 className="mt-3 text-3xl font-semibold">Thong tin ca nhan</h1>
+        <h1 className="mt-3 text-3xl font-semibold">Thông tin cá nhân</h1>
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[360px_1fr]">
@@ -240,9 +245,9 @@ export function AccountProfile() {
         <div className="rounded-lg border border-amber-900/10 bg-white p-6 shadow-sm">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h2 className="text-base font-semibold">Thong tin lien he</h2>
+              <h2 className="text-base font-semibold">Thông tin liên hệ</h2>
               <p className="mt-1 text-sm text-stone-500">
-                Cac thong tin dang hien thi tren tai khoan cua ban.
+                Các thông tin đang hiển thị trên tài khoản của bạn.
               </p>
             </div>
             {message ? (
@@ -252,10 +257,10 @@ export function AccountProfile() {
             ) : null}
           </div>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
-            <InfoItem icon={<UserCircle className="h-4 w-4" />} label="Ho ten" value={displayName} />
-            <InfoItem icon={<Mail className="h-4 w-4" />} label="Email" value={user.email ?? "Chua co email"} />
-            <InfoItem icon={<Phone className="h-4 w-4" />} label="So dien thoai" value={profile?.phone ?? "Chua cap nhat"} />
-            <InfoItem icon={<Shield className="h-4 w-4" />} label="Vai tro" value={roleLabel} />
+            <InfoItem icon={<UserCircle className="h-4 w-4" />} label="Họ tên" value={displayName} />
+            <InfoItem icon={<Mail className="h-4 w-4" />} label="Email" value={user.email ?? "Chưa có email"} />
+            <InfoItem icon={<Phone className="h-4 w-4" />} label="Số điện thoại" value={profile?.phone ?? "Chưa cập nhật"} />
+            <InfoItem icon={<Shield className="h-4 w-4" />} label="Vai trò" value={roleLabel} />
           </div>
         </div>
 
@@ -263,16 +268,16 @@ export function AccountProfile() {
           onSubmit={handleUpdateProfile}
           className="rounded-lg border border-amber-900/10 bg-white p-6 shadow-sm"
         >
-          <h2 className="text-base font-semibold">Chinh sua thong tin</h2>
+          <h2 className="text-base font-semibold">Chỉnh sửa thông tin</h2>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             <ProfileField
               name="fullName"
-              label="Ho ten"
+              label="Họ tên"
               defaultValue={displayName}
             />
             <ProfileField
               name="phone"
-              label="So dien thoai"
+              label="Số điện thoại"
               defaultValue={profile?.phone ?? ""}
             />
             <label className="block md:col-span-2">
@@ -293,16 +298,16 @@ export function AccountProfile() {
             disabled={isSaving}
             className="mt-5 h-10 rounded-md bg-amber-700 px-4 text-sm font-semibold text-white transition hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSaving ? "Dang luu..." : "Luu thong tin"}
+            {isSaving ? "Đang lưu..." : "Lưu thông tin"}
           </button>
         </form>
 
         <div className="rounded-lg border border-amber-900/10 bg-white p-6 shadow-sm">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h2 className="text-base font-semibold">Dia chi giao hang</h2>
+              <h2 className="text-base font-semibold">Địa chỉ giao hàng</h2>
               <p className="mt-1 text-sm text-stone-500">
-                Quan ly dia chi de dung nhanh khi thanh toan.
+                Quản lý địa chỉ để dùng nhanh khi thanh toán.
               </p>
             </div>
             {addressMessage ? (
@@ -318,21 +323,21 @@ export function AccountProfile() {
           >
             <ProfileField
               name="recipientName"
-              label="Nguoi nhan"
+              label="Người nhận"
               defaultValue={displayName}
             />
             <ProfileField
               name="addressPhone"
-              label="So dien thoai"
+              label="Số điện thoại"
               defaultValue={profile?.phone ?? ""}
             />
-            <ProfileField name="province" label="Tinh/Thanh pho" defaultValue="" />
-            <ProfileField name="district" label="Quan/Huyen" defaultValue="" />
-            <ProfileField name="ward" label="Phuong/Xa" defaultValue="" />
-            <ProfileField name="line1" label="Dia chi chi tiet" defaultValue="" />
+            <ProfileField name="province" label="Tỉnh/Thành phố" defaultValue="" />
+            <ProfileField name="district" label="Quận/Huyện" defaultValue="" />
+            <ProfileField name="ward" label="Phường/Xã" defaultValue="" />
+            <ProfileField name="line1" label="Địa chỉ chi tiết" defaultValue="" />
             <label className="block md:col-span-2">
               <span className="text-xs font-semibold uppercase text-stone-600">
-                Ghi chu dia chi
+                Ghi chú địa chỉ
               </span>
               <input
                 name="line2"
@@ -341,14 +346,14 @@ export function AccountProfile() {
             </label>
             <label className="flex items-center gap-2 text-sm font-semibold text-stone-700">
               <input name="isDefault" type="checkbox" className="h-4 w-4 accent-amber-700" />
-              Dat lam dia chi mac dinh
+              Đặt làm địa chỉ mặc định
             </label>
             <div className="md:text-right">
               <button
                 type="submit"
                 className="h-10 rounded-md bg-amber-700 px-4 text-sm font-semibold text-white transition hover:bg-amber-800"
               >
-                Them dia chi
+                Thêm địa chỉ
               </button>
             </div>
           </form>
@@ -366,7 +371,7 @@ export function AccountProfile() {
                         <p className="font-semibold">{address.recipientName}</p>
                         {address.isDefault ? (
                           <span className="rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-700">
-                            Mac dinh
+                            Mặc định
                           </span>
                         ) : null}
                       </div>
@@ -386,7 +391,7 @@ export function AccountProfile() {
                           disabled={pendingAddressId !== null}
                           onClick={() => void handleSetDefaultAddress(address.id)}
                           className="grid h-10 w-10 place-items-center rounded-full border border-amber-900/15 text-amber-800 transition hover:bg-amber-100 disabled:opacity-50"
-                          aria-label="Dat dia chi mac dinh"
+                          aria-label="Đặt địa chỉ mặc định"
                         >
                           <Home className="h-4 w-4" aria-hidden="true" />
                         </button>
@@ -396,7 +401,7 @@ export function AccountProfile() {
                         disabled={pendingAddressId !== null}
                         onClick={() => void handleDeleteAddress(address.id)}
                         className="grid h-10 w-10 place-items-center rounded-full border border-red-200 text-red-700 transition hover:bg-red-50 disabled:opacity-50"
-                        aria-label="Xoa dia chi"
+                        aria-label="Xóa địa chỉ"
                       >
                         <Trash2 className="h-4 w-4" aria-hidden="true" />
                       </button>
@@ -406,7 +411,7 @@ export function AccountProfile() {
               ))
             ) : (
               <div className="rounded-lg border border-dashed border-amber-900/20 bg-[#fffdf7] p-5 text-sm font-medium text-stone-500">
-                Chua co dia chi giao hang.
+                Chưa có địa chỉ giao hàng.
               </div>
             )}
           </div>

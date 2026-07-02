@@ -179,7 +179,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           </div>
         ) : (
           <div className="rounded-lg border border-dashed border-amber-900/20 bg-[#fffdf7] p-6 text-sm text-stone-600">
-            Chua co danh muc tu database.
+            {dictionary.ui.listing.emptyCategories}
           </div>
         )}
       </section>
@@ -188,13 +188,16 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         <div className="mb-6 grid gap-4 lg:flex lg:items-end lg:justify-between">
           <div className="min-w-0">
             <p className="text-sm font-semibold text-amber-800">
-              {hasCatalogFilters ? "Danh sach san pham" : dictionary.home.featuredLabel}
+              {hasCatalogFilters ? dictionary.ui.listing.title : dictionary.home.featuredLabel}
             </p>
             <h2 className="mt-2 text-2xl font-semibold text-stone-950">
               {normalizedSearchQuery
-                ? `San pham phu hop voi "${normalizedSearchQuery}"`
+                ? dictionary.ui.listing.searchTitle.replace(
+                    "{query}",
+                    normalizedSearchQuery,
+                  )
                 : hasCatalogFilters
-                  ? "Loc va sap xep san pham"
+                  ? dictionary.ui.listing.filteredTitle
                 : dictionary.home.featuredTitle}
             </h2>
           </div>
@@ -202,6 +205,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             brands={brands}
             categories={categories}
             locale={locale}
+            dictionary={dictionary}
             searchQuery={normalizedSearchQuery}
             selectedBrand={selectedBrand}
             selectedCategory={selectedCategory}
@@ -218,10 +222,10 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         ) : (
           <div className="rounded-lg border border-dashed border-amber-900/20 bg-[#fffdf7] p-6 text-sm text-stone-600">
             {normalizedSearchQuery
-              ? "Khong tim thay san pham phu hop."
+              ? dictionary.ui.listing.emptySearch
               : hasCatalogFilters
-                ? "Khong co san pham nao khop voi bo loc."
-                : "Chua co san pham noi bat tu database."}
+                ? dictionary.ui.listing.emptyFilter
+                : dictionary.ui.listing.emptyFeatured}
           </div>
         )}
       </section>

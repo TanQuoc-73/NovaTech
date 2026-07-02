@@ -10,15 +10,21 @@ import {
   syncAuthProfileSafely,
   getRoleHomePath,
 } from "../model/auth-client";
+import { getDictionary, type Dictionary } from "@/shared/i18n";
 
 type AuthMode = "login" | "register";
 
 type AuthModalProps = {
   isOpen: boolean;
   onClose: () => void;
+  dictionary?: Dictionary;
 };
 
-export function AuthModal({ isOpen, onClose }: AuthModalProps) {
+export function AuthModal({
+  isOpen,
+  onClose,
+  dictionary = getDictionary("vi"),
+}: AuthModalProps) {
   const [mode, setMode] = useState<AuthMode>("login");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -41,7 +47,9 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         setIsSubmitting(false);
       }
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Khong the dang nhap.");
+      setMessage(
+        error instanceof Error ? error.message : dictionary.ui.auth.signInFailed,
+      );
       setIsSubmitting(false);
     }
   }
@@ -58,7 +66,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     const confirmPassword = String(formData.get("confirmPassword") ?? "");
 
     if (!isLogin && password !== confirmPassword) {
-      setMessage("Mat khau xac nhan khong khop.");
+      setMessage(dictionary.ui.auth.passwordMismatch);
       setIsSubmitting(false);
       return;
     }
@@ -91,15 +99,17 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         }
       }
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Khong the xac thuc.");
+      setMessage(
+        error instanceof Error ? error.message : dictionary.ui.auth.authFailed,
+      );
       setIsSubmitting(false);
       return;
     }
 
     setMessage(
       isLogin
-        ? "Dang nhap thanh cong."
-        : "Dang ky thanh cong. Vui long kiem tra email neu Supabase yeu cau xac thuc.",
+        ? dictionary.ui.auth.loginSuccess
+        : dictionary.ui.auth.registerSuccess,
     );
     setIsSubmitting(false);
 
@@ -112,7 +122,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     <div className="fixed inset-0 z-50 grid place-items-center bg-stone-950/70 px-4 py-6 backdrop-blur-sm">
       <button
         type="button"
-        aria-label="Dong cua so dang nhap"
+        aria-label={dictionary.ui.auth.close}
         className="absolute inset-0 cursor-default"
         onClick={onClose}
       />
@@ -122,10 +132,12 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-200">
-                NovaTech Account
+                {dictionary.ui.auth.eyebrow}
               </p>
               <h2 className="mt-2 text-2xl font-semibold">
-                {isLogin ? "Dang nhap" : "Tao tai khoan"}
+                {isLogin
+                  ? dictionary.ui.auth.loginTitle
+                  : dictionary.ui.auth.registerTitle}
               </h2>
             </div>
             <button
@@ -150,7 +162,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   : "text-stone-600 hover:text-stone-950"
               }`}
             >
-              Dang nhap
+              {dictionary.ui.auth.loginTab}
             </button>
             <button
               type="button"
@@ -161,7 +173,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   : "text-stone-600 hover:text-stone-950"
               }`}
             >
-              Dang ky
+              {dictionary.ui.auth.registerTab}
             </button>
           </div>
 
@@ -185,13 +197,13 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           <form className="grid gap-4" onSubmit={handleSubmit}>
             {!isLogin ? (
               <label className="grid gap-2 text-sm font-semibold text-stone-800">
-                <span className="sr-only">Ho va ten</span>
+                <span className="sr-only">{dictionary.ui.auth.fullName}</span>
                 <span className="flex h-11 items-center gap-2 rounded-md border border-amber-900/15 bg-white px-3 text-stone-500 transition focus-within:border-amber-700 focus-within:ring-4 focus-within:ring-amber-200/70">
                   <User className="h-4 w-4" aria-hidden="true" />
                   <input
                     name="fullName"
                     type="text"
-                    placeholder="Nguyen Van A"
+                    placeholder={dictionary.ui.auth.fullNamePlaceholder}
                     className="min-w-0 flex-1 bg-transparent text-sm font-normal text-stone-950 outline-none placeholder:text-stone-400"
                   />
                 </span>
@@ -213,14 +225,14 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             </label>
 
             <label className="grid gap-2 text-sm font-semibold text-stone-800">
-              <span className="sr-only">Mat khau</span>
+              <span className="sr-only">{dictionary.ui.auth.password}</span>
               <span className="flex h-11 items-center gap-2 rounded-md border border-amber-900/15 bg-white px-3 text-stone-500 transition focus-within:border-amber-700 focus-within:ring-4 focus-within:ring-amber-200/70">
                 <Lock className="h-4 w-4" aria-hidden="true" />
                 <input
                   name="password"
                   type="password"
                   required
-                  placeholder="Nhap mat khau"
+                  placeholder={dictionary.ui.auth.passwordPlaceholder}
                   className="min-w-0 flex-1 bg-transparent text-sm font-normal text-stone-950 outline-none placeholder:text-stone-400"
                 />
               </span>
@@ -228,14 +240,16 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
             {!isLogin ? (
               <label className="grid gap-2 text-sm font-semibold text-stone-800">
-                <span className="sr-only">Xac nhan mat khau</span>
+                <span className="sr-only">
+                  {dictionary.ui.auth.confirmPassword}
+                </span>
                 <span className="flex h-11 items-center gap-2 rounded-md border border-amber-900/15 bg-white px-3 text-stone-500 transition focus-within:border-amber-700 focus-within:ring-4 focus-within:ring-amber-200/70">
                   <Lock className="h-4 w-4" aria-hidden="true" />
                   <input
                     name="confirmPassword"
                     type="password"
                     required
-                    placeholder="Nhap lai mat khau"
+                    placeholder={dictionary.ui.auth.confirmPasswordPlaceholder}
                     className="min-w-0 flex-1 bg-transparent text-sm font-normal text-stone-950 outline-none placeholder:text-stone-400"
                   />
                 </span>
@@ -246,10 +260,10 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               <div className="flex items-center justify-between gap-4 text-sm">
                 <label className="flex items-center gap-2 text-stone-600">
                   <input type="checkbox" className="h-4 w-4 accent-amber-700" />
-                  Ghi nho
+                  {dictionary.ui.auth.remember}
                 </label>
                 <a href="#" className="font-semibold text-amber-800 hover:text-amber-900">
-                  Quen mat khau?
+                  {dictionary.ui.auth.forgotPassword}
                 </a>
               </div>
             ) : null}
@@ -259,7 +273,11 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               disabled={isSubmitting}
               className="mt-2 h-11 rounded-md bg-amber-700 text-sm font-semibold text-white transition hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isSubmitting ? "Dang xu ly..." : isLogin ? "Dang nhap" : "Dang ky"}
+              {isSubmitting
+                ? dictionary.ui.auth.processing
+                : isLogin
+                  ? dictionary.ui.auth.loginTab
+                  : dictionary.ui.auth.registerTab}
             </button>
           </form>
 
@@ -270,13 +288,17 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           ) : null}
 
           <p className="mt-5 text-center text-sm text-stone-600">
-            {isLogin ? "Chua co tai khoan?" : "Da co tai khoan?"}{" "}
+            {isLogin
+              ? dictionary.ui.auth.noAccount
+              : dictionary.ui.auth.hasAccount}{" "}
             <button
               type="button"
               onClick={() => setMode(isLogin ? "register" : "login")}
               className="font-semibold text-amber-800 hover:text-amber-900"
             >
-              {isLogin ? "Dang ky ngay" : "Dang nhap"}
+              {isLogin
+                ? dictionary.ui.auth.registerNow
+                : dictionary.ui.auth.loginTab}
             </button>
           </p>
         </div>

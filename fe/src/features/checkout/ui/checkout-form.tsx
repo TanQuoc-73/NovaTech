@@ -12,9 +12,10 @@ import {
   getPaymentQrSettings,
   type PaymentQrSetting,
 } from "@/features/payments/api/payment-api";
+import type { Dictionary } from "@/shared/i18n";
 import { formatCurrency } from "@/shared/lib/format-currency";
 
-export function CheckoutForm() {
+export function CheckoutForm({ dictionary }: { dictionary: Dictionary }) {
   const [cart, setCart] = useState<Cart | null>(null);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState("");
@@ -39,9 +40,9 @@ export function CheckoutForm() {
             "",
         );
       })
-      .catch(() => setMessage("Vui long dang nhap de thanh toan."))
+      .catch(() => setMessage(dictionary.ui.checkout.signInRequired))
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [dictionary.ui.checkout.signInRequired]);
 
   const selectedAddress = useMemo(
     () => addresses.find((address) => address.id === selectedAddressId),
@@ -89,7 +90,7 @@ export function CheckoutForm() {
       setMessage(
         error instanceof Error
           ? error.message
-          : "Khong the tao don hang. Co the san pham vua het hang, vui long kiem tra lai gio hang.",
+          : dictionary.ui.checkout.createFailed,
       );
     } finally {
       setIsSubmitting(false);
@@ -100,7 +101,7 @@ export function CheckoutForm() {
     return (
       <section className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
         <div className="rounded-lg border border-amber-900/10 bg-[#fffdf7] p-6 text-sm font-semibold text-stone-600">
-          Dang tai thong tin thanh toan...
+          {dictionary.ui.checkout.loading}
         </div>
       </section>
     );
@@ -111,18 +112,24 @@ export function CheckoutForm() {
       <section className="mx-auto max-w-3xl px-6 py-12 lg:px-8">
         <div className="rounded-lg border border-green-200 bg-white p-8 text-center shadow-sm">
           <CheckCircle2 className="mx-auto h-12 w-12 text-green-700" aria-hidden="true" />
-          <h1 className="mt-4 text-2xl font-semibold">Dat hang thanh cong</h1>
+          <h1 className="mt-4 text-2xl font-semibold">
+            {dictionary.ui.checkout.successTitle}
+          </h1>
           <p className="mt-2 text-sm font-medium text-stone-600">
-            Ma don hang: <span className="font-semibold text-stone-950">{result.orderNumber}</span>
+            {dictionary.ui.checkout.orderCode}:{" "}
+            <span className="font-semibold text-stone-950">
+              {result.orderNumber}
+            </span>
           </p>
           <p className="mt-1 text-sm font-medium text-stone-600">
-            Tong thanh toan: {formatCurrency(result.totalAmount)}
+            {dictionary.ui.checkout.totalPayment}:{" "}
+            {formatCurrency(result.totalAmount)}
           </p>
           <Link
             href="/cart?tab=ordered"
             className="mt-6 inline-flex h-10 items-center rounded-md bg-amber-700 px-4 text-sm font-semibold text-white transition hover:bg-amber-800"
           >
-            Xem don hang
+            {dictionary.ui.checkout.viewOrder}
           </Link>
         </div>
       </section>
@@ -134,13 +141,13 @@ export function CheckoutForm() {
       <section className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
         <div className="rounded-lg border border-amber-900/10 bg-[#fffdf7] p-8">
           <p className="text-sm font-semibold text-stone-700">
-            {message ?? "Gio hang dang trong."}
+            {message ?? dictionary.ui.checkout.emptyCart}
           </p>
           <Link
             href="/products"
             className="mt-5 inline-flex h-10 items-center rounded-md bg-amber-700 px-4 text-sm font-semibold text-white transition hover:bg-amber-800"
           >
-            Ve danh sach san pham
+            {dictionary.ui.checkout.backToProducts}
           </Link>
         </div>
       </section>
@@ -150,9 +157,11 @@ export function CheckoutForm() {
   return (
     <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
       <div className="mb-6">
-        <p className="text-sm font-semibold text-amber-800">Thanh toan</p>
+        <p className="text-sm font-semibold text-amber-800">
+          {dictionary.ui.checkout.eyebrow}
+        </p>
         <h1 className="mt-2 text-2xl font-semibold text-stone-950">
-          Xac nhan don hang
+          {dictionary.ui.checkout.title}
         </h1>
       </div>
 
@@ -163,13 +172,13 @@ export function CheckoutForm() {
         >
           <div className="flex items-center gap-3">
             <ShieldCheck className="h-5 w-5 text-amber-800" aria-hidden="true" />
-            <h2 className="font-semibold">Thong tin giao hang</h2>
+            <h2 className="font-semibold">{dictionary.ui.checkout.shippingInfo}</h2>
           </div>
 
           {addresses.length ? (
             <label className="mt-5 block">
               <span className="text-xs font-semibold uppercase text-stone-600">
-                Dia chi da luu
+                {dictionary.ui.checkout.savedAddress}
               </span>
               <select
                 value={selectedAddressId}
@@ -188,43 +197,43 @@ export function CheckoutForm() {
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             <CheckoutField
               name="customerName"
-              label="Nguoi nhan"
+              label={dictionary.ui.checkout.recipient}
               defaultValue={selectedAddress?.recipientName ?? ""}
               required
             />
             <CheckoutField
               name="customerPhone"
-              label="So dien thoai"
+              label={dictionary.ui.checkout.phone}
               defaultValue={selectedAddress?.phone ?? ""}
               required
             />
             <CheckoutField
               name="shippingProvince"
-              label="Tinh/Thanh pho"
+              label={dictionary.ui.checkout.province}
               defaultValue={selectedAddress?.province ?? ""}
               required
             />
             <CheckoutField
               name="shippingDistrict"
-              label="Quan/Huyen"
+              label={dictionary.ui.checkout.district}
               defaultValue={selectedAddress?.district ?? ""}
               required
             />
             <CheckoutField
               name="shippingWard"
-              label="Phuong/Xa"
+              label={dictionary.ui.checkout.ward}
               defaultValue={selectedAddress?.ward ?? ""}
               required
             />
             <CheckoutField
               name="shippingLine1"
-              label="Dia chi chi tiet"
+              label={dictionary.ui.checkout.line1}
               defaultValue={selectedAddress?.line1 ?? ""}
               required
             />
             <label className="block md:col-span-2">
               <span className="text-xs font-semibold uppercase text-stone-600">
-                Ghi chu dia chi
+                {dictionary.ui.checkout.line2}
               </span>
               <input
                 key={`line2-${selectedAddress?.id ?? "manual"}`}
@@ -236,7 +245,7 @@ export function CheckoutForm() {
           </div>
 
           <div className="mt-6">
-            <h2 className="font-semibold">Phuong thuc thanh toan</h2>
+            <h2 className="font-semibold">{dictionary.ui.checkout.paymentMethod}</h2>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               <label className="flex items-center gap-3 rounded-lg border border-amber-900/10 bg-white p-4 text-sm font-semibold">
                 <input
@@ -247,7 +256,7 @@ export function CheckoutForm() {
                   onChange={(event) => setPaymentMethod(event.target.value)}
                   className="h-4 w-4 accent-amber-700"
                 />
-                Thanh toan khi nhan hang
+                {dictionary.ui.checkout.cod}
               </label>
               <label className="flex items-center gap-3 rounded-lg border border-amber-900/10 bg-white p-4 text-sm font-semibold">
                 <input
@@ -257,7 +266,7 @@ export function CheckoutForm() {
                   onChange={(event) => setPaymentMethod(event.target.value)}
                   className="h-4 w-4 accent-amber-700"
                 />
-                Chuyen khoan ngan hang
+                {dictionary.ui.checkout.bankTransfer}
               </label>
               <label className="flex items-center gap-3 rounded-lg border border-amber-900/10 bg-white p-4 text-sm font-semibold">
                 <input
@@ -292,7 +301,7 @@ export function CheckoutForm() {
 
           <label className="mt-5 block">
             <span className="text-xs font-semibold uppercase text-stone-600">
-              Ghi chu don hang
+              {dictionary.ui.checkout.note}
             </span>
             <textarea
               name="note"
@@ -306,14 +315,16 @@ export function CheckoutForm() {
             disabled={isSubmitting}
             className="mt-5 h-11 w-full rounded-md bg-amber-700 text-sm font-semibold text-white transition hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSubmitting ? "Dang tao don..." : "Dat hang"}
+            {isSubmitting
+              ? dictionary.ui.checkout.submitting
+              : dictionary.ui.checkout.placeOrder}
           </button>
         </form>
 
         <aside className="h-fit rounded-lg border border-amber-900/10 bg-[#fffdf7] p-4 sm:p-5">
           <div className="flex items-center gap-3">
             <ShoppingCart className="h-5 w-5 text-amber-800" aria-hidden="true" />
-            <h2 className="font-semibold">Don hang cua ban</h2>
+            <h2 className="font-semibold">{dictionary.ui.checkout.orderSummary}</h2>
           </div>
           <div className="mt-4 max-h-72 divide-y divide-amber-900/10 overflow-y-auto pr-1 [scrollbar-color:#b45309_#fff3d6] [scrollbar-width:thin] lg:max-h-none">
             {cart.items.map((item) => (
@@ -329,7 +340,7 @@ export function CheckoutForm() {
             ))}
           </div>
           <div className="mt-4 flex items-center justify-between border-t border-amber-900/10 pt-4 text-base font-semibold">
-            <span>Tong cong</span>
+            <span>{dictionary.ui.checkout.total}</span>
             <span>{formatCurrency(cart.subtotal)}</span>
           </div>
         </aside>

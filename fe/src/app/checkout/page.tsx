@@ -16,7 +16,7 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
   return (
     <main className="min-h-screen bg-[#fff8ed] text-stone-950">
       <SiteHeader dictionary={dictionary} locale={locale} />
-      <CheckoutForm />
+      <CheckoutForm dictionary={dictionary} />
     </main>
   );
 }

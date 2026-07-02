@@ -92,7 +92,7 @@ function ProductDetailModal({
   const stockStatus =
     displayStock > 0
       ? `${displayStock} ${dictionary.common.inStock}`
-      : "Tam het hang";
+      : dictionary.ui.product.outOfStock;
   const canAddToCart = Boolean(selectedVariant) && displayStock > 0;
 
   async function handleAddToCart(event: React.MouseEvent<HTMLButtonElement>) {
@@ -107,7 +107,12 @@ function ProductDetailModal({
     try {
       const cart = await addCartItem(selectedVariant.id, 1);
 
-      setCartMessage(`Da them vao gio. Gio hang co ${cart.totalQuantity} san pham.`);
+      setCartMessage(
+        dictionary.ui.product.addedToCart.replace(
+          "{count}",
+          String(cart.totalQuantity),
+        ),
+      );
       window.dispatchEvent(
         new CustomEvent<CartUpdatedEventDetail>("novatech:cart-updated", {
           detail: {
@@ -122,7 +127,7 @@ function ProductDetailModal({
         }),
       );
     } catch {
-      setCartMessage("Khong the them vao gio. Vui long dang nhap va thu lai.");
+      setCartMessage(dictionary.ui.product.addFailed);
     } finally {
       setIsAddingToCart(false);
     }
@@ -132,7 +137,7 @@ function ProductDetailModal({
     <div className="fixed inset-0 z-50 grid place-items-center bg-stone-950/70 px-3 py-4 backdrop-blur-sm sm:px-4 sm:py-6">
       <button
         type="button"
-        aria-label="Dong chi tiet san pham"
+        aria-label={dictionary.ui.product.closeDetail}
         className="absolute inset-0 cursor-default"
         onClick={onClose}
       />
@@ -220,13 +225,12 @@ function ProductDetailModal({
                 }`}
               >
                 <p>
-                  San pham thuoc nhom {categoryLabel}, phu hop cho nhu cau mua
-                  sam cong nghe tai NovaTech.
+                  {dictionary.ui.product.descriptionIntro.replace(
+                    "{category}",
+                    categoryLabel,
+                  )}
                 </p>
-                <p>
-                  Thong tin chi tiet hon nhu cau hinh, hinh anh va danh gia se
-                  duoc hien thi khi API san pham chi tiet duoc mo rong.
-                </p>
+                <p>{dictionary.ui.product.descriptionMore}</p>
               </div>
               <button
                 type="button"
@@ -235,14 +239,16 @@ function ProductDetailModal({
                 }
                 className="mt-2 text-xs font-semibold text-amber-800 hover:text-amber-900 sm:text-sm"
               >
-                {isDescriptionExpanded ? "Thu gon" : "Hien thi them"}
+                {isDescriptionExpanded
+                  ? dictionary.ui.product.collapse
+                  : dictionary.ui.product.showMore}
               </button>
             </div>
 
             {product.variants.length > 0 ? (
               <div className="mt-4 sm:mt-6">
                 <p className="text-sm font-semibold text-stone-950">
-                  Tuy chon cau hinh
+                  {dictionary.ui.product.variants}
                 </p>
                 <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 md:gap-3">
                   {product.variants.map((variant) => {
@@ -291,14 +297,16 @@ function ProductDetailModal({
               className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-md bg-amber-700 px-4 text-sm font-semibold text-white transition hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-60 sm:h-11 sm:flex-none sm:px-5"
             >
               <ShoppingCart className="h-4 w-4" aria-hidden="true" />
-              {isAddingToCart ? "Dang them..." : "Them vao gio"}
+              {isAddingToCart
+                ? dictionary.ui.product.adding
+                : dictionary.ui.product.addToCart}
             </button>
             <button
               type="button"
               onClick={onClose}
               className="h-10 flex-1 rounded-md border border-amber-900/15 px-4 text-sm font-semibold text-stone-700 transition hover:border-amber-700 hover:text-amber-800 sm:h-11 sm:flex-none sm:px-5"
             >
-              Tiep tuc xem
+              {dictionary.ui.product.continueViewing}
             </button>
             {cartMessage ? (
               <p className="basis-full text-sm font-semibold text-stone-700">

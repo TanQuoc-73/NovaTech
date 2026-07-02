@@ -6,12 +6,13 @@ import type {
   CatalogCategory,
   CatalogProductSort,
 } from "@/features/catalog/api/catalog-api";
-import type { Locale } from "@/shared/i18n";
+import type { Dictionary, Locale } from "@/shared/i18n";
 
 type ProductFiltersProps = {
   brands: CatalogBrand[];
   categories: CatalogCategory[];
   locale: Locale;
+  dictionary: Dictionary;
   searchQuery: string;
   selectedBrand: string;
   selectedCategory: string;
@@ -23,18 +24,22 @@ type ProductFiltersProps = {
   actionPath?: string;
 };
 
-const sortOptions: Array<{ value: CatalogProductSort; label: string }> = [
-  { value: "newest", label: "Moi nhat" },
-  { value: "price_asc", label: "Gia thap den cao" },
-  { value: "price_desc", label: "Gia cao den thap" },
-  { value: "name_asc", label: "Ten A-Z" },
-  { value: "stock_desc", label: "Ton kho nhieu nhat" },
+const sortOptions: Array<{
+  value: CatalogProductSort;
+  labelKey: keyof Dictionary["ui"]["filters"]["sort"];
+}> = [
+  { value: "newest", labelKey: "newest" },
+  { value: "price_asc", labelKey: "priceAsc" },
+  { value: "price_desc", labelKey: "priceDesc" },
+  { value: "name_asc", labelKey: "nameAsc" },
+  { value: "stock_desc", labelKey: "stockDesc" },
 ];
 
 export function ProductFilters({
   brands,
   categories,
   locale,
+  dictionary,
   searchQuery,
   selectedBrand,
   selectedCategory,
@@ -58,14 +63,14 @@ export function ProductFilters({
     <>
       <details className="group w-full rounded-lg border border-amber-900/10 bg-[#fffdf7] sm:hidden">
         <summary
-          aria-label="Bo loc san pham"
+          aria-label={dictionary.ui.listing.filteredTitle}
           className="flex h-11 cursor-pointer list-none items-center justify-between gap-3 px-3 text-sm font-semibold text-stone-800 [&::-webkit-details-marker]:hidden"
         >
           <span className="grid h-8 w-8 place-items-center rounded-full bg-amber-100 text-amber-900">
             <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
           </span>
           <span className="flex items-center gap-2 text-xs font-semibold text-amber-800">
-            {hasActiveFilters ? "Dang loc" : null}
+            {hasActiveFilters ? dictionary.ui.filters.active : null}
             <span className="transition group-open:rotate-180">v</span>
           </span>
         </summary>
@@ -77,6 +82,7 @@ export function ProductFilters({
             brands={brands}
             categories={categories}
             locale={locale}
+            dictionary={dictionary}
             searchQuery={searchQuery}
             selectedBrand={selectedBrand}
             selectedCategory={selectedCategory}
@@ -98,6 +104,7 @@ export function ProductFilters({
           brands={brands}
           categories={categories}
           locale={locale}
+          dictionary={dictionary}
           searchQuery={searchQuery}
           selectedBrand={selectedBrand}
           selectedCategory={selectedCategory}
@@ -117,6 +124,7 @@ function FilterFields({
   brands,
   categories,
   locale,
+  dictionary,
   searchQuery,
   selectedBrand,
   selectedCategory,
@@ -135,10 +143,10 @@ function FilterFields({
       <select
         name="brand"
         defaultValue={selectedBrand}
-        aria-label="Loc theo hang"
+        aria-label={dictionary.ui.filters.brandAll}
         className="h-10 min-w-0 rounded-md border border-amber-900/15 bg-[#fffdf7] px-3 text-sm font-semibold text-stone-800 outline-none transition hover:border-amber-700 focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
       >
-        <option value="">Tat ca hang</option>
+        <option value="">{dictionary.ui.filters.brandAll}</option>
         {brands.map((brand) => (
           <option key={brand.id} value={brand.slug}>
             {brand.name}
@@ -150,8 +158,8 @@ function FilterFields({
         name="minPrice"
         defaultValue={minPrice}
         inputMode="numeric"
-        placeholder="Gia tu"
-        aria-label="Gia toi thieu"
+        placeholder={dictionary.ui.filters.minPrice}
+        aria-label={dictionary.ui.filters.minPrice}
         className="h-10 min-w-0 rounded-md border border-amber-900/15 bg-[#fffdf7] px-3 text-sm font-semibold text-stone-800 outline-none transition placeholder:text-stone-400 hover:border-amber-700 focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70 sm:w-28"
       />
 
@@ -159,8 +167,8 @@ function FilterFields({
         name="maxPrice"
         defaultValue={maxPrice}
         inputMode="numeric"
-        placeholder="Gia den"
-        aria-label="Gia toi da"
+        placeholder={dictionary.ui.filters.maxPrice}
+        aria-label={dictionary.ui.filters.maxPrice}
         className="h-10 min-w-0 rounded-md border border-amber-900/15 bg-[#fffdf7] px-3 text-sm font-semibold text-stone-800 outline-none transition placeholder:text-stone-400 hover:border-amber-700 focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70 sm:w-28"
       />
 
@@ -172,7 +180,7 @@ function FilterFields({
           defaultChecked={inStock}
           className="h-4 w-4 accent-amber-700"
         />
-        Con hang
+        {dictionary.ui.filters.inStock}
       </label>
 
       <label className="inline-flex h-10 items-center gap-2 rounded-md border border-amber-900/15 bg-[#fffdf7] px-3 text-sm font-semibold text-stone-800 transition hover:border-amber-700">
@@ -183,16 +191,16 @@ function FilterFields({
           defaultChecked={featured}
           className="h-4 w-4 accent-amber-700"
         />
-        Noi bat
+        {dictionary.ui.filters.featured}
       </label>
 
       <select
         name="category"
         defaultValue={selectedCategory}
-        aria-label="Loc theo loai"
+        aria-label={dictionary.ui.filters.categoryAll}
         className="h-10 min-w-0 rounded-md border border-amber-900/15 bg-[#fffdf7] px-3 text-sm font-semibold text-stone-800 outline-none transition hover:border-amber-700 focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
       >
-        <option value="">Tat ca loai</option>
+        <option value="">{dictionary.ui.filters.categoryAll}</option>
         {categories.map((category) => (
           <option key={category.id} value={category.slug}>
             {category.name}
@@ -203,12 +211,12 @@ function FilterFields({
       <select
         name="sort"
         defaultValue={selectedSort}
-        aria-label="Sap xep san pham"
+        aria-label={dictionary.ui.filters.sort.newest}
         className="h-10 min-w-0 rounded-md border border-amber-900/15 bg-[#fffdf7] px-3 text-sm font-semibold text-stone-800 outline-none transition hover:border-amber-700 focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
       >
         {sortOptions.map((option) => (
           <option key={option.value} value={option.value}>
-            {option.label}
+            {dictionary.ui.filters.sort[option.labelKey]}
           </option>
         ))}
       </select>
@@ -217,14 +225,14 @@ function FilterFields({
         type="submit"
         className="h-10 rounded-md bg-amber-700 px-4 text-sm font-semibold text-white transition hover:bg-amber-800"
       >
-        Ap dung
+        {dictionary.ui.filters.apply}
       </button>
 
       <Link
         href={`${actionPath}?lang=${locale}#featured-products`}
         className="inline-flex h-10 items-center justify-center rounded-md border border-amber-900/15 px-4 text-sm font-semibold text-stone-700 transition hover:border-amber-700 hover:text-amber-800"
       >
-        Xoa loc
+        {dictionary.ui.filters.clear}
       </Link>
     </>
   );

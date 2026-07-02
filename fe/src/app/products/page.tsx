@@ -81,13 +81,14 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
               {dictionary.nav.products}
             </p>
             <h1 className="mt-2 text-2xl font-semibold text-stone-950">
-              Danh sach san pham
+              {dictionary.ui.listing.title}
             </h1>
           </div>
           <ProductFilters
             brands={brands}
             categories={categories}
             locale={locale}
+            dictionary={dictionary}
             searchQuery={searchQuery}
             selectedBrand={selectedBrand}
             selectedCategory={selectedCategory}
@@ -104,7 +105,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           <ProductGrid products={products} dictionary={dictionary} />
         ) : (
           <div className="rounded-lg border border-dashed border-amber-900/20 bg-[#fffdf7] p-6 text-sm text-stone-600">
-            Khong co san pham nao khop voi dieu kien hien tai.
+            {dictionary.ui.listing.emptyFilter}
           </div>
         )}
       </section>

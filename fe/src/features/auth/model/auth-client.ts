@@ -38,6 +38,37 @@ function getRedirectUrl() {
   return `${siteUrl}/`;
 }
 
+export async function consumeAuthRedirectSession() {
+  if (typeof window === "undefined" || !window.location.hash) {
+    return null;
+  }
+
+  const hashParams = new URLSearchParams(window.location.hash.slice(1));
+  const accessToken = hashParams.get("access_token");
+  const refreshToken = hashParams.get("refresh_token");
+
+  if (!accessToken || !refreshToken) {
+    return null;
+  }
+
+  const { data, error } = await getSupabaseClient().auth.setSession({
+    access_token: accessToken,
+    refresh_token: refreshToken,
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  window.history.replaceState(
+    {},
+    document.title,
+    `${window.location.pathname}${window.location.search}`,
+  );
+
+  return data.session;
+}
+
 export async function signInWithGoogle() {
   return getSupabaseClient().auth.signInWithOAuth({
     provider: "google",

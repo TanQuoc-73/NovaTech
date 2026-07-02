@@ -16,6 +16,7 @@ import type { Product } from "@/entities/product";
 
 import { AuthModal } from "@/features/auth";
 import {
+  consumeAuthRedirectSession,
   getRoleHomePath,
   signOut,
   syncAuthProfileSafely,
@@ -121,14 +122,25 @@ export function SiteHeader({ dictionary, locale, searchQuery }: SiteHeaderProps)
       });
     };
 
-    supabase.auth.getSession().then(({ data }) => {
-      setUser(data.session?.user ?? null);
+    const initializeSession = async () => {
+      const redirectSession = await consumeAuthRedirectSession().catch(
+        (error) => {
+          console.warn(error);
+          return null;
+        },
+      );
+      const session =
+        redirectSession ?? (await supabase.auth.getSession()).data.session;
 
-      if (data.session?.user) {
+      setUser(session?.user ?? null);
+
+      if (session?.user) {
         syncProfileAndRedirect();
         void refreshCart();
       }
-    });
+    };
+
+    void initializeSession();
 
     const {
       data: { subscription },

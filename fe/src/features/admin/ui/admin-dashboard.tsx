@@ -5,6 +5,8 @@ import type { ChangeEvent, FormEvent, ReactNode } from "react";
 import {
   ChevronLeft,
   ChevronRight,
+  ImageIcon,
+  Layers3,
   Package,
   Plus,
   Search,
@@ -607,6 +609,16 @@ function ProductDetailModal({
 }) {
   const productVariants = product.variants ?? [];
   const previewImageUrl = getAdminProductImageUrl(product);
+  const activeVariantCount = productVariants.filter((variant) => variant.isActive).length;
+  const totalStock = productVariants.reduce(
+    (total, variant) => total + variant.stockQuantity,
+    0,
+  );
+  const lowestVariantPrice = productVariants.length
+    ? Math.min(...productVariants.map((variant) => variant.price))
+    : product.price;
+  const productStatusLabel = product.isActive ? "Đang bán" : "Đang ẩn";
+  const featuredLabel = product.isFeatured ? "Nổi bật" : "Thông thường";
 
   function handleUpdateProduct(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -642,48 +654,120 @@ function ProductDetailModal({
 
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-stone-950/55 px-4 py-6">
-      <section className="flex max-h-[88vh] w-full max-w-5xl flex-col overflow-hidden rounded-lg bg-[#fffdf7] shadow-2xl">
+      <section className="flex max-h-[90vh] w-full max-w-6xl flex-col overflow-hidden rounded-lg bg-[#fffdf7] shadow-2xl">
         <div className="flex items-start justify-between gap-4 border-b border-amber-900/10 px-5 py-4">
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase text-amber-800">
-              Chi tiet san pham
+              Chi tiết sản phẩm
             </p>
             <h2 className="mt-1 truncate text-xl font-semibold">{product.name}</h2>
+            <div className="mt-2 flex flex-wrap gap-2 text-xs font-semibold">
+              <span className="rounded-sm bg-amber-100 px-2 py-1 text-amber-800">
+                {product.category}
+              </span>
+              <span className="rounded-sm bg-sky-100 px-2 py-1 text-sky-800">
+                {product.brand}
+              </span>
+              <span
+                className={`rounded-sm px-2 py-1 ${
+                  product.isActive
+                    ? "bg-green-100 text-green-700"
+                    : "bg-stone-100 text-stone-600"
+                }`}
+              >
+                {productStatusLabel}
+              </span>
+              <span className="rounded-sm bg-violet-100 px-2 py-1 text-violet-700">
+                {featuredLabel}
+              </span>
+            </div>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-amber-900/15 text-stone-700 transition hover:bg-white"
-            aria-label="Dong"
+            aria-label="Đóng"
           >
             <X className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
 
-        <div className="grid gap-5 overflow-y-auto p-5 lg:grid-cols-[360px_1fr]">
-          <form
-            onSubmit={handleUpdateProduct}
-            className="h-fit rounded-lg border border-amber-900/10 bg-white p-4"
-          >
-            <PanelTitle title="Sua thong tin" />
-            <div className="mb-4 overflow-hidden rounded-lg border border-amber-900/10 bg-amber-50">
-              <div className="grid aspect-[16/10] place-items-center">
+        <div className="overflow-y-auto p-5">
+          <div className="mb-5 grid gap-4 lg:grid-cols-[320px_1fr]">
+            <div className="overflow-hidden rounded-lg border border-amber-900/10 bg-white">
+              <div className="grid aspect-[4/3] place-items-center bg-amber-50">
                 {previewImageUrl ? (
                   <img
                     src={previewImageUrl}
                     alt={product.name}
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-contain p-3"
                   />
                 ) : (
-                  <span className="text-sm font-semibold text-stone-500">
-                    Chua co anh san pham
-                  </span>
+                  <div className="grid place-items-center gap-2 text-stone-500">
+                    <ImageIcon className="h-8 w-8" aria-hidden="true" />
+                    <span className="text-sm font-semibold">
+                      Chưa có ảnh sản phẩm
+                    </span>
+                  </div>
                 )}
               </div>
             </div>
+
+            <div className="grid gap-4">
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <ProductInfoCard
+                  icon={<Package className="h-4 w-4" aria-hidden="true" />}
+                  label="Giá thấp nhất"
+                  value={formatCurrency(lowestVariantPrice)}
+                />
+                <ProductInfoCard
+                  icon={<Warehouse className="h-4 w-4" aria-hidden="true" />}
+                  label="Tổng tồn kho"
+                  value={`${totalStock} sản phẩm`}
+                />
+                <ProductInfoCard
+                  icon={<Layers3 className="h-4 w-4" aria-hidden="true" />}
+                  label="Variant"
+                  value={`${productVariants.length} cấu hình`}
+                />
+                <ProductInfoCard
+                  icon={<Tags className="h-4 w-4" aria-hidden="true" />}
+                  label="Đang hiển thị"
+                  value={`${activeVariantCount} variant`}
+                />
+              </div>
+
+              <div className="rounded-lg border border-amber-900/10 bg-white p-4">
+                <PanelTitle title="Tổng quan sản phẩm" />
+                <div className="grid gap-3 text-sm md:grid-cols-2">
+                  <ProductMeta label="ID" value={product.id} />
+                  <ProductMeta label="Slug" value={product.slug} />
+                  <ProductMeta label="Danh mục" value={product.category} />
+                  <ProductMeta label="Thương hiệu" value={product.brand} />
+                  <ProductMeta
+                    label="Mô tả ngắn"
+                    value={product.shortDescription || "Chưa có"}
+                    wide
+                  />
+                  <ProductMeta
+                    label="Mô tả chi tiết"
+                    value={product.description || "Chưa có"}
+                    wide
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-5 lg:grid-cols-[360px_1fr]">
+            <form
+              onSubmit={handleUpdateProduct}
+              className="h-fit rounded-lg border border-amber-900/10 bg-white p-4"
+            >
+            <PanelTitle title="Chỉnh sửa sản phẩm" />
             <AdminInput
               name="name"
-              label="Ten san pham"
+              label="Tên sản phẩm"
               defaultValue={product.name}
               required
             />
@@ -695,11 +779,11 @@ function ProductDetailModal({
             />
             <AdminSelect
               name="categoryId"
-              label="Danh muc"
+              label="Danh mục"
               defaultValue={product.categoryId ?? ""}
               required
             >
-              <option value="">Chon danh muc</option>
+              <option value="">Chọn danh mục</option>
               {dashboard.categories.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.name}
@@ -708,11 +792,11 @@ function ProductDetailModal({
             </AdminSelect>
             <AdminSelect
               name="brandId"
-              label="Thuong hieu"
+              label="Thương hiệu"
               defaultValue={product.brandId ?? ""}
               required
             >
-              <option value="">Chon thuong hieu</option>
+              <option value="">Chọn thương hiệu</option>
               {dashboard.brands.map((brand) => (
                 <option key={brand.id} value={brand.id}>
                   {brand.name}
@@ -721,33 +805,33 @@ function ProductDetailModal({
             </AdminSelect>
             <AdminImageInput
               name="thumbnailUrl"
-              label="Anh dai dien"
+              label="Ảnh đại diện"
               defaultValue={product.thumbnailUrl ?? ""}
             />
             <AdminInput
               name="shortDescription"
-              label="Mo ta ngan"
+              label="Mô tả ngắn"
               defaultValue={product.shortDescription ?? ""}
             />
             <AdminTextarea
               name="description"
-              label="Mo ta chi tiet"
+              label="Mô tả chi tiết"
               defaultValue={product.description ?? ""}
             />
             <div className="mb-3 grid gap-2 rounded-md bg-amber-50 p-3">
               <AdminCheckbox
                 name="isActive"
-                label="Dang ban"
+                label="Đang bán"
                 defaultChecked={product.isActive}
               />
               <AdminCheckbox
                 name="isFeatured"
-                label="Noi bat"
+                label="Nổi bật"
                 defaultChecked={product.isFeatured}
               />
             </div>
             <div className="flex flex-wrap gap-2">
-              <SubmitButton disabled={isSubmitting}>Luu san pham</SubmitButton>
+              <SubmitButton disabled={isSubmitting}>Lưu sản phẩm</SubmitButton>
               <button
                 type="button"
                 disabled={isSubmitting}
@@ -756,51 +840,107 @@ function ProductDetailModal({
                 }
                 className="mt-2 inline-flex h-10 items-center rounded-md border border-red-200 px-4 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Xoa san pham
+                Xóa sản phẩm
               </button>
             </div>
-          </form>
-
-          <div className="space-y-4">
-            <form
-              onSubmit={handleCreateVariant}
-              className="rounded-lg border border-amber-900/10 bg-white p-4"
-            >
-              <PanelTitle title="Them variant" />
-              <div className="grid gap-x-3 md:grid-cols-2">
-                <AdminInput name="name" label="Ten variant" required />
-                <AdminInput name="sku" label="SKU" required />
-                <AdminInput name="color" label="Mau" />
-                <AdminInput name="storage" label="Luu tru" />
-                <AdminInput name="ram" label="RAM" />
-                <AdminInput name="price" label="Gia" type="number" required />
-                <AdminInput name="compareAtPrice" label="Gia niem yet" type="number" />
-                <AdminInput name="stockQuantity" label="Ton kho" type="number" />
-                <AdminInput name="lowStockThreshold" label="Canh bao ton" type="number" />
-                <AdminInput name="weightGrams" label="Khoi luong gram" type="number" />
-              </div>
-              <SubmitButton disabled={isSubmitting}>Them variant</SubmitButton>
             </form>
 
-            <div className="space-y-3">
-              {productVariants.map((variant) => (
-                <VariantEditor
-                  key={variant.id}
-                  productId={product.id}
-                  variant={variant}
-                  isSubmitting={isSubmitting}
-                  runAction={runAction}
-                />
-              ))}
-              {!productVariants.length ? (
-                <div className="rounded-lg border border-dashed border-amber-900/15 bg-white p-5 text-sm font-semibold text-stone-500">
-                  San pham chua co variant.
+            <div className="space-y-4">
+              <form
+                onSubmit={handleCreateVariant}
+                className="rounded-lg border border-amber-900/10 bg-white p-4"
+              >
+              <div className="mb-4 flex items-start justify-between gap-3">
+                <PanelTitle title="Thêm variant mới" />
+                <span className="rounded-sm bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-800">
+                  {productVariants.length} variant hiện có
+                </span>
+              </div>
+              <div className="grid gap-x-3 md:grid-cols-2">
+                <AdminInput name="name" label="Tên variant" required />
+                <AdminInput name="sku" label="SKU" required />
+                <AdminInput name="color" label="Màu" />
+                <AdminInput name="storage" label="Lưu trữ" />
+                <AdminInput name="ram" label="RAM" />
+                <AdminInput name="price" label="Giá" type="number" required />
+                <AdminInput name="compareAtPrice" label="Giá niêm yết" type="number" />
+                <AdminInput name="stockQuantity" label="Tồn kho" type="number" />
+                <AdminInput name="lowStockThreshold" label="Cảnh báo tồn" type="number" />
+                <AdminInput name="weightGrams" label="Khối lượng gram" type="number" />
+              </div>
+              <SubmitButton disabled={isSubmitting}>Thêm variant</SubmitButton>
+              </form>
+
+              <section className="rounded-lg border border-amber-900/10 bg-white p-4">
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                  <PanelTitle title="Danh sách variant" />
+                  <span className="text-sm font-semibold text-stone-500">
+                    Quản lý giá, tồn kho và ảnh riêng theo từng cấu hình
+                  </span>
                 </div>
-              ) : null}
+                <div className="space-y-3">
+                  {productVariants.map((variant) => (
+                    <VariantEditor
+                      key={variant.id}
+                      productId={product.id}
+                      variant={variant}
+                      isSubmitting={isSubmitting}
+                      runAction={runAction}
+                    />
+                  ))}
+                  {!productVariants.length ? (
+                    <div className="rounded-lg border border-dashed border-amber-900/15 p-5 text-sm font-semibold text-stone-500">
+                      Sản phẩm chưa có variant.
+                    </div>
+                  ) : null}
+                </div>
+              </section>
             </div>
           </div>
         </div>
+        </div>
       </section>
+    </div>
+  );
+}
+
+function ProductInfoCard({
+  icon,
+  label,
+  value,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-lg border border-amber-900/10 bg-white p-4">
+      <div className="flex items-center gap-2 text-xs font-semibold uppercase text-amber-800">
+        <span className="grid h-8 w-8 place-items-center rounded-full bg-amber-100 text-amber-800">
+          {icon}
+        </span>
+        {label}
+      </div>
+      <p className="mt-3 truncate text-lg font-semibold text-stone-950">{value}</p>
+    </div>
+  );
+}
+
+function ProductMeta({
+  label,
+  value,
+  wide = false,
+}: {
+  label: string;
+  value: string;
+  wide?: boolean;
+}) {
+  return (
+    <div className={wide ? "md:col-span-2" : undefined}>
+      <p className="text-xs font-semibold uppercase text-stone-500">{label}</p>
+      <p className="mt-1 line-clamp-3 break-words font-semibold text-stone-900">
+        {value}
+      </p>
     </div>
   );
 }
@@ -840,66 +980,103 @@ function VariantEditor({
   }
 
   return (
-    <article className="rounded-lg border border-amber-900/10 bg-white p-4">
-      <form onSubmit={handleUpdate}>
-        <div className="mb-3 flex items-start justify-between gap-3">
+    <article className="overflow-hidden rounded-lg border border-amber-900/10 bg-[#fffdf7]">
+      <div className="border-b border-amber-900/10 bg-white p-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="truncate font-semibold">{variant.name}</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="truncate font-semibold text-stone-950">{variant.name}</p>
+              <span
+                className={`rounded-sm px-2 py-1 text-xs font-semibold ${
+                  variant.isActive
+                    ? "bg-green-100 text-green-700"
+                    : "bg-stone-100 text-stone-600"
+                }`}
+              >
+                {variant.isActive ? "Đang hiển thị" : "Đang ẩn"}
+              </span>
+            </div>
             <p className="mt-1 truncate text-xs font-semibold text-stone-500">
-              {variant.sku} / {formatCurrency(variant.price)}
+              SKU: {variant.sku}
             </p>
           </div>
+          <div className="text-right">
+            <p className="text-lg font-semibold text-stone-950">
+              {formatCurrency(variant.price)}
+            </p>
+            {variant.compareAtPrice ? (
+              <p className="text-xs font-semibold text-stone-400 line-through">
+                {formatCurrency(variant.compareAtPrice)}
+              </p>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+          <VariantStat label="Màu" value={variant.color || "Chưa có"} />
+          <VariantStat label="RAM" value={variant.ram || "Chưa có"} />
+          <VariantStat label="Lưu trữ" value={variant.storage || "Chưa có"} />
+          <VariantStat label="Tồn kho" value={`${variant.stockQuantity}`} />
+        </div>
+      </div>
+
+      <div className="p-4">
+      <form onSubmit={handleUpdate}>
+        <div className="mb-3 flex items-center justify-between gap-3 rounded-md bg-white p-3">
+          <p className="text-sm font-semibold text-stone-950">
+            Chỉnh sửa thông tin variant
+          </p>
           <AdminCheckbox
             name="isActive"
-            label="Hien"
+            label="Hiển thị"
             defaultChecked={variant.isActive}
           />
         </div>
 
         <div className="grid gap-x-3 md:grid-cols-2">
-          <AdminInput name="name" label="Ten variant" defaultValue={variant.name} required />
+          <AdminInput name="name" label="Tên variant" defaultValue={variant.name} required />
           <AdminInput name="sku" label="SKU" defaultValue={variant.sku} required />
-          <AdminInput name="color" label="Mau" defaultValue={variant.color ?? ""} />
+          <AdminInput name="color" label="Màu" defaultValue={variant.color ?? ""} />
           <AdminInput
             name="storage"
-            label="Luu tru"
+            label="Lưu trữ"
             defaultValue={variant.storage ?? ""}
           />
           <AdminInput name="ram" label="RAM" defaultValue={variant.ram ?? ""} />
           <AdminInput
             name="price"
-            label="Gia"
+            label="Giá"
             type="number"
             defaultValue={String(variant.price)}
             required
           />
           <AdminInput
             name="compareAtPrice"
-            label="Gia niem yet"
+            label="Giá niêm yết"
             type="number"
             defaultValue={variant.compareAtPrice ? String(variant.compareAtPrice) : ""}
           />
           <AdminInput
             name="stockQuantity"
-            label="Ton kho"
+            label="Tồn kho"
             type="number"
             defaultValue={String(variant.stockQuantity)}
           />
           <AdminInput
             name="lowStockThreshold"
-            label="Canh bao ton"
+            label="Cảnh báo tồn"
             type="number"
             defaultValue={String(variant.lowStockThreshold)}
           />
           <AdminInput
             name="weightGrams"
-            label="Khoi luong gram"
+            label="Khối lượng gram"
             type="number"
             defaultValue={variant.weightGrams ? String(variant.weightGrams) : ""}
           />
         </div>
         <div className="flex flex-wrap gap-2">
-          <SubmitButton disabled={isSubmitting}>Luu variant</SubmitButton>
+          <SubmitButton disabled={isSubmitting}>Lưu variant</SubmitButton>
           <button
             type="button"
             disabled={isSubmitting}
@@ -908,13 +1085,18 @@ function VariantEditor({
             }
             className="mt-2 inline-flex h-10 items-center rounded-md border border-red-200 px-4 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Xoa variant
+            Xóa variant
           </button>
         </div>
       </form>
 
       <div className="mt-4 border-t border-amber-900/10 pt-4">
-        <p className="mb-3 text-sm font-semibold text-stone-950">Anh variant</p>
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <p className="text-sm font-semibold text-stone-950">Ảnh variant</p>
+          <span className="text-xs font-semibold text-stone-500">
+            {(variant.images ?? []).length} ảnh
+          </span>
+        </div>
         <form
           onSubmit={handleCreateImage}
           className="grid gap-3 rounded-md bg-amber-50 p-3 md:grid-cols-[1fr_1fr_96px_auto]"
@@ -924,10 +1106,10 @@ function VariantEditor({
           <AdminInput name="sortOrder" label="Thu tu" type="number" />
           <button
             type="submit"
-            disabled={isSubmitting}
-            className="mt-5 h-10 rounded-md bg-amber-700 px-3 text-sm font-semibold text-white transition hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            Them
+          disabled={isSubmitting}
+          className="mt-5 h-10 rounded-md bg-amber-700 px-3 text-sm font-semibold text-white transition hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+            Thêm
           </button>
         </form>
 
@@ -944,12 +1126,22 @@ function VariantEditor({
           ))}
           {!(variant.images ?? []).length ? (
             <p className="rounded-md border border-dashed border-amber-900/15 p-3 text-sm font-semibold text-stone-500">
-              Chua co anh rieng cho variant nay.
+              Chưa có ảnh riêng cho variant này.
             </p>
           ) : null}
         </div>
       </div>
+      </div>
     </article>
+  );
+}
+
+function VariantStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-md bg-amber-50 px-3 py-2">
+      <p className="text-[11px] font-semibold uppercase text-stone-500">{label}</p>
+      <p className="mt-1 truncate text-sm font-semibold text-stone-950">{value}</p>
+    </div>
   );
 }
 

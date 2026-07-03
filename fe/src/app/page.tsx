@@ -6,7 +6,9 @@ import {
   type CatalogProductSort,
 } from "@/features/catalog/api/catalog-api";
 import { getDictionary, resolveLocale } from "@/shared/i18n";
+import { FeaturedProductCarousel } from "@/widgets/featured-product-carousel";
 import { HeroCarousel } from "@/widgets/hero-carousel";
+import { LatestProductPager } from "@/widgets/latest-product-pager";
 import { ProductFilters } from "@/widgets/product-filters";
 import { ProductGrid } from "@/widgets/product-grid";
 import { SiteHeader } from "@/widgets/site-header";
@@ -127,22 +129,27 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     featured ||
     selectedSort !== "newest";
   const dictionary = getDictionary(locale);
-  const [categories, brands, products] = await Promise.all([
-    getCatalogCategories(),
-    getCatalogBrands(),
-    hasCatalogFilters
-      ? getCatalogProducts({
-          q: normalizedSearchQuery,
-          brand: selectedBrand,
-          category: selectedCategory,
-          sort: selectedSort,
-          minPrice,
-          maxPrice,
-          inStock,
-          featured,
-        })
-      : getFeaturedProducts(),
-  ]);
+  const [categories, brands, products, featuredProducts, latestProducts] =
+    await Promise.all([
+      getCatalogCategories(),
+      getCatalogBrands(),
+      hasCatalogFilters
+        ? getCatalogProducts({
+            q: normalizedSearchQuery,
+            brand: selectedBrand,
+            category: selectedCategory,
+            sort: selectedSort,
+            minPrice,
+            maxPrice,
+            inStock,
+            featured,
+          })
+        : Promise.resolve([]),
+      hasCatalogFilters ? Promise.resolve([]) : getFeaturedProducts(),
+      hasCatalogFilters
+        ? Promise.resolve([])
+        : getCatalogProducts({ sort: "newest" }),
+    ]);
 
   return (
     <main className="min-h-screen bg-[#fff8ed] text-stone-950">
@@ -184,51 +191,114 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         )}
       </section>
 
-      <section id="featured-products" className="mx-auto max-w-7xl px-4 pb-14 sm:px-6 lg:px-8 lg:pb-16">
-        <div className="mb-6 grid gap-4 lg:flex lg:items-end lg:justify-between">
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-amber-800">
-              {hasCatalogFilters ? dictionary.ui.listing.title : dictionary.home.featuredLabel}
-            </p>
-            <h2 className="mt-2 text-2xl font-semibold text-stone-950">
-              {normalizedSearchQuery
-                ? dictionary.ui.listing.searchTitle.replace(
-                    "{query}",
-                    normalizedSearchQuery,
-                  )
-                : hasCatalogFilters
-                  ? dictionary.ui.listing.filteredTitle
-                : dictionary.home.featuredTitle}
-            </h2>
+      {hasCatalogFilters ? (
+        <section id="featured-products" className="mx-auto max-w-7xl px-4 pb-14 sm:px-6 lg:px-8 lg:pb-16">
+          <div className="mb-6 grid gap-4 lg:flex lg:items-end lg:justify-between">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-amber-800">
+                {dictionary.ui.listing.title}
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold text-stone-950">
+                {normalizedSearchQuery
+                  ? dictionary.ui.listing.searchTitle.replace(
+                      "{query}",
+                      normalizedSearchQuery,
+                    )
+                  : dictionary.ui.listing.filteredTitle}
+              </h2>
+            </div>
+            <ProductFilters
+              brands={brands}
+              categories={categories}
+              locale={locale}
+              dictionary={dictionary}
+              searchQuery={normalizedSearchQuery}
+              selectedBrand={selectedBrand}
+              selectedCategory={selectedCategory}
+              selectedSort={selectedSort}
+              minPrice={minPrice}
+              maxPrice={maxPrice}
+              inStock={inStock}
+              featured={featured}
+            />
           </div>
-          <ProductFilters
-            brands={brands}
-            categories={categories}
-            locale={locale}
-            dictionary={dictionary}
-            searchQuery={normalizedSearchQuery}
-            selectedBrand={selectedBrand}
-            selectedCategory={selectedCategory}
-            selectedSort={selectedSort}
-            minPrice={minPrice}
-            maxPrice={maxPrice}
-            inStock={inStock}
-            featured={featured}
-          />
-        </div>
 
-        {products.length > 0 ? (
-          <ProductGrid products={products} dictionary={dictionary} />
-        ) : (
-          <div className="rounded-lg border border-dashed border-amber-900/20 bg-[#fffdf7] p-6 text-sm text-stone-600">
-            {normalizedSearchQuery
-              ? dictionary.ui.listing.emptySearch
-              : hasCatalogFilters
-                ? dictionary.ui.listing.emptyFilter
-                : dictionary.ui.listing.emptyFeatured}
-          </div>
-        )}
-      </section>
+          {products.length > 0 ? (
+            <ProductGrid products={products} dictionary={dictionary} />
+          ) : (
+            <div className="rounded-lg border border-dashed border-amber-900/20 bg-[#fffdf7] p-6 text-sm text-stone-600">
+              {normalizedSearchQuery
+                ? dictionary.ui.listing.emptySearch
+                : dictionary.ui.listing.emptyFilter}
+            </div>
+          )}
+        </section>
+      ) : (
+        <div id="featured-products" className="mx-auto grid max-w-7xl gap-12 px-4 pb-14 sm:px-6 lg:px-8 lg:pb-16">
+          <section className="group/featured relative">
+            <div className="mb-4">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-amber-800">
+                  {dictionary.home.featuredLabel}
+                </p>
+                <h2 className="mt-2 text-2xl font-semibold text-stone-950">
+                  {dictionary.home.featuredTitle}
+                </h2>
+              </div>
+            </div>
+            <div className="mb-6">
+              <ProductFilters
+                brands={brands}
+                categories={categories}
+                locale={locale}
+                dictionary={dictionary}
+                searchQuery={normalizedSearchQuery}
+                selectedBrand={selectedBrand}
+                selectedCategory={selectedCategory}
+                selectedSort={selectedSort}
+                minPrice={minPrice}
+                maxPrice={maxPrice}
+                inStock={inStock}
+                featured={featured}
+                align="start"
+              />
+            </div>
+
+            {featuredProducts.length > 0 ? (
+              <FeaturedProductCarousel
+                products={featuredProducts.slice(0, 10)}
+                dictionary={dictionary}
+              />
+            ) : (
+              <div className="rounded-lg border border-dashed border-amber-900/20 bg-[#fffdf7] p-6 text-sm text-stone-600">
+                {dictionary.ui.listing.emptyFeatured}
+              </div>
+            )}
+          </section>
+
+          <section>
+            <div className="mb-6">
+              <p className="text-sm font-semibold text-amber-800">
+                {dictionary.home.latestLabel}
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold text-stone-950">
+                {dictionary.home.latestTitle}
+              </h2>
+            </div>
+
+            {latestProducts.length > 0 ? (
+              <LatestProductPager
+                products={latestProducts}
+                dictionary={dictionary}
+              />
+            ) : (
+              <div className="rounded-lg border border-dashed border-amber-900/20 bg-[#fffdf7] p-6 text-sm text-stone-600">
+                {dictionary.ui.listing.emptyFeatured}
+              </div>
+            )}
+          </section>
+        </div>
+      )}
     </main>
   );
 }

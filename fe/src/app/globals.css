@@ -2,8 +2,48 @@
 @import "flag-icons/css/flag-icons.min.css";
 
 :root {
-  --background: #fff8ed;
-  --foreground: #2f2118;
+  --background: #eaf6fb;
+  --surface: #ffffff;
+  --surface-soft: #dff3fb;
+  --header: #ffffff;
+  --primary: #06b6d4;
+  --accent: #2563eb;
+  --success: #16a34a;
+  --danger: #dc2626;
+  --foreground: #0f172a;
+  --muted: #475569;
+  --border: rgba(14, 116, 144, 0.2);
+  color-scheme: light;
+}
+
+[data-theme="light"] {
+  --background: #eaf6fb;
+  --surface: #ffffff;
+  --surface-soft: #dff3fb;
+  --header: #ffffff;
+  --primary: #06b6d4;
+  --accent: #2563eb;
+  --success: #16a34a;
+  --danger: #dc2626;
+  --foreground: #0f172a;
+  --muted: #475569;
+  --border: rgba(14, 116, 144, 0.2);
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --background: #111827;
+  --surface: #1f2937;
+  --surface-soft: #243044;
+  --header: #0f172a;
+  --primary: #06b6d4;
+  --accent: #3b82f6;
+  --success: #22c55e;
+  --danger: #ef4444;
+  --foreground: #f8fafc;
+  --muted: #94a3b8;
+  --border: rgba(125, 211, 252, 0.22);
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -18,17 +58,205 @@
 }
 
 html {
+  overscroll-behavior-y: none;
   scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
   font-family: Arial, Helvetica, sans-serif;
+  min-height: 100dvh;
+  overscroll-behavior-y: none;
   background:
-    radial-gradient(circle at top left, rgba(217, 119, 6, 0.14), transparent 34rem),
-    linear-gradient(180deg, #fff8ed 0%, #f9efe0 48%, #fffaf2 100%);
+    radial-gradient(circle at top left, rgba(6, 182, 212, 0.18), transparent 34rem),
+    radial-gradient(circle at top right, rgba(37, 99, 235, 0.12), transparent 32rem),
+    linear-gradient(180deg, #f8fbff 0%, #eaf6fb 52%, #f8fbff 100%);
+  color: var(--foreground);
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+[data-theme="dark"] body {
+  background:
+    radial-gradient(circle at top left, rgba(6, 182, 212, 0.12), transparent 36rem),
+    radial-gradient(circle at top right, rgba(59, 130, 246, 0.1), transparent 34rem),
+    linear-gradient(180deg, #172033 0%, #111827 46%, #162033 100%);
 }
 
 a {
   text-decoration: none;
+}
+
+/* NovaTech dark theme bridge for existing Tailwind utility classes. */
+.bg-\[\#fff8ed\],
+.bg-\[\#fffaf2\] {
+  background-color: var(--background) !important;
+}
+
+.bg-\[\#fffdf7\],
+.bg-white,
+.bg-white\/70,
+.bg-white\/80,
+.bg-white\/90,
+.bg-white\/95 {
+  background-color: var(--surface) !important;
+}
+
+.bg-\[\#2f1d14\],
+.bg-\[\#3a2115\],
+.bg-\[\#3b2418\] {
+  background-color: var(--header) !important;
+}
+
+.bg-amber-50,
+.bg-amber-50\/40,
+.bg-amber-100,
+.bg-amber-100\/50,
+.bg-amber-100\/70,
+.bg-amber-100\/80 {
+  background-color: rgba(6, 182, 212, 0.12) !important;
+}
+
+.bg-amber-200,
+.bg-amber-300,
+.bg-amber-400,
+.bg-amber-500,
+.bg-amber-600,
+.bg-amber-700,
+.bg-amber-800 {
+  background-color: var(--primary) !important;
+}
+
+.hover\:bg-amber-50:hover,
+.hover\:bg-amber-50\/60:hover,
+.hover\:bg-amber-100:hover,
+.hover\:bg-amber-100\/70:hover,
+.hover\:bg-amber-300:hover,
+.hover\:bg-amber-800:hover {
+  background-color: var(--accent) !important;
+}
+
+.border-amber-100,
+.border-amber-200,
+.border-amber-200\/25,
+.border-amber-200\/30,
+.border-amber-200\/60,
+.border-amber-500\/20,
+.border-amber-700,
+.border-amber-700\/40,
+.border-amber-700\/50,
+.border-amber-900\/10,
+.border-amber-900\/15,
+.border-amber-900\/20 {
+  border-color: var(--border) !important;
+}
+
+.hover\:border-amber-100:hover,
+.hover\:border-amber-700:hover,
+.hover\:border-amber-700\/40:hover,
+.hover\:border-amber-700\/50:hover,
+.hover\:border-amber-700\/60:hover {
+  border-color: var(--primary) !important;
+}
+
+.text-stone-950,
+.text-stone-900,
+.text-stone-800 {
+  color: var(--foreground) !important;
+}
+
+.text-stone-700,
+.text-stone-600,
+.text-stone-500,
+.text-stone-400,
+.text-amber-50\/80,
+.text-amber-100\/75,
+.text-amber-100\/80 {
+  color: var(--muted) !important;
+}
+
+.text-amber-50,
+.text-amber-100,
+.text-amber-200 {
+  color: var(--foreground) !important;
+}
+
+.text-amber-700,
+.text-amber-800,
+.text-amber-900,
+.text-amber-950 {
+  color: var(--primary) !important;
+}
+
+.hover\:text-amber-800:hover,
+.hover\:text-amber-900:hover {
+  color: var(--primary) !important;
+}
+
+.ring-amber-200\/70,
+.ring-amber-200\/80,
+.ring-amber-300\/60,
+.ring-amber-300\/70 {
+  --tw-ring-color: rgba(6, 182, 212, 0.35) !important;
+}
+
+.focus\:border-amber-700:focus,
+.focus-within\:border-amber-100:focus-within,
+.focus-within\:border-amber-700:focus-within {
+  border-color: var(--primary) !important;
+}
+
+.accent-amber-700 {
+  accent-color: var(--primary) !important;
+}
+
+.bg-red-600,
+.bg-red-700 {
+  background-color: var(--danger) !important;
+}
+
+.text-red-700 {
+  color: var(--danger) !important;
+}
+
+.bg-green-50,
+.bg-green-100,
+.bg-green-200,
+.bg-green-700 {
+  background-color: rgba(34, 197, 94, 0.14) !important;
+}
+
+.text-green-700 {
+  color: var(--success) !important;
+}
+
+.shadow-amber-950\/10,
+.shadow-stone-950\/10,
+.shadow-stone-950\/15,
+.shadow-stone-950\/20,
+.shadow-stone-950\/30 {
+  --tw-shadow-color: rgba(0, 0, 0, 0.45) !important;
+}
+
+[data-theme="light"] .bg-white\/10,
+[data-theme="light"] .bg-white\/15 {
+  background-color: rgba(15, 23, 42, 0.04) !important;
+}
+
+[data-theme="light"] .border-white\/10,
+[data-theme="light"] .border-white\/15 {
+  border-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+[data-theme="light"] .text-white {
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .shadow-amber-950\/10,
+[data-theme="light"] .shadow-stone-950\/10,
+[data-theme="light"] .shadow-stone-950\/15,
+[data-theme="light"] .shadow-stone-950\/20,
+[data-theme="light"] .shadow-stone-950\/30 {
+  --tw-shadow-color: rgba(15, 23, 42, 0.12) !important;
 }

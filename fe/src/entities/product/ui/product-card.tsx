@@ -1,14 +1,25 @@
 import type { Product } from "@/entities/product/model/types";
 import { formatCurrency } from "@/shared/lib/format-currency";
 import type { Dictionary } from "@/shared/i18n";
+import { Scale } from "lucide-react";
 
 type ProductCardProps = {
   product: Product;
   dictionary: Dictionary;
   onSelect?: (product: Product) => void;
+  onCompareToggle?: (product: Product) => void;
+  isCompareSelected?: boolean;
+  compareState?: "idle" | "compatible" | "incompatible";
 };
 
-export function ProductCard({ product, dictionary, onSelect }: ProductCardProps) {
+export function ProductCard({
+  product,
+  dictionary,
+  onSelect,
+  onCompareToggle,
+  isCompareSelected = false,
+  compareState = "idle",
+}: ProductCardProps) {
   const categoryLabel =
     product.category in dictionary.categories
       ? dictionary.categories[
@@ -31,8 +42,46 @@ export function ProductCard({ product, dictionary, onSelect }: ProductCardProps)
           onSelect(product);
         }
       }}
-      className="grid min-h-[300px] cursor-pointer rounded-lg border border-amber-900/10 bg-[#fffdf7] p-2.5 shadow-sm transition hover:-translate-y-0.5 hover:border-amber-700/40 focus:outline-none focus:ring-4 focus:ring-amber-300/60 sm:min-h-[360px] sm:p-4"
+      className={`group relative grid min-h-[300px] cursor-pointer rounded-lg border bg-[#fffdf7] p-2.5 shadow-sm transition hover:-translate-y-0.5 hover:border-amber-700/40 focus:outline-none focus:ring-4 focus:ring-amber-300/60 sm:min-h-[360px] sm:p-4 ${
+        isCompareSelected
+          ? "border-amber-700 ring-2 ring-amber-300/70"
+          : compareState === "compatible"
+            ? "border-amber-500/70 shadow-md shadow-amber-900/10 ring-2 ring-amber-200/80"
+            : "border-amber-900/10"
+      } ${
+        compareState === "incompatible"
+          ? "opacity-35 grayscale-[0.35] hover:opacity-60"
+          : ""
+      }`}
     >
+      {onCompareToggle ? (
+        <button
+          type="button"
+          aria-label={dictionary.ui.compare.action}
+          aria-pressed={isCompareSelected}
+          disabled={compareState === "incompatible"}
+          title={dictionary.ui.compare.action}
+          onClick={(event) => {
+            event.stopPropagation();
+            if (compareState === "incompatible") {
+              return;
+            }
+            onCompareToggle(product);
+          }}
+          className={`absolute right-4 top-4 z-10 grid h-10 w-10 place-items-center rounded-full border shadow-lg transition focus:opacity-100 focus:outline-none focus:ring-4 focus:ring-amber-300/70 ${
+            isCompareSelected
+              ? "border-amber-700 bg-amber-600 text-white opacity-100"
+              : compareState === "compatible"
+                ? "border-amber-600 bg-amber-100 text-amber-900 opacity-100"
+                : compareState === "incompatible"
+                  ? "cursor-not-allowed border-stone-200 bg-white/90 text-stone-300 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"
+              : "border-amber-900/10 bg-white/95 text-stone-700 opacity-0 hover:border-amber-700 hover:text-amber-900 group-hover:opacity-100 group-focus-within:opacity-100"
+          }`}
+        >
+          <Scale className="h-4 w-4" aria-hidden="true" />
+        </button>
+      ) : null}
+
       <div className="flex h-[7.5rem] items-center justify-center overflow-hidden rounded-md bg-gradient-to-br from-amber-100 via-orange-50 to-stone-100 sm:h-40">
         {product.imageUrl ? (
           <img

@@ -22,6 +22,7 @@ type ProductFiltersProps = {
   inStock: boolean;
   featured: boolean;
   actionPath?: string;
+  align?: "start" | "end";
 };
 
 const sortOptions: Array<{
@@ -49,6 +50,7 @@ export function ProductFilters({
   inStock,
   featured,
   actionPath = "/",
+  align = "end",
 }: ProductFiltersProps) {
   const hasActiveFilters =
     Boolean(selectedBrand) ||
@@ -98,7 +100,9 @@ export function ProductFilters({
 
       <form
         action={`${actionPath}#featured-products`}
-        className="hidden w-full flex-wrap items-center justify-end gap-2 sm:flex"
+        className={`hidden w-full flex-wrap items-center gap-2 sm:flex ${
+          align === "start" ? "justify-start" : "justify-end"
+        }`}
       >
         <FilterFields
           brands={brands}

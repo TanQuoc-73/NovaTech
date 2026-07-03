@@ -326,7 +326,7 @@ export function CheckoutForm({ dictionary }: { dictionary: Dictionary }) {
             <ShoppingCart className="h-5 w-5 text-amber-800" aria-hidden="true" />
             <h2 className="font-semibold">{dictionary.ui.checkout.orderSummary}</h2>
           </div>
-          <div className="mt-4 max-h-72 divide-y divide-amber-900/10 overflow-y-auto pr-1 [scrollbar-color:#b45309_#fff3d6] [scrollbar-width:thin] lg:max-h-none">
+          <div className="mt-4 max-h-72 divide-y divide-amber-900/10 overflow-y-auto pr-1 [scrollbar-color:#06B6D4_#E0F7FF] [scrollbar-width:thin] lg:max-h-none">
             {cart.items.map((item) => (
               <div key={item.id} className="py-3 text-sm">
                 <p className="line-clamp-2 font-semibold">{item.product.name}</p>

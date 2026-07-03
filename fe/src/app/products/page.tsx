@@ -102,7 +102,11 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         </div>
 
         {products.length > 0 ? (
-          <ProductGrid products={products} dictionary={dictionary} />
+          <ProductGrid
+            products={products}
+            dictionary={dictionary}
+            enableCompare
+          />
         ) : (
           <div className="rounded-lg border border-dashed border-amber-900/20 bg-[#fffdf7] p-6 text-sm text-stone-600">
             {dictionary.ui.listing.emptyFilter}

@@ -5,8 +5,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LogOut,
+  Moon,
   Search,
   ShoppingCart,
+  Sun,
   Trash2,
   User,
   UserCircle,
@@ -76,6 +78,8 @@ type CartUpdatedEventDetail = {
   };
 };
 
+type ThemeMode = "light" | "dark";
+
 export function SiteHeader({ dictionary, locale, searchQuery }: SiteHeaderProps) {
   const pathname = usePathname();
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -86,6 +90,7 @@ export function SiteHeader({ dictionary, locale, searchQuery }: SiteHeaderProps)
   const [searchValue, setSearchValue] = useState(searchQuery ?? "");
   const [searchSuggestions, setSearchSuggestions] = useState<Product[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [theme, setTheme] = useState<ThemeMode>("dark");
   const [cart, setCart] = useState<Cart | null>(null);
   const [isCartLoading, setIsCartLoading] = useState(false);
   const [pendingCartItemId, setPendingCartItemId] = useState<string | null>(null);
@@ -98,6 +103,17 @@ export function SiteHeader({ dictionary, locale, searchQuery }: SiteHeaderProps)
   const accountMenuRef = useRef<HTMLDivElement | null>(null);
   const cartMenuRef = useRef<HTMLDivElement | null>(null);
   const cartButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    const frameId = window.requestAnimationFrame(() => {
+      const currentTheme =
+        document.documentElement.dataset.theme === "light" ? "light" : "dark";
+
+      setTheme(currentTheme);
+    });
+
+    return () => window.cancelAnimationFrame(frameId);
+  }, []);
 
   useEffect(() => {
     let supabase: ReturnType<typeof getSupabaseClient>;
@@ -279,6 +295,14 @@ export function SiteHeader({ dictionary, locale, searchQuery }: SiteHeaderProps)
     setCart(null);
     setIsAccountMenuOpen(false);
     setIsCartOpen(false);
+  }
+
+  function handleToggleTheme() {
+    const nextTheme: ThemeMode = theme === "dark" ? "light" : "dark";
+
+    document.documentElement.dataset.theme = nextTheme;
+    window.localStorage.setItem("novatech-theme", nextTheme);
+    setTheme(nextTheme);
   }
 
   async function refreshCart() {
@@ -472,6 +496,19 @@ export function SiteHeader({ dictionary, locale, searchQuery }: SiteHeaderProps)
           </form>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            <button
+              type="button"
+              aria-label={theme === "dark" ? "Bật theme sáng" : "Bật theme tối"}
+              onClick={handleToggleTheme}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-amber-200/30 bg-white/10 text-amber-50 transition hover:border-amber-100 hover:bg-white/15"
+            >
+              {theme === "dark" ? (
+                <Sun className="h-4 w-4" aria-hidden="true" />
+              ) : (
+                <Moon className="h-4 w-4" aria-hidden="true" />
+              )}
+            </button>
+
             <div ref={languageMenuRef} className="relative">
               <button
                 type="button"

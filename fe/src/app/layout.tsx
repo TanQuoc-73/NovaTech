@@ -3,8 +3,22 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "NovaTech",
-  description: "Cua hang cong nghe cho laptop, smartphone va phu kien thong minh.",
+  description: "Cửa hàng công nghệ cho laptop, smartphone và phụ kiện thông minh.",
 };
+
+const themeScript = `
+(() => {
+  try {
+    const storedTheme = window.localStorage.getItem("novatech-theme");
+    const theme = storedTheme === "light" || storedTheme === "dark"
+      ? storedTheme
+      : "light";
+    document.documentElement.dataset.theme = theme;
+  } catch {
+    document.documentElement.dataset.theme = "light";
+  }
+})();
+`;
 
 export default function RootLayout({
   children,
@@ -12,8 +26,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi" className="h-full antialiased">
-      <body className="min-h-full bg-background text-foreground">{children}</body>
+    <html
+      lang="vi"
+      className="h-full antialiased"
+      data-theme="light"
+      suppressHydrationWarning
+    >
+      <body className="min-h-full bg-background text-foreground">
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        {children}
+      </body>
     </html>
   );
 }

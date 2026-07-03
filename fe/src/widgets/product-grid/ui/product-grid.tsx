@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ShoppingCart, X } from "lucide-react";
+import { createPortal } from "react-dom";
+import { Scale, ShoppingCart, X } from "lucide-react";
 
 import { ProductCard, type Product } from "@/entities/product";
 import { addCartItem } from "@/features/cart/api/cart-api";
@@ -12,10 +13,18 @@ import type { Dictionary } from "@/shared/i18n";
 type ProductGridProps = {
   products: Product[];
   dictionary: Dictionary;
+  enableCompare?: boolean;
 };
 
-export function ProductGrid({ products, dictionary }: ProductGridProps) {
+export function ProductGrid({
+  products,
+  dictionary,
+  enableCompare = false,
+}: ProductGridProps) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [compareProducts, setCompareProducts] = useState<Product[]>([]);
+  const [compareMessage, setCompareMessage] = useState<string | null>(null);
+  const [isCompareOpen, setIsCompareOpen] = useState(false);
 
   useEffect(() => {
     if (!selectedProduct) {
@@ -33,6 +42,48 @@ export function ProductGrid({ products, dictionary }: ProductGridProps) {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [selectedProduct]);
 
+  function handleCompareToggle(product: Product) {
+    setCompareMessage(null);
+
+    setCompareProducts((current) => {
+      if (current.some((item) => item.id === product.id)) {
+        return current.filter((item) => item.id !== product.id);
+      }
+
+      if (current.length > 0 && current[0].category !== product.category) {
+        setCompareMessage(dictionary.ui.compare.sameCategoryOnly);
+        return current;
+      }
+
+      if (current.length >= 2) {
+        setCompareMessage(dictionary.ui.compare.maxItems);
+        return current;
+      }
+
+      const nextProducts = [...current, product];
+
+      if (nextProducts.length === 2) {
+        setIsCompareOpen(true);
+      }
+
+      return nextProducts;
+    });
+  }
+
+  function getCompareState(product: Product) {
+    if (compareProducts.length === 0) {
+      return "idle";
+    }
+
+    if (compareProducts.some((item) => item.id === product.id)) {
+      return "idle";
+    }
+
+    return compareProducts[0].category === product.category
+      ? "compatible"
+      : "incompatible";
+  }
+
   return (
     <>
       <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
@@ -42,9 +93,51 @@ export function ProductGrid({ products, dictionary }: ProductGridProps) {
             product={product}
             dictionary={dictionary}
             onSelect={setSelectedProduct}
+            onCompareToggle={enableCompare ? handleCompareToggle : undefined}
+            isCompareSelected={
+              enableCompare &&
+              compareProducts.some((item) => item.id === product.id)
+            }
+            compareState={enableCompare ? getCompareState(product) : "idle"}
           />
         ))}
       </div>
+
+      {enableCompare && compareProducts.length > 0 ? (
+        <div className="sticky bottom-4 z-30 mx-auto mt-5 flex max-w-3xl flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-900/10 bg-[#fffaf2] p-3 shadow-xl shadow-stone-950/15">
+          <div className="min-w-0">
+            <p className="flex items-center gap-2 text-sm font-semibold text-stone-950">
+              <Scale className="h-4 w-4 text-amber-800" aria-hidden="true" />
+              {dictionary.ui.compare.title}
+            </p>
+            <p className="mt-1 text-xs font-semibold text-stone-500">
+              {compareMessage ??
+                `${compareProducts.length}/2 - ${dictionary.ui.compare.hint}`}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              disabled={compareProducts.length !== 2}
+              onClick={() => setIsCompareOpen(true)}
+              className="h-9 rounded-md bg-amber-700 px-3 text-sm font-semibold text-white transition hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {dictionary.ui.compare.open}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setCompareProducts([]);
+                setCompareMessage(null);
+                setIsCompareOpen(false);
+              }}
+              className="h-9 rounded-md border border-amber-900/15 px-3 text-sm font-semibold text-stone-700 transition hover:border-amber-700 hover:text-amber-800"
+            >
+              {dictionary.ui.compare.clear}
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       {selectedProduct ? (
         <ProductDetailModal
@@ -53,9 +146,313 @@ export function ProductGrid({ products, dictionary }: ProductGridProps) {
           onClose={() => setSelectedProduct(null)}
         />
       ) : null}
+
+      {enableCompare && isCompareOpen && compareProducts.length === 2 ? (
+        <ProductCompareModal
+          products={compareProducts as [Product, Product]}
+          dictionary={dictionary}
+          onClose={() => setIsCompareOpen(false)}
+          onRemove={(productId) => {
+            setCompareProducts((current) =>
+              current.filter((product) => product.id !== productId),
+            );
+            setIsCompareOpen(false);
+          }}
+        />
+      ) : null}
     </>
   );
 }
+
+type ProductCompareModalProps = {
+  products: [Product, Product];
+  dictionary: Dictionary;
+  onClose: () => void;
+  onRemove: (productId: string) => void;
+};
+
+function ProductCompareModal({
+  products,
+  dictionary,
+  onClose,
+  onRemove,
+}: ProductCompareModalProps) {
+  const [firstProduct, secondProduct] = products;
+  const [selectedVariantIds, setSelectedVariantIds] = useState<
+    Record<string, string>
+  >({
+    [firstProduct.id]: firstProduct.variants[0]?.id ?? "",
+    [secondProduct.id]: secondProduct.variants[0]?.id ?? "",
+  });
+  const categoryLabel =
+    firstProduct.category in dictionary.categories
+      ? dictionary.categories[
+          firstProduct.category as keyof typeof dictionary.categories
+        ]
+      : firstProduct.category;
+  const selectedVariants = products.map((product) =>
+    product.variants.find(
+      (variant) => variant.id === selectedVariantIds[product.id],
+    ) ?? product.variants[0],
+  );
+
+  const overviewRows = [
+    {
+      label: dictionary.ui.compare.brand,
+      getValue: (product: Product) => product.brand,
+    },
+    {
+      label: dictionary.ui.compare.category,
+      getValue: () => categoryLabel,
+    },
+    {
+      label: dictionary.ui.compare.price,
+      getValue: (product: Product) => formatCurrency(product.price),
+    },
+    {
+      label: dictionary.ui.compare.rating,
+      getValue: (product: Product) =>
+        `${product.rating.toFixed(1)} ${dictionary.common.rating}`,
+    },
+    {
+      label: dictionary.ui.compare.stock,
+      getValue: (product: Product) =>
+        `${product.stock} ${dictionary.common.inStock}`,
+    },
+    {
+      label: dictionary.ui.compare.variants,
+      getValue: (product: Product) => String(product.variants.length),
+    },
+    {
+      label: dictionary.ui.compare.cheapestVariant,
+      getValue: (product: Product) => {
+        const variant = [...product.variants].sort(
+          (first, second) => first.price - second.price,
+        )[0];
+
+        return variant
+          ? `${variant.name} - ${formatCurrency(variant.price)}`
+          : dictionary.ui.compare.noVariant;
+      },
+    },
+  ];
+  const variantRows = [
+    {
+      label: dictionary.ui.compare.sku,
+      getValue: (variant: ProductVariant | undefined) =>
+        variant?.sku ?? dictionary.ui.compare.notAvailable,
+    },
+    {
+      label: dictionary.ui.compare.ram,
+      getValue: (variant: ProductVariant | undefined) =>
+        variant?.ram ?? dictionary.ui.compare.notAvailable,
+    },
+    {
+      label: dictionary.ui.compare.storage,
+      getValue: (variant: ProductVariant | undefined) =>
+        variant?.storage ?? dictionary.ui.compare.notAvailable,
+    },
+    {
+      label: dictionary.ui.compare.color,
+      getValue: (variant: ProductVariant | undefined) =>
+        variant?.color ?? dictionary.ui.compare.notAvailable,
+    },
+    {
+      label: dictionary.ui.compare.price,
+      getValue: (variant: ProductVariant | undefined) =>
+        variant ? formatCurrency(variant.price) : dictionary.ui.compare.notAvailable,
+    },
+    {
+      label: dictionary.ui.compare.stock,
+      getValue: (variant: ProductVariant | undefined) =>
+        variant
+          ? `${variant.stock} ${dictionary.common.inStock}`
+          : dictionary.ui.compare.notAvailable,
+    },
+  ];
+
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  return createPortal(
+    <div className="fixed inset-0 z-50 grid place-items-center bg-stone-950/70 px-3 py-4 backdrop-blur-sm sm:px-4">
+      <button
+        type="button"
+        aria-label={dictionary.ui.compare.close}
+        className="absolute inset-0 cursor-default"
+        onClick={onClose}
+      />
+      <section className="relative flex max-h-[88dvh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-amber-200/60 bg-[#fffaf2] shadow-2xl shadow-stone-950/30">
+        <div className="flex items-start justify-between gap-4 border-b border-amber-900/10 p-4 sm:p-6">
+          <div>
+            <p className="flex items-center gap-2 text-sm font-semibold text-amber-800">
+              <Scale className="h-4 w-4" aria-hidden="true" />
+              {dictionary.ui.compare.title}
+            </p>
+            <h2 className="mt-2 text-xl font-semibold text-stone-950 sm:text-2xl">
+              {categoryLabel}
+            </h2>
+          </div>
+          <button
+            type="button"
+            aria-label={dictionary.ui.compare.close}
+            onClick={onClose}
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-md border border-amber-900/15 text-stone-700 transition hover:bg-amber-100"
+          >
+            <X className="h-4 w-4" aria-hidden="true" />
+          </button>
+        </div>
+
+        <div className="min-h-0 overflow-y-auto p-3 [scrollbar-color:#06B6D4_#E0F7FF] [scrollbar-width:thin] sm:p-5">
+          <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
+            {[firstProduct, secondProduct].map((product) => (
+              <ProductCompareHeader
+                key={product.id}
+                product={product}
+                dictionary={dictionary}
+                selectedVariantId={selectedVariantIds[product.id] ?? ""}
+                onVariantChange={(variantId) =>
+                  setSelectedVariantIds((current) => ({
+                    ...current,
+                    [product.id]: variantId,
+                  }))
+                }
+                onRemove={onRemove}
+              />
+            ))}
+          </div>
+
+          <h3 className="mt-5 text-sm font-semibold uppercase tracking-[0.12em] text-amber-800">
+            {dictionary.ui.compare.overview}
+          </h3>
+          <div className="mt-4 overflow-x-auto rounded-xl border border-amber-900/10 bg-white [scrollbar-color:#06B6D4_#E0F7FF] [scrollbar-width:thin]">
+            <div className="grid min-w-[620px] grid-cols-[150px_minmax(0,1fr)_minmax(0,1fr)] text-sm sm:min-w-0 sm:grid-cols-[180px_minmax(0,1fr)_minmax(0,1fr)]">
+              {overviewRows.map((row) => (
+                <div key={row.label} className="contents">
+                  <div className="border-r border-t border-amber-900/10 bg-amber-50 p-3 text-xs font-semibold uppercase text-stone-600 first:border-t-0 sm:text-sm">
+                    {row.label}
+                  </div>
+                  {[firstProduct, secondProduct].map((product) => (
+                    <div
+                      key={`${row.label}-${product.id}`}
+                      className="min-w-0 border-t border-amber-900/10 p-3 text-sm font-semibold leading-6 text-stone-900 first:border-t-0"
+                    >
+                      <span className="line-clamp-2 break-words">
+                        {row.getValue(product)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <h3 className="mt-5 text-sm font-semibold uppercase tracking-[0.12em] text-amber-800">
+            {dictionary.ui.compare.variantSpecs}
+          </h3>
+          <div className="mt-4 overflow-x-auto rounded-xl border border-amber-900/10 bg-white [scrollbar-color:#06B6D4_#E0F7FF] [scrollbar-width:thin]">
+            <div className="grid min-w-[620px] grid-cols-[150px_minmax(0,1fr)_minmax(0,1fr)] text-sm sm:min-w-0 sm:grid-cols-[180px_minmax(0,1fr)_minmax(0,1fr)]">
+              {variantRows.map((row) => (
+                <div key={row.label} className="contents">
+                  <div className="border-r border-t border-amber-900/10 bg-amber-50 p-3 text-xs font-semibold uppercase text-stone-600 first:border-t-0 sm:text-sm">
+                    {row.label}
+                  </div>
+                  {selectedVariants.map((variant, index) => (
+                    <div
+                      key={`${row.label}-${products[index].id}`}
+                      className="min-w-0 border-t border-amber-900/10 p-3 text-sm font-semibold leading-6 text-stone-900 first:border-t-0"
+                    >
+                      <span className="line-clamp-2 break-words">
+                        {row.getValue(variant)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>,
+    document.body,
+  );
+}
+
+function ProductCompareHeader({
+  product,
+  dictionary,
+  selectedVariantId,
+  onVariantChange,
+  onRemove,
+}: {
+  product: Product;
+  dictionary: Dictionary;
+  selectedVariantId: string;
+  onVariantChange: (variantId: string) => void;
+  onRemove: (productId: string) => void;
+}) {
+  const selectedVariant =
+    product.variants.find((variant) => variant.id === selectedVariantId) ??
+    product.variants[0];
+  const imageUrl = selectedVariant?.images[0]?.imageUrl ?? product.imageUrl;
+
+  return (
+    <article className="relative overflow-hidden rounded-xl border border-amber-900/10 bg-white p-3 sm:p-4">
+      <button
+        type="button"
+        aria-label={dictionary.ui.compare.remove}
+        onClick={() => onRemove(product.id)}
+        className="absolute right-4 top-4 z-10 grid h-8 w-8 place-items-center rounded-full bg-white/95 text-stone-600 shadow-sm transition hover:bg-red-50 hover:text-red-700"
+      >
+        <X className="h-3.5 w-3.5" aria-hidden="true" />
+      </button>
+      <div className="flex h-48 w-full items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-amber-100 via-orange-50 to-stone-100 p-4 sm:h-56 lg:h-64">
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={product.name}
+            className="max-h-full max-w-full object-contain"
+          />
+        ) : (
+          <span className="text-xs font-bold uppercase text-amber-900">
+            {product.brand.slice(0, 3)}
+          </span>
+        )}
+      </div>
+      <div className="min-w-0 pt-3">
+        <p className="line-clamp-1 text-xs font-semibold uppercase tracking-[0.08em] text-stone-500">
+          {product.brand}
+        </p>
+        <h3 className="mt-1 line-clamp-2 min-h-10 text-sm font-semibold leading-5 text-stone-950 sm:text-base sm:leading-6">
+          {product.name}
+        </h3>
+        <p className="mt-2 truncate text-sm font-semibold text-amber-800">
+          {formatCurrency(selectedVariant?.price ?? product.price)}
+        </p>
+        {product.variants.length > 0 ? (
+          <label className="mt-3 block">
+            <span className="sr-only">{dictionary.ui.compare.selectVariant}</span>
+            <select
+              value={selectedVariant?.id ?? ""}
+              onClick={(event) => event.stopPropagation()}
+              onChange={(event) => onVariantChange(event.target.value)}
+              className="h-10 w-full rounded-md border border-amber-900/15 bg-[#fffdf7] px-3 text-sm font-semibold text-stone-800 outline-none transition focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
+            >
+              {product.variants.map((variant) => (
+                <option key={variant.id} value={variant.id}>
+                  {variant.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
+      </div>
+    </article>
+  );
+}
+
+type ProductVariant = Product["variants"][number];
 
 type ProductDetailModalProps = {
   product: Product;
@@ -133,7 +530,11 @@ function ProductDetailModal({
     }
   }
 
-  return (
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  return createPortal(
     <div className="fixed inset-0 z-50 grid place-items-center bg-stone-950/70 px-3 py-4 backdrop-blur-sm sm:px-4 sm:py-6">
       <button
         type="button"
@@ -200,7 +601,7 @@ function ProductDetailModal({
             </div>
           </div>
 
-          <div className="min-h-0 overflow-y-auto px-3 py-3 [scrollbar-color:#b45309_#fff3d6] [scrollbar-width:thin] sm:px-4 sm:py-4 md:px-8 md:py-5 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-amber-600/70 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-amber-100/80">
+          <div className="min-h-0 overflow-y-auto px-3 py-3 [scrollbar-color:#06B6D4_#E0F7FF] [scrollbar-width:thin] sm:px-4 sm:py-4 md:px-8 md:py-5 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-cyan-500/75 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-cyan-100/80">
             <div className="flex flex-wrap items-baseline gap-3">
               <p className="text-xl font-semibold text-stone-950 sm:text-2xl md:text-3xl">
                 {formatCurrency(displayPrice)}
@@ -316,7 +717,8 @@ function ProductDetailModal({
           </div>
         </div>
       </section>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

@@ -7,6 +7,12 @@ import { CheckCircle2, ShieldCheck, ShoppingCart } from "lucide-react";
 
 import { getAddresses, type Address } from "@/features/auth/model/auth-client";
 import { getCart, type Cart } from "@/features/cart/api/cart-api";
+import {
+  getActiveVouchers,
+  validateVoucher,
+  type Voucher,
+  type VoucherValidation,
+} from "@/features/catalog/api/catalog-api";
 import { createCheckout, type CheckoutResult } from "@/features/checkout/api/checkout-api";
 import {
   getPaymentQrSettings,
@@ -28,13 +34,24 @@ export function CheckoutForm({ dictionary }: { dictionary: Dictionary }) {
   const [paymentQrSettings, setPaymentQrSettings] = useState<
     PaymentQrSetting[]
   >([]);
+  const [vouchers, setVouchers] = useState<Voucher[]>([]);
+  const [voucherCode, setVoucherCode] = useState("");
+  const [voucherValidation, setVoucherValidation] =
+    useState<VoucherValidation | null>(null);
+  const [isCheckingVoucher, setIsCheckingVoucher] = useState(false);
 
   useEffect(() => {
-    Promise.all([getCart(), getAddresses(), getPaymentQrSettings()])
-      .then(([nextCart, nextAddresses, nextPaymentQrSettings]) => {
+    Promise.all([
+      getCart(),
+      getAddresses(),
+      getPaymentQrSettings(),
+      getActiveVouchers(),
+    ])
+      .then(([nextCart, nextAddresses, nextPaymentQrSettings, nextVouchers]) => {
         setCart(nextCart);
         setAddresses(nextAddresses);
         setPaymentQrSettings(nextPaymentQrSettings);
+        setVouchers(nextVouchers);
         setSelectedAddressId(
           nextAddresses.find((address) => address.isDefault)?.id ??
             nextAddresses[0]?.id ??
@@ -77,6 +94,7 @@ export function CheckoutForm({ dictionary }: { dictionary: Dictionary }) {
         shippingLine1: String(formData.get("shippingLine1") ?? ""),
         shippingLine2: String(formData.get("shippingLine2") ?? ""),
         paymentMethod: readPaymentMethod(formData.get("paymentMethod")),
+        voucherCode: voucherValidation?.isValid ? voucherValidation.code : "",
         note: String(formData.get("note") ?? ""),
       });
 
@@ -95,6 +113,21 @@ export function CheckoutForm({ dictionary }: { dictionary: Dictionary }) {
       );
     } finally {
       setIsSubmitting(false);
+    }
+  }
+
+  async function handleApplyVoucher() {
+    if (!cart || !voucherCode.trim()) {
+      return;
+    }
+
+    setIsCheckingVoucher(true);
+    setMessage(null);
+
+    try {
+      setVoucherValidation(await validateVoucher(voucherCode, cart.subtotal));
+    } finally {
+      setIsCheckingVoucher(false);
     }
   }
 
@@ -244,6 +277,57 @@ export function CheckoutForm({ dictionary }: { dictionary: Dictionary }) {
             </label>
           </div>
 
+          <div className="mt-6 rounded-lg border border-amber-900/10 bg-white p-4">
+            <h2 className="font-semibold">Voucher</h2>
+            {vouchers.length ? (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {vouchers.slice(0, 4).map((voucher) => (
+                  <button
+                    key={voucher.id}
+                    type="button"
+                    onClick={() => {
+                      setVoucherCode(voucher.code);
+                      setVoucherValidation(null);
+                    }}
+                    className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-900 transition hover:bg-amber-100"
+                  >
+                    {voucher.code}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+            <div className="mt-3 flex gap-2">
+              <input
+                value={voucherCode}
+                onChange={(event) => {
+                  setVoucherCode(event.target.value.toUpperCase());
+                  setVoucherValidation(null);
+                }}
+                placeholder="Nhap ma voucher"
+                className="h-10 min-w-0 flex-1 rounded-md border border-amber-900/15 px-3 text-sm font-semibold outline-none focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
+              />
+              <button
+                type="button"
+                disabled={isCheckingVoucher || !voucherCode.trim()}
+                onClick={() => void handleApplyVoucher()}
+                className="h-10 rounded-md bg-stone-900 px-4 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isCheckingVoucher ? "..." : "Ap dung"}
+              </button>
+            </div>
+            {voucherValidation ? (
+              <p
+                className={`mt-2 text-sm font-semibold ${
+                  voucherValidation.isValid ? "text-emerald-700" : "text-red-700"
+                }`}
+              >
+                {voucherValidation.isValid
+                  ? `Giam ${formatCurrency(voucherValidation.discountAmount)}`
+                  : voucherValidation.message}
+              </p>
+            ) : null}
+          </div>
+
           <div className="mt-6">
             <h2 className="font-semibold">{dictionary.ui.checkout.paymentMethod}</h2>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
@@ -339,9 +423,29 @@ export function CheckoutForm({ dictionary }: { dictionary: Dictionary }) {
               </div>
             ))}
           </div>
-          <div className="mt-4 flex items-center justify-between border-t border-amber-900/10 pt-4 text-base font-semibold">
-            <span>{dictionary.ui.checkout.total}</span>
+          <div className="mt-4 flex items-center justify-between border-t border-amber-900/10 pt-4 text-sm font-semibold">
+            <span>Tạm tính</span>
             <span>{formatCurrency(cart.subtotal)}</span>
+          </div>
+          {voucherValidation?.isValid ? (
+            <div className="mt-3 flex items-center justify-between text-sm font-semibold text-emerald-700">
+              <span>Voucher {voucherValidation.code}</span>
+              <span>-{formatCurrency(voucherValidation.discountAmount)}</span>
+            </div>
+          ) : null}
+          <div className="mt-3 flex items-center justify-between border-t border-amber-900/10 pt-4 text-base font-semibold">
+            <span>{dictionary.ui.checkout.total}</span>
+            <span>
+              {formatCurrency(
+                Math.max(
+                  0,
+                  cart.subtotal -
+                    (voucherValidation?.isValid
+                      ? voucherValidation.discountAmount
+                      : 0),
+                ),
+              )}
+            </span>
           </div>
         </aside>
       </div>

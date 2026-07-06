@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Scale, ShoppingCart, X } from "lucide-react";
+import { Scale, ShoppingCart, Star, X } from "lucide-react";
 
 import { ProductCard, type Product } from "@/entities/product";
 import { addCartItem } from "@/features/cart/api/cart-api";
@@ -690,6 +690,78 @@ function ProductDetailModal({
                 </div>
               </div>
             ) : null}
+
+            <div className="mt-4 rounded-lg border border-amber-900/10 bg-white/70 p-3 sm:mt-6 sm:p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-stone-950">
+                    {dictionary.ui.product.reviews}
+                  </p>
+                  <p className="mt-1 text-xs font-semibold text-stone-500">
+                    {dictionary.ui.product.reviewCount.replace(
+                      "{count}",
+                      String(product.reviews?.length ?? 0),
+                    )}
+                  </p>
+                </div>
+                <div className="flex items-center gap-1 text-amber-700">
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <Star
+                      key={index}
+                      className={`h-4 w-4 ${
+                        index < Math.round(product.rating)
+                          ? "fill-amber-500"
+                          : "fill-transparent"
+                      }`}
+                      aria-hidden="true"
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {product.reviews?.length ? (
+                <div className="mt-3 grid gap-3">
+                  {product.reviews.slice(0, 3).map((review) => (
+                    <article
+                      key={review.id}
+                      className="rounded-md border border-amber-900/10 bg-[#fffdf7] p-3"
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold text-stone-950">
+                            {review.authorName}
+                          </p>
+                          <p className="mt-1 text-xs font-semibold text-emerald-700">
+                            {dictionary.ui.product.verifiedPurchase}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-1 text-xs font-semibold text-amber-800">
+                          <Star className="h-3.5 w-3.5 fill-amber-500" aria-hidden="true" />
+                          {review.rating}/5
+                        </div>
+                      </div>
+                      {review.title ? (
+                        <h4 className="mt-3 text-sm font-semibold text-stone-900">
+                          {review.title}
+                        </h4>
+                      ) : null}
+                      {review.content ? (
+                        <p className="mt-2 text-sm leading-6 text-stone-600">
+                          {review.content}
+                        </p>
+                      ) : null}
+                      <p className="mt-2 text-xs font-semibold text-stone-400">
+                        {formatReviewDate(review.createdAt)}
+                      </p>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-3 rounded-md bg-amber-50 px-3 py-3 text-sm font-semibold text-stone-500">
+                  {dictionary.ui.product.noReviews}
+                </p>
+              )}
+            </div>
           </div>
 
           <div className="flex shrink-0 flex-wrap gap-2 border-t border-amber-900/10 bg-[#fffaf2] p-3 sm:gap-3 sm:p-4 md:p-6 md:px-8">
@@ -722,6 +794,20 @@ function ProductDetailModal({
     </div>,
     document.body,
   );
+}
+
+function formatReviewDate(value: string) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(date);
 }
 
 type CartUpdatedEventDetail = {

@@ -9,6 +9,10 @@ import type {
   AdminCategoryDto,
   AdminCategoryPayload,
   AdminDashboardDto,
+  AdminHeroBannerDto,
+  AdminHeroBannerPayload,
+  AdminNewsArticleDto,
+  AdminNewsArticlePayload,
   AdminOrderDto,
   AdminOrderItemDto,
   AdminOrderStatus,
@@ -24,6 +28,8 @@ import type {
   AdminProductVariantDto,
   AdminProductVariantPayload,
   AdminRecentOrderDto,
+  AdminVoucherDto,
+  AdminVoucherPayload,
 } from './admin.types';
 
 const orderStatuses: AdminOrderStatus[] = [
@@ -153,6 +159,50 @@ type PaymentQrSettingRow = {
   sort_order: number;
 };
 
+type HeroBannerRow = {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  label: string | null;
+  tag: string | null;
+  device_type: string | null;
+  price_text: string | null;
+  highlight_label: string | null;
+  highlight: string | null;
+  image_url: string | null;
+  href: string | null;
+  gradient: string;
+  sort_order: number;
+  is_active: boolean;
+};
+
+type NewsArticleRow = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  content: string | null;
+  category: string | null;
+  image_url: string | null;
+  href: string | null;
+  is_published: boolean;
+  published_at: string;
+};
+
+type VoucherRow = {
+  id: string;
+  code: string;
+  title: string;
+  description: string | null;
+  discount_type: 'percent' | 'fixed';
+  discount_value: string | number;
+  min_order_amount: string | number;
+  max_discount_amount: string | number | null;
+  usage_limit: number | null;
+  used_count: number;
+  is_active: boolean;
+};
+
 @Injectable()
 export class AdminService {
   constructor(
@@ -161,13 +211,24 @@ export class AdminService {
   ) {}
 
   async getDashboard(): Promise<AdminDashboardDto> {
-    const [categories, brands, products, recentOrders, paymentQrSettings] =
-      await Promise.all([
+    const [
+      categories,
+      brands,
+      products,
+      recentOrders,
+      paymentQrSettings,
+      heroBanners,
+      newsArticles,
+      vouchers,
+    ] = await Promise.all([
         this.getCategories(),
         this.getBrands(),
         this.getProducts(),
         this.getRecentOrders(),
         this.getPaymentQrSettings(),
+        this.getHeroBanners(),
+        this.getNewsArticles(),
+        this.getVouchers(),
       ]);
     const paidOrders = recentOrders.filter(
       (order) => order.paymentStatus === 'paid' || order.status === 'delivered',
@@ -195,7 +256,163 @@ export class AdminService {
       products,
       recentOrders,
       paymentQrSettings,
+      heroBanners,
+      newsArticles,
+      vouchers,
     };
+  }
+
+  async getHeroBanners(): Promise<AdminHeroBannerDto[]> {
+    const { data, error } = await this.supabaseService.client
+      .from('hero_banners')
+      .select(
+        'id, title, subtitle, label, tag, device_type, price_text, highlight_label, highlight, image_url, href, gradient, sort_order, is_active',
+      )
+      .order('sort_order', { ascending: true })
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      if (error.code === 'PGRST205') return [];
+      throw error;
+    }
+
+    return ((data ?? []) as unknown as HeroBannerRow[]).map((banner) =>
+      this.mapHeroBanner(banner),
+    );
+  }
+
+  async upsertHeroBanner(payload: AdminHeroBannerPayload, id?: string) {
+    const values = {
+      title: this.readString(payload.title, 'title'),
+      subtitle: this.readOptionalString(payload.subtitle),
+      label: this.readOptionalString(payload.label),
+      tag: this.readOptionalString(payload.tag),
+      device_type: this.readOptionalString(payload.deviceType),
+      price_text: this.readOptionalString(payload.priceText),
+      highlight_label: this.readOptionalString(payload.highlightLabel),
+      highlight: this.readOptionalString(payload.highlight),
+      image_url: this.readOptionalString(payload.imageUrl),
+      href: this.readOptionalString(payload.href),
+      gradient:
+        this.readOptionalString(payload.gradient) ??
+        'from-[#09090B] via-[#0E7490] to-[#06B6D4]',
+      sort_order: this.readOptionalNumber(payload.sortOrder) ?? 0,
+      is_active: this.readOptionalBoolean(payload.isActive) ?? true,
+    };
+    const request = id
+      ? this.supabaseService.client.from('hero_banners').update(values).eq('id', id)
+      : this.supabaseService.client.from('hero_banners').insert(values);
+    const { error } = await request;
+
+    if (error) throw error;
+    return this.getDashboard();
+  }
+
+  async deleteHeroBanner(id: string) {
+    const { error } = await this.supabaseService.client
+      .from('hero_banners')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+    return this.getDashboard();
+  }
+
+  async getNewsArticles(): Promise<AdminNewsArticleDto[]> {
+    const { data, error } = await this.supabaseService.client
+      .from('news_articles')
+      .select(
+        'id, title, slug, excerpt, content, category, image_url, href, is_published, published_at',
+      )
+      .order('published_at', { ascending: false });
+
+    if (error) {
+      if (error.code === 'PGRST205') return [];
+      throw error;
+    }
+
+    return ((data ?? []) as unknown as NewsArticleRow[]).map((article) =>
+      this.mapNewsArticle(article),
+    );
+  }
+
+  async upsertNewsArticle(payload: AdminNewsArticlePayload, id?: string) {
+    const values = {
+      title: this.readString(payload.title, 'title'),
+      slug: this.readString(payload.slug, 'slug'),
+      excerpt: this.readOptionalString(payload.excerpt),
+      content: this.readOptionalString(payload.content),
+      category: this.readOptionalString(payload.category),
+      image_url: this.readOptionalString(payload.imageUrl),
+      href: this.readOptionalString(payload.href),
+      is_published: this.readOptionalBoolean(payload.isPublished) ?? true,
+    };
+    const request = id
+      ? this.supabaseService.client.from('news_articles').update(values).eq('id', id)
+      : this.supabaseService.client.from('news_articles').insert(values);
+    const { error } = await request;
+
+    if (error) throw error;
+    return this.getDashboard();
+  }
+
+  async deleteNewsArticle(id: string) {
+    const { error } = await this.supabaseService.client
+      .from('news_articles')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+    return this.getDashboard();
+  }
+
+  async getVouchers(): Promise<AdminVoucherDto[]> {
+    const { data, error } = await this.supabaseService.client
+      .from('vouchers')
+      .select(
+        'id, code, title, description, discount_type, discount_value, min_order_amount, max_discount_amount, usage_limit, used_count, is_active',
+      )
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      if (error.code === 'PGRST205') return [];
+      throw error;
+    }
+
+    return ((data ?? []) as unknown as VoucherRow[]).map((voucher) =>
+      this.mapVoucher(voucher),
+    );
+  }
+
+  async upsertVoucher(payload: AdminVoucherPayload, id?: string) {
+    const values = {
+      code: this.readString(payload.code, 'code').toUpperCase(),
+      title: this.readString(payload.title, 'title'),
+      description: this.readOptionalString(payload.description),
+      discount_type: this.readDiscountType(payload.discountType),
+      discount_value: this.readNumber(payload.discountValue, 'discountValue'),
+      min_order_amount: this.readOptionalNumber(payload.minOrderAmount) ?? 0,
+      max_discount_amount: this.readOptionalNumber(payload.maxDiscountAmount),
+      usage_limit: this.readOptionalNumber(payload.usageLimit),
+      is_active: this.readOptionalBoolean(payload.isActive) ?? true,
+    };
+    const request = id
+      ? this.supabaseService.client.from('vouchers').update(values).eq('id', id)
+      : this.supabaseService.client.from('vouchers').insert(values);
+    const { error } = await request;
+
+    if (error) throw error;
+    return this.getDashboard();
+  }
+
+  async deleteVoucher(id: string) {
+    const { error } = await this.supabaseService.client
+      .from('vouchers')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+    return this.getDashboard();
   }
 
   async getRecentOrders(): Promise<AdminRecentOrderDto[]> {
@@ -1005,6 +1222,59 @@ export class AdminService {
     };
   }
 
+  private mapHeroBanner(banner: HeroBannerRow): AdminHeroBannerDto {
+    return {
+      id: banner.id,
+      title: banner.title,
+      subtitle: banner.subtitle,
+      label: banner.label,
+      tag: banner.tag,
+      deviceType: banner.device_type,
+      priceText: banner.price_text,
+      highlightLabel: banner.highlight_label,
+      highlight: banner.highlight,
+      imageUrl: banner.image_url,
+      href: banner.href,
+      gradient: banner.gradient,
+      sortOrder: banner.sort_order,
+      isActive: banner.is_active,
+    };
+  }
+
+  private mapNewsArticle(article: NewsArticleRow): AdminNewsArticleDto {
+    return {
+      id: article.id,
+      title: article.title,
+      slug: article.slug,
+      excerpt: article.excerpt,
+      content: article.content,
+      category: article.category,
+      imageUrl: article.image_url,
+      href: article.href,
+      isPublished: article.is_published,
+      publishedAt: article.published_at,
+    };
+  }
+
+  private mapVoucher(voucher: VoucherRow): AdminVoucherDto {
+    return {
+      id: voucher.id,
+      code: voucher.code,
+      title: voucher.title,
+      description: voucher.description,
+      discountType: voucher.discount_type,
+      discountValue: Number(voucher.discount_value),
+      minOrderAmount: Number(voucher.min_order_amount),
+      maxDiscountAmount:
+        voucher.max_discount_amount === null
+          ? null
+          : Number(voucher.max_discount_amount),
+      usageLimit: voucher.usage_limit,
+      usedCount: voucher.used_count,
+      isActive: voucher.is_active,
+    };
+  }
+
   private async ensureProductVariant(productId: string, variantId: string) {
     const { data, error } = await this.supabaseService.client
       .from('product_variants')
@@ -1144,6 +1414,14 @@ export class AdminService {
     }
 
     return 'bank_transfer';
+  }
+
+  private readDiscountType(value: unknown): 'percent' | 'fixed' {
+    if (value === 'percent' || value === 'fixed') {
+      return value;
+    }
+
+    return 'percent';
   }
 
   private readOrderStatus(value: unknown): AdminOrderStatus {

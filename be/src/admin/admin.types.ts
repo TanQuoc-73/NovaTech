@@ -70,6 +70,53 @@ export type AdminDashboardDto = {
   products: AdminProductDto[];
   recentOrders: AdminRecentOrderDto[];
   paymentQrSettings: AdminPaymentQrSettingDto[];
+  heroBanners: AdminHeroBannerDto[];
+  newsArticles: AdminNewsArticleDto[];
+  vouchers: AdminVoucherDto[];
+};
+
+export type AdminHeroBannerDto = {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  label: string | null;
+  tag: string | null;
+  deviceType: string | null;
+  priceText: string | null;
+  highlightLabel: string | null;
+  highlight: string | null;
+  imageUrl: string | null;
+  href: string | null;
+  gradient: string;
+  sortOrder: number;
+  isActive: boolean;
+};
+
+export type AdminNewsArticleDto = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  content: string | null;
+  category: string | null;
+  imageUrl: string | null;
+  href: string | null;
+  isPublished: boolean;
+  publishedAt: string;
+};
+
+export type AdminVoucherDto = {
+  id: string;
+  code: string;
+  title: string;
+  description: string | null;
+  discountType: 'percent' | 'fixed';
+  discountValue: number;
+  minOrderAmount: number;
+  maxDiscountAmount: number | null;
+  usageLimit: number | null;
+  usedCount: number;
+  isActive: boolean;
 };
 
 export type AdminPaymentQrSettingDto = {
@@ -202,4 +249,43 @@ export type AdminPaymentQrSettingPayload = {
   instructions?: unknown;
   isActive?: unknown;
   sortOrder?: unknown;
+};
+
+export type AdminHeroBannerPayload = {
+  title?: unknown;
+  subtitle?: unknown;
+  label?: unknown;
+  tag?: unknown;
+  deviceType?: unknown;
+  priceText?: unknown;
+  highlightLabel?: unknown;
+  highlight?: unknown;
+  imageUrl?: unknown;
+  href?: unknown;
+  gradient?: unknown;
+  sortOrder?: unknown;
+  isActive?: unknown;
+};
+
+export type AdminNewsArticlePayload = {
+  title?: unknown;
+  slug?: unknown;
+  excerpt?: unknown;
+  content?: unknown;
+  category?: unknown;
+  imageUrl?: unknown;
+  href?: unknown;
+  isPublished?: unknown;
+};
+
+export type AdminVoucherPayload = {
+  code?: unknown;
+  title?: unknown;
+  description?: unknown;
+  discountType?: unknown;
+  discountValue?: unknown;
+  minOrderAmount?: unknown;
+  maxDiscountAmount?: unknown;
+  usageLimit?: unknown;
+  isActive?: unknown;
 };

@@ -7,6 +7,7 @@ export type CheckoutPayload = {
   shippingLine1?: unknown;
   shippingLine2?: unknown;
   paymentMethod?: unknown;
+  voucherCode?: unknown;
   note?: unknown;
 };
 

@@ -4,11 +4,20 @@
 
 drop policy if exists "Users can create own reviews" on public.reviews;
 drop policy if exists "Users can update own unapproved reviews" on public.reviews;
+drop policy if exists "Users can create reviews for delivered purchases" on public.reviews;
+drop policy if exists "Users can update own delivered purchase reviews" on public.reviews;
+drop policy if exists "Users can update own unapproved delivered purchase reviews" on public.reviews;
+
+update public.reviews
+set is_approved = true,
+    updated_at = now()
+where is_approved = false;
 
 create policy "Users can create reviews for delivered purchases"
 on public.reviews for insert
 with check (
   user_id = auth.uid()
+  and is_approved = true
   and exists (
     select 1
     from public.orders o
@@ -20,11 +29,10 @@ with check (
   )
 );
 
-create policy "Users can update own unapproved delivered purchase reviews"
+create policy "Users can update own delivered purchase reviews"
 on public.reviews for update
 using (
   user_id = auth.uid()
-  and is_approved = false
   and exists (
     select 1
     from public.orders o
@@ -37,6 +45,7 @@ using (
 )
 with check (
   user_id = auth.uid()
+  and is_approved = true
   and exists (
     select 1
     from public.orders o

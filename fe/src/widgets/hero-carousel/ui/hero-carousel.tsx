@@ -3,21 +3,46 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import type { HeroBanner } from "@/features/catalog/api/catalog-api";
 import type { Dictionary, Locale } from "@/shared/i18n";
 
 type HeroCarouselProps = {
   dictionary: Dictionary;
   locale: Locale;
+  banners?: HeroBanner[];
 };
 
 const statsKeys = ["products", "brands", "support"] as const;
 
-export function HeroCarousel({ dictionary, locale }: HeroCarouselProps) {
+export function HeroCarousel({
+  dictionary,
+  locale,
+  banners = [],
+}: HeroCarouselProps) {
   const router = useRouter();
   const [activeSlide, setActiveSlide] = useState(0);
-  const slides = dictionary.hero.slides;
+  const slides =
+    banners.length > 0
+      ? banners.map((banner) => ({
+          label: banner.label ?? "NovaTech",
+          tag: banner.tag ?? "Update",
+          title: banner.title,
+          description: banner.subtitle ?? "",
+          deviceType: banner.deviceType ?? "",
+          price: banner.priceText ?? "",
+          highlightLabel: banner.highlightLabel ?? "",
+          highlight: banner.highlight ?? "",
+          gradient: banner.gradient,
+          imageUrl: banner.imageUrl,
+          href: banner.href,
+        }))
+      : dictionary.hero.slides.map((slide) => ({
+          ...slide,
+          imageUrl: null,
+          href: "/news",
+        }));
   const currentSlide = slides[activeSlide];
-  const newsHref = `/news?lang=${locale}`;
+  const newsHref = withLocale(currentSlide.href ?? "/news", locale);
   const sideSlides = slides
     .map((slide, index) => ({ slide, index }))
     .filter((item) => item.index !== activeSlide)
@@ -52,6 +77,13 @@ export function HeroCarousel({ dictionary, locale }: HeroCarouselProps) {
               <div
                 className={`absolute inset-0 bg-gradient-to-br ${currentSlide.gradient} opacity-95 transition-colors duration-700`}
               />
+              {currentSlide.imageUrl ? (
+                <img
+                  src={currentSlide.imageUrl}
+                  alt={currentSlide.title}
+                  className="absolute inset-0 h-full w-full object-cover opacity-35 mix-blend-screen"
+                />
+              ) : null}
               <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(255,255,255,0.16),transparent_34%),radial-gradient(circle_at_78%_22%,rgba(255,255,255,0.18),transparent_18rem)]" />
               <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/25 to-transparent" />
 
@@ -155,6 +187,13 @@ export function HeroCarousel({ dictionary, locale }: HeroCarouselProps) {
                   <div
                     className={`absolute inset-0 bg-gradient-to-br ${slide.gradient} opacity-90 transition group-hover:scale-105`}
                   />
+                  {slide.imageUrl ? (
+                    <img
+                      src={slide.imageUrl}
+                      alt={slide.title}
+                      className="absolute inset-0 h-full w-full object-cover opacity-30 mix-blend-screen transition group-hover:scale-105"
+                    />
+                  ) : null}
                   <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(255,255,255,0.14),transparent_38%),radial-gradient(circle_at_80%_18%,rgba(255,255,255,0.14),transparent_12rem)]" />
                   <div className="relative flex h-full flex-col justify-between">
                     <div>
@@ -191,4 +230,15 @@ export function HeroCarousel({ dictionary, locale }: HeroCarouselProps) {
       </div>
     </section>
   );
+}
+
+function withLocale(href: string, locale: Locale) {
+  if (href.startsWith("http")) {
+    return href;
+  }
+
+  const [path, hash = ""] = href.split("#");
+  const separator = path.includes("?") ? "&" : "?";
+
+  return `${path}${separator}lang=${locale}${hash ? `#${hash}` : ""}`;
 }

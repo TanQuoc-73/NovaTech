@@ -3,9 +3,13 @@ import { Injectable } from '@nestjs/common';
 import type {
   CatalogBrandDto,
   CatalogCategoryDto,
+  CatalogHeroBannerDto,
+  CatalogNewsArticleDto,
   CatalogProductDto,
   CatalogProductFilters,
   CatalogProductSort,
+  CatalogVoucherDto,
+  VoucherValidationDto,
 } from './catalog.types';
 import { SupabaseService } from '../infrastructure/supabase/supabase.service';
 
@@ -21,6 +25,47 @@ type BrandRow = {
   name: string;
   slug: string;
   logo_url: string | null;
+};
+
+type HeroBannerRow = {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  label: string | null;
+  tag: string | null;
+  device_type: string | null;
+  price_text: string | null;
+  highlight_label: string | null;
+  highlight: string | null;
+  image_url: string | null;
+  href: string | null;
+  gradient: string;
+  sort_order: number;
+};
+
+type NewsArticleRow = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  content: string | null;
+  category: string | null;
+  image_url: string | null;
+  href: string | null;
+  published_at: string;
+};
+
+type VoucherRow = {
+  id: string;
+  code: string;
+  title: string;
+  description: string | null;
+  discount_type: 'percent' | 'fixed';
+  discount_value: string | number;
+  min_order_amount: string | number;
+  max_discount_amount: string | number | null;
+  usage_limit: number | null;
+  used_count: number;
 };
 
 type ProductRow = {
@@ -51,8 +96,16 @@ type ProductRow = {
     }>;
   }>;
   reviews: Array<{
+    id: string;
     rating: number;
+    title: string | null;
+    content: string | null;
     is_approved: boolean;
+    created_at: string;
+    profiles:
+      | { full_name: string | null; email: string | null }
+      | Array<{ full_name: string | null; email: string | null }>
+      | null;
   }>;
 };
 
@@ -96,6 +149,141 @@ export class CatalogService {
       slug: brand.slug,
       logoUrl: brand.logo_url,
     }));
+  }
+
+  async findHeroBanners(): Promise<CatalogHeroBannerDto[]> {
+    const { data, error } = await this.supabaseService.client
+      .from('hero_banners')
+      .select(
+        'id, title, subtitle, label, tag, device_type, price_text, highlight_label, highlight, image_url, href, gradient, sort_order',
+      )
+      .eq('is_active', true)
+      .or('starts_at.is.null,starts_at.lte.now()')
+      .or('ends_at.is.null,ends_at.gte.now()')
+      .order('sort_order', { ascending: true })
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    return ((data ?? []) as unknown as HeroBannerRow[]).map((banner) => ({
+      id: banner.id,
+      title: banner.title,
+      subtitle: banner.subtitle,
+      label: banner.label,
+      tag: banner.tag,
+      deviceType: banner.device_type,
+      priceText: banner.price_text,
+      highlightLabel: banner.highlight_label,
+      highlight: banner.highlight,
+      imageUrl: banner.image_url,
+      href: banner.href,
+      gradient: banner.gradient,
+      sortOrder: banner.sort_order,
+    }));
+  }
+
+  async findNewsArticles(): Promise<CatalogNewsArticleDto[]> {
+    const { data, error } = await this.supabaseService.client
+      .from('news_articles')
+      .select(
+        'id, title, slug, excerpt, content, category, image_url, href, published_at',
+      )
+      .eq('is_published', true)
+      .order('published_at', { ascending: false })
+      .limit(12);
+
+    if (error) {
+      throw error;
+    }
+
+    return ((data ?? []) as unknown as NewsArticleRow[]).map((article) => ({
+      id: article.id,
+      title: article.title,
+      slug: article.slug,
+      excerpt: article.excerpt,
+      content: article.content,
+      category: article.category,
+      imageUrl: article.image_url,
+      href: article.href,
+      publishedAt: article.published_at,
+    }));
+  }
+
+  async findActiveVouchers(): Promise<CatalogVoucherDto[]> {
+    const { data, error } = await this.supabaseService.client
+      .from('vouchers')
+      .select(
+        'id, code, title, description, discount_type, discount_value, min_order_amount, max_discount_amount, usage_limit, used_count',
+      )
+      .eq('is_active', true)
+      .or('starts_at.is.null,starts_at.lte.now()')
+      .or('ends_at.is.null,ends_at.gte.now()')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    return ((data ?? []) as unknown as VoucherRow[])
+      .filter((voucher) => this.hasVoucherUsageLeft(voucher))
+      .map((voucher) => this.mapVoucher(voucher));
+  }
+
+  async validateVoucher(
+    code: string | undefined,
+    subtotalValue: string | undefined,
+  ): Promise<VoucherValidationDto> {
+    const normalizedCode = code?.trim().toUpperCase() ?? '';
+    const subtotal = Number(subtotalValue ?? 0);
+
+    if (!normalizedCode) {
+      return {
+        isValid: false,
+        code: '',
+        discountAmount: 0,
+        message: 'Vui long nhap ma voucher.',
+      };
+    }
+
+    if (!Number.isFinite(subtotal) || subtotal <= 0) {
+      return {
+        isValid: false,
+        code: normalizedCode,
+        discountAmount: 0,
+        message: 'Tong tien khong hop le.',
+      };
+    }
+
+    const voucher = await this.findVoucherByCode(normalizedCode);
+
+    if (!voucher) {
+      return {
+        isValid: false,
+        code: normalizedCode,
+        discountAmount: 0,
+        message: 'Voucher khong hop le hoac da het han.',
+      };
+    }
+
+    const discountAmount = this.calculateVoucherDiscount(voucher, subtotal);
+
+    if (discountAmount <= 0) {
+      return {
+        isValid: false,
+        code: normalizedCode,
+        discountAmount: 0,
+        message: `Don hang can toi thieu ${Number(voucher.min_order_amount).toLocaleString('vi-VN')}d.`,
+      };
+    }
+
+    return {
+      isValid: true,
+      code: voucher.code,
+      title: voucher.title,
+      discountAmount,
+    };
   }
 
   async findFeaturedProducts(): Promise<CatalogProductDto[]> {
@@ -233,8 +421,16 @@ export class CatalogService {
       )
     ),
     reviews (
+      id,
       rating,
-      is_approved
+      title,
+      content,
+      is_approved,
+      created_at,
+      profiles:user_id (
+        full_name,
+        email
+      )
     )
   `;
 
@@ -290,14 +486,39 @@ export class CatalogService {
         imageUrl: primaryVariantImage ?? product.thumbnail_url ?? '',
         badges: product.is_featured ? ['bestseller'] : ['new'],
         variants,
+        reviews: this.mapReviews(product.reviews),
       };
     });
   }
 
+  private mapReviews(reviews: ProductRow['reviews']) {
+    return (reviews ?? [])
+      .sort(
+        (left, right) =>
+          new Date(right.created_at).getTime() -
+          new Date(left.created_at).getTime(),
+      )
+      .map((review) => {
+        const profile = Array.isArray(review.profiles)
+          ? review.profiles[0]
+          : review.profiles;
+
+        return {
+          id: review.id,
+          rating: review.rating,
+          title: review.title,
+          content: review.content,
+          authorName:
+            profile?.full_name?.trim() ||
+            profile?.email?.split('@')[0] ||
+            'Khach hang',
+          createdAt: review.created_at,
+        };
+      });
+  }
+
   private calculateRating(reviews: ProductRow['reviews']) {
-    const approvedReviews = (reviews ?? []).filter(
-      (review) => review.is_approved,
-    );
+    const approvedReviews = reviews ?? [];
 
     if (!approvedReviews.length) {
       return 5;
@@ -309,6 +530,68 @@ export class CatalogService {
     );
 
     return Math.round((total / approvedReviews.length) * 10) / 10;
+  }
+
+  private async findVoucherByCode(code: string) {
+    const { data, error } = await this.supabaseService.client
+      .from('vouchers')
+      .select(
+        'id, code, title, description, discount_type, discount_value, min_order_amount, max_discount_amount, usage_limit, used_count',
+      )
+      .eq('code', code)
+      .eq('is_active', true)
+      .or('starts_at.is.null,starts_at.lte.now()')
+      .or('ends_at.is.null,ends_at.gte.now()')
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    const voucher = data as unknown as VoucherRow | null;
+
+    return voucher && this.hasVoucherUsageLeft(voucher) ? voucher : null;
+  }
+
+  private hasVoucherUsageLeft(voucher: VoucherRow) {
+    return (
+      voucher.usage_limit === null || voucher.used_count < voucher.usage_limit
+    );
+  }
+
+  private mapVoucher(voucher: VoucherRow): CatalogVoucherDto {
+    return {
+      id: voucher.id,
+      code: voucher.code,
+      title: voucher.title,
+      description: voucher.description,
+      discountType: voucher.discount_type,
+      discountValue: Number(voucher.discount_value),
+      minOrderAmount: Number(voucher.min_order_amount),
+      maxDiscountAmount:
+        voucher.max_discount_amount === null
+          ? null
+          : Number(voucher.max_discount_amount),
+    };
+  }
+
+  private calculateVoucherDiscount(voucher: VoucherRow, subtotal: number) {
+    const minOrderAmount = Number(voucher.min_order_amount);
+
+    if (subtotal < minOrderAmount) {
+      return 0;
+    }
+
+    const rawDiscount =
+      voucher.discount_type === 'percent'
+        ? Math.floor((subtotal * Number(voucher.discount_value)) / 100)
+        : Number(voucher.discount_value);
+    const maxDiscount =
+      voucher.max_discount_amount === null
+        ? rawDiscount
+        : Math.min(rawDiscount, Number(voucher.max_discount_amount));
+
+    return Math.max(0, Math.min(subtotal, maxDiscount));
   }
 
   private normalizeSort(sort: string | undefined): CatalogProductSort {

@@ -19,12 +19,15 @@ import { AdminService } from './admin.service';
 import type {
   AdminBrandPayload,
   AdminCategoryPayload,
+  AdminHeroBannerPayload,
+  AdminNewsArticlePayload,
   AdminOrderStatusPayload,
   AdminPaymentQrSettingPayload,
   AdminPaymentStatusPayload,
   AdminProductPayload,
   AdminProductVariantImagePayload,
   AdminProductVariantPayload,
+  AdminVoucherPayload,
 } from './admin.types';
 
 type UploadedImageFile = {
@@ -106,6 +109,57 @@ export class AdminController {
   @Delete('payment-qr-settings/:id')
   deletePaymentQrSetting(@Param('id') id: string) {
     return this.adminService.deletePaymentQrSetting(id);
+  }
+
+  @Post('hero-banners')
+  createHeroBanner(@Body() payload: AdminHeroBannerPayload) {
+    return this.adminService.upsertHeroBanner(payload);
+  }
+
+  @Patch('hero-banners/:id')
+  updateHeroBanner(
+    @Param('id') id: string,
+    @Body() payload: AdminHeroBannerPayload,
+  ) {
+    return this.adminService.upsertHeroBanner(payload, id);
+  }
+
+  @Delete('hero-banners/:id')
+  deleteHeroBanner(@Param('id') id: string) {
+    return this.adminService.deleteHeroBanner(id);
+  }
+
+  @Post('news')
+  createNewsArticle(@Body() payload: AdminNewsArticlePayload) {
+    return this.adminService.upsertNewsArticle(payload);
+  }
+
+  @Patch('news/:id')
+  updateNewsArticle(
+    @Param('id') id: string,
+    @Body() payload: AdminNewsArticlePayload,
+  ) {
+    return this.adminService.upsertNewsArticle(payload, id);
+  }
+
+  @Delete('news/:id')
+  deleteNewsArticle(@Param('id') id: string) {
+    return this.adminService.deleteNewsArticle(id);
+  }
+
+  @Post('vouchers')
+  createVoucher(@Body() payload: AdminVoucherPayload) {
+    return this.adminService.upsertVoucher(payload);
+  }
+
+  @Patch('vouchers/:id')
+  updateVoucher(@Param('id') id: string, @Body() payload: AdminVoucherPayload) {
+    return this.adminService.upsertVoucher(payload, id);
+  }
+
+  @Delete('vouchers/:id')
+  deleteVoucher(@Param('id') id: string) {
+    return this.adminService.deleteVoucher(id);
   }
 
   @Post('categories')

@@ -61,6 +61,24 @@ export function CartPageTabs({ initialTab }: { initialTab?: string | string[] })
   );
   const [cartQuantity, setCartQuantity] = useState(0);
 
+  const refreshOrders = useCallback(async (showLoading = false) => {
+    if (showLoading) {
+      setIsOrdersLoading(true);
+    }
+
+    try {
+      const data = await getMyOrders();
+
+      setOrders(data);
+      setOrdersMessage(null);
+    } catch {
+      setOrders([]);
+      setOrdersMessage("Vui long dang nhap de xem don hang.");
+    } finally {
+      setIsOrdersLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     getCart()
       .then((data) => setCartQuantity(data.totalQuantity))
@@ -68,17 +86,30 @@ export function CartPageTabs({ initialTab }: { initialTab?: string | string[] })
   }, []);
 
   useEffect(() => {
-    getMyOrders()
-      .then((data) => {
-        setOrders(data);
-        setOrdersMessage(null);
-      })
-      .catch(() => {
-        setOrders([]);
-        setOrdersMessage("Vui long dang nhap de xem don hang.");
-      })
-      .finally(() => setIsOrdersLoading(false));
-  }, []);
+    void refreshOrders(defaultTab !== "cart");
+  }, [defaultTab, refreshOrders]);
+
+  useEffect(() => {
+    function handleFocus() {
+      if (activeTab !== "cart") {
+        void refreshOrders(false);
+      }
+    }
+
+    function handleVisibilityChange() {
+      if (document.visibilityState === "visible" && activeTab !== "cart") {
+        void refreshOrders(false);
+      }
+    }
+
+    window.addEventListener("focus", handleFocus);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [activeTab, refreshOrders]);
 
   const visibleOrders = useMemo(() => {
     if (activeTab === "cart") {
@@ -122,7 +153,13 @@ export function CartPageTabs({ initialTab }: { initialTab?: string | string[] })
               <button
                 key={tab.id}
                 type="button"
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => {
+                  setActiveTab(tab.id);
+
+                  if (tab.id !== "cart") {
+                    void refreshOrders(!orders.length);
+                  }
+                }}
                 className={`inline-flex h-11 items-center gap-2 rounded-t-md px-4 text-sm font-semibold transition ${
                   isActive
                     ? "bg-[#fffdf7] text-amber-900 shadow-sm"
@@ -359,7 +396,7 @@ function ReviewPanel({
             Da gui danh gia {item.review.rating}/5 sao
           </p>
           <span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-emerald-800">
-            {item.review.isApproved ? "Da duyet" : "Cho duyet"}
+            Da hien thi
           </span>
         </div>
         {item.review.title || item.review.content ? (

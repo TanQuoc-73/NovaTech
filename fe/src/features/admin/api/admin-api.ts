@@ -76,6 +76,53 @@ export type AdminDashboard = {
   products: AdminProduct[];
   recentOrders: AdminRecentOrder[];
   paymentQrSettings: AdminPaymentQrSetting[];
+  heroBanners: AdminHeroBanner[];
+  newsArticles: AdminNewsArticle[];
+  vouchers: AdminVoucher[];
+};
+
+export type AdminHeroBanner = {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  label: string | null;
+  tag: string | null;
+  deviceType: string | null;
+  priceText: string | null;
+  highlightLabel: string | null;
+  highlight: string | null;
+  imageUrl: string | null;
+  href: string | null;
+  gradient: string;
+  sortOrder: number;
+  isActive: boolean;
+};
+
+export type AdminNewsArticle = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  content: string | null;
+  category: string | null;
+  imageUrl: string | null;
+  href: string | null;
+  isPublished: boolean;
+  publishedAt: string;
+};
+
+export type AdminVoucher = {
+  id: string;
+  code: string;
+  title: string;
+  description: string | null;
+  discountType: "percent" | "fixed";
+  discountValue: number;
+  minOrderAmount: number;
+  maxDiscountAmount: number | null;
+  usageLimit: number | null;
+  usedCount: number;
+  isActive: boolean;
 };
 
 export type AdminPaymentQrSetting = {
@@ -244,6 +291,75 @@ export function updateAdminPaymentQrSetting(
 
 export function deleteAdminPaymentQrSetting(id: string) {
   return apiFetch<AdminDashboard>(`/admin/payment-qr-settings/${id}`, {
+    method: "DELETE",
+    authenticated: true,
+  });
+}
+
+export function createAdminHeroBanner(payload: Record<string, unknown>) {
+  return apiFetch<AdminDashboard>("/admin/hero-banners", {
+    method: "POST",
+    authenticated: true,
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateAdminHeroBanner(id: string, payload: Record<string, unknown>) {
+  return apiFetch<AdminDashboard>(`/admin/hero-banners/${id}`, {
+    method: "PATCH",
+    authenticated: true,
+    body: JSON.stringify(payload),
+  });
+}
+
+export function deleteAdminHeroBanner(id: string) {
+  return apiFetch<AdminDashboard>(`/admin/hero-banners/${id}`, {
+    method: "DELETE",
+    authenticated: true,
+  });
+}
+
+export function createAdminNewsArticle(payload: Record<string, unknown>) {
+  return apiFetch<AdminDashboard>("/admin/news", {
+    method: "POST",
+    authenticated: true,
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateAdminNewsArticle(id: string, payload: Record<string, unknown>) {
+  return apiFetch<AdminDashboard>(`/admin/news/${id}`, {
+    method: "PATCH",
+    authenticated: true,
+    body: JSON.stringify(payload),
+  });
+}
+
+export function deleteAdminNewsArticle(id: string) {
+  return apiFetch<AdminDashboard>(`/admin/news/${id}`, {
+    method: "DELETE",
+    authenticated: true,
+  });
+}
+
+export function createAdminVoucher(payload: Record<string, unknown>) {
+  return apiFetch<AdminDashboard>("/admin/vouchers", {
+    method: "POST",
+    authenticated: true,
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateAdminVoucher(id: string, payload: Record<string, unknown>) {
+  return apiFetch<AdminDashboard>(`/admin/vouchers/${id}`, {
+    method: "PATCH",
+    authenticated: true,
+    body: JSON.stringify(payload),
+  });
+}
+
+export function deleteAdminVoucher(id: string) {
+  return apiFetch<AdminDashboard>(`/admin/vouchers/${id}`, {
     method: "DELETE",
     authenticated: true,
   });

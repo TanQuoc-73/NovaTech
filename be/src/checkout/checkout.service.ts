@@ -9,7 +9,20 @@ import type { CheckoutPayload, CheckoutResultDto } from './checkout.types';
 type OrderSummaryRow = {
   id: string;
   order_number: string;
+  subtotal_amount: string | number;
+  shipping_amount: string | number;
   total_amount: string | number;
+};
+
+type VoucherRow = {
+  id: string;
+  code: string;
+  discount_type: 'percent' | 'fixed';
+  discount_value: string | number;
+  min_order_amount: string | number;
+  max_discount_amount: string | number | null;
+  usage_limit: number | null;
+  used_count: number;
 };
 
 @Injectable()
@@ -74,7 +87,7 @@ export class CheckoutService {
 
     const orderResponse = await this.supabaseService.client
       .from('orders')
-      .select('id, order_number, total_amount')
+      .select('id, order_number, subtotal_amount, shipping_amount, total_amount')
       .eq('id', orderId)
       .single();
 
@@ -82,7 +95,12 @@ export class CheckoutService {
       throw new BadRequestException(orderResponse.error.message);
     }
 
-    const summary = this.readOrderSummary(orderResponse.data);
+    let summary = this.readOrderSummary(orderResponse.data);
+    const voucherCode = this.readOptionalString(payload.voucherCode);
+
+    if (voucherCode) {
+      summary = await this.applyVoucher(orderId, voucherCode, summary);
+    }
 
     const result: CheckoutResultDto = {
       orderId: summary.id,
@@ -158,9 +176,15 @@ export class CheckoutService {
       typeof value === 'object' &&
       'id' in value &&
       'order_number' in value &&
+      'subtotal_amount' in value &&
+      'shipping_amount' in value &&
       'total_amount' in value &&
       typeof value.id === 'string' &&
       typeof value.order_number === 'string' &&
+      (typeof value.subtotal_amount === 'string' ||
+        typeof value.subtotal_amount === 'number') &&
+      (typeof value.shipping_amount === 'string' ||
+        typeof value.shipping_amount === 'number') &&
       (typeof value.total_amount === 'string' ||
         typeof value.total_amount === 'number')
     ) {
@@ -168,10 +192,103 @@ export class CheckoutService {
         id: value.id,
         order_number: value.order_number,
         total_amount: value.total_amount,
+        subtotal_amount: value.subtotal_amount,
+        shipping_amount: value.shipping_amount,
       };
     }
 
     throw new BadRequestException('Cannot read order summary.');
+  }
+
+  private async applyVoucher(
+    orderId: string,
+    voucherCode: string,
+    summary: OrderSummaryRow,
+  ) {
+    const voucher = await this.findVoucher(voucherCode);
+
+    if (!voucher) {
+      throw new BadRequestException('Voucher khong hop le hoac da het han.');
+    }
+
+    const subtotal = Number(summary.subtotal_amount ?? 0);
+    const shipping = Number(summary.shipping_amount ?? 0);
+    const discountAmount = this.calculateVoucherDiscount(voucher, subtotal);
+
+    if (discountAmount <= 0) {
+      throw new BadRequestException('Don hang chua du dieu kien ap dung voucher.');
+    }
+
+    const nextTotal = Math.max(0, subtotal + shipping - discountAmount);
+    const orderResponse = await this.supabaseService.client
+      .from('orders')
+      .update({
+        discount_amount: discountAmount,
+        total_amount: nextTotal,
+      })
+      .eq('id', orderId)
+      .select('id, order_number, subtotal_amount, shipping_amount, total_amount')
+      .single();
+
+    if (orderResponse.error) {
+      throw new BadRequestException(orderResponse.error.message);
+    }
+
+    await this.supabaseService.client
+      .from('vouchers')
+      .update({ used_count: voucher.used_count + 1 })
+      .eq('id', voucher.id);
+
+    return this.readOrderSummary(orderResponse.data);
+  }
+
+  private async findVoucher(code: string) {
+    const { data, error } = await this.supabaseService.client
+      .from('vouchers')
+      .select(
+        'id, code, discount_type, discount_value, min_order_amount, max_discount_amount, usage_limit, used_count',
+      )
+      .eq('code', code.trim().toUpperCase())
+      .eq('is_active', true)
+      .or('starts_at.is.null,starts_at.lte.now()')
+      .or('ends_at.is.null,ends_at.gte.now()')
+      .maybeSingle();
+
+    if (error) {
+      throw new BadRequestException(error.message);
+    }
+
+    const voucher = data as unknown as VoucherRow | null;
+
+    if (
+      !voucher ||
+      (voucher.usage_limit !== null && voucher.used_count >= voucher.usage_limit)
+    ) {
+      return null;
+    }
+
+    return voucher;
+  }
+
+  private calculateVoucherDiscount(voucher: VoucherRow, subtotal: number) {
+    if (subtotal < Number(voucher.min_order_amount)) {
+      return 0;
+    }
+
+    const rawDiscount =
+      voucher.discount_type === 'percent'
+        ? Math.floor((subtotal * Number(voucher.discount_value)) / 100)
+        : Number(voucher.discount_value);
+
+    return Math.max(
+      0,
+      Math.min(
+        subtotal,
+        voucher.max_discount_amount === null
+          ? rawDiscount
+          : Math.min(rawDiscount, Number(voucher.max_discount_amount)),
+      ),
+    );
   }
 
   private mapCheckoutError(error: { code?: string; message?: string }) {

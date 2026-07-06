@@ -9,6 +9,7 @@ export type CheckoutPayload = {
   shippingLine1: string;
   shippingLine2: string;
   paymentMethod: "cod" | "bank_transfer" | "vnpay" | "momo";
+  voucherCode?: string;
   note: string;
 };
 

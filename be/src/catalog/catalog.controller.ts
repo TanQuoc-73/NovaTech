@@ -17,6 +17,29 @@ export class CatalogController {
     return this.catalogService.findBrands();
   }
 
+  @Get('hero-banners')
+  findHeroBanners() {
+    return this.catalogService.findHeroBanners();
+  }
+
+  @Get('news')
+  findNewsArticles() {
+    return this.catalogService.findNewsArticles();
+  }
+
+  @Get('vouchers')
+  findActiveVouchers() {
+    return this.catalogService.findActiveVouchers();
+  }
+
+  @Get('vouchers/validate')
+  validateVoucher(
+    @Query('code') code?: string,
+    @Query('subtotal') subtotal?: string,
+  ) {
+    return this.catalogService.validateVoucher(code, subtotal);
+  }
+
   @Get('products/featured')
   findFeaturedProducts() {
     return this.catalogService.findFeaturedProducts();

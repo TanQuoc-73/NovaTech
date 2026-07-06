@@ -10,6 +10,16 @@ export type Product = {
   imageUrl: string;
   badges: string[];
   variants: ProductVariant[];
+  reviews: ProductReview[];
+};
+
+export type ProductReview = {
+  id: string;
+  rating: number;
+  title: string | null;
+  content: string | null;
+  authorName: string;
+  createdAt: string;
 };
 
 export type ProductVariant = {

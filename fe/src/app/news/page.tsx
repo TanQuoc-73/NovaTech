@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CalendarDays, ChevronRight, Newspaper, Tags } from "lucide-react";
 
+import { getNewsArticles } from "@/features/catalog/api/catalog-api";
 import { getDictionary, resolveLocale, type Locale } from "@/shared/i18n";
 import { SiteHeader } from "@/widgets/site-header";
 
@@ -158,6 +159,17 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
   const locale = resolveLocale(params?.lang);
   const dictionary = getDictionary(locale);
   const copy = pageCopy[locale];
+  const dbArticles = await getNewsArticles();
+  const articles =
+    dbArticles.length > 0
+      ? dbArticles.map((article) => ({
+          category: article.category ?? "NovaTech",
+          title: article.title,
+          excerpt: article.excerpt ?? article.content ?? "",
+          date: formatNewsDate(article.publishedAt),
+          href: article.href ?? "/products",
+        }))
+      : copy.articles;
 
   return (
     <main className="min-h-screen bg-[#fff8ed] text-stone-950">
@@ -223,7 +235,7 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
         </div>
 
         <div className="grid gap-4 lg:grid-cols-3">
-          {copy.articles.map((article) => (
+          {articles.map((article) => (
             <article
               key={article.title}
               className="flex min-h-72 flex-col rounded-lg border border-amber-900/10 bg-[#fffdf7] p-5 shadow-sm"
@@ -256,4 +268,18 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
       </section>
     </main>
   );
+}
+
+function formatNewsDate(value: string) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(date);
 }

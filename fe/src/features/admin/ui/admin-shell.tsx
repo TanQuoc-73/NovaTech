@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { BarChart3, Boxes, CreditCard, Home, ReceiptText, Shield } from "lucide-react";
+import { BarChart3, Boxes, CreditCard, Home, Megaphone, ReceiptText, Shield } from "lucide-react";
 
 import { LogoutButton } from "@/features/auth";
 
@@ -31,6 +31,12 @@ const adminNavItems = [
     label: "Thanh toán",
     description: "QR test và phương thức",
     icon: CreditCard,
+  },
+  {
+    href: "/admin/marketing",
+    label: "Marketing",
+    description: "Banner, tin tức và voucher",
+    icon: Megaphone,
   },
 ];
 

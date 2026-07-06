@@ -220,7 +220,7 @@ export class OrdersService {
           rating,
           title,
           content,
-          is_approved: false,
+          is_approved: true,
           updated_at: new Date().toISOString(),
         },
         { onConflict: 'user_id,product_id' },

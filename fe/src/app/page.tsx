@@ -3,6 +3,7 @@ import {
   getCatalogCategories,
   getCatalogProducts,
   getFeaturedProducts,
+  getHeroBanners,
   type CatalogProductSort,
 } from "@/features/catalog/api/catalog-api";
 import { getDictionary, resolveLocale } from "@/shared/i18n";
@@ -129,10 +130,18 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     featured ||
     selectedSort !== "newest";
   const dictionary = getDictionary(locale);
-  const [categories, brands, products, featuredProducts, latestProducts] =
+  const [
+    categories,
+    brands,
+    heroBanners,
+    products,
+    featuredProducts,
+    latestProducts,
+  ] =
     await Promise.all([
       getCatalogCategories(),
       getCatalogBrands(),
+      getHeroBanners(),
       hasCatalogFilters
         ? getCatalogProducts({
             q: normalizedSearchQuery,
@@ -159,7 +168,11 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         searchQuery={normalizedSearchQuery}
       />
 
-      <HeroCarousel dictionary={dictionary} locale={locale} />
+      <HeroCarousel
+        dictionary={dictionary}
+        locale={locale}
+        banners={heroBanners}
+      />
 
       <section id="categories" className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
         {categories.length > 0 ? (

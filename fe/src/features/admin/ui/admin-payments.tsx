@@ -15,7 +15,7 @@ import {
 } from "@/features/admin/api/admin-api";
 
 const paymentProviders = [
-  { value: "bank_transfer", label: "QR test / chuyen khoan" },
+  { value: "bank_transfer", label: "QR test / chuyển khoản" },
   { value: "momo", label: "MoMo test" },
   { value: "vnpay", label: "VNPAY test" },
 ];
@@ -31,7 +31,7 @@ export function AdminPayments() {
   useEffect(() => {
     getAdminDashboard()
       .then(setDashboard)
-      .catch(() => setMessage("Khong the tai cau hinh thanh toan."))
+      .catch(() => setMessage("Không thể tải cấu hình thanh toán."))
       .finally(() => setIsLoading(false));
   }, []);
 
@@ -41,9 +41,9 @@ export function AdminPayments() {
 
     try {
       setDashboard(await action());
-      setMessage("Da cap nhat cau hinh thanh toan.");
+      setMessage("Đã cập nhật cấu hình thanh toán.");
     } catch {
-      setMessage("Thao tac khong thanh cong. Kiem tra lai du lieu QR.");
+      setMessage("Thao tác không thành công. Kiểm tra lại dữ liệu QR.");
     } finally {
       setIsSubmitting(false);
     }
@@ -63,9 +63,9 @@ export function AdminPayments() {
     try {
       const result = await uploadAdminPaymentQrImage(file);
       setQrImageUrl(result.publicUrl);
-      setMessage("Da upload anh QR.");
+      setMessage("Đã upload ảnh QR.");
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Khong the upload QR.");
+      setMessage(error instanceof Error ? error.message : "Không thể upload QR.");
     } finally {
       input.value = "";
       setIsUploading(false);
@@ -93,8 +93,8 @@ export function AdminPayments() {
 
   if (isLoading) {
     return (
-      <section className="grid min-h-[320px] place-items-center text-sm font-semibold text-stone-600">
-        Dang tai cau hinh thanh toan...
+      <section className="grid min-h-[320px] place-items-center text-sm font-semibold text-slate-600">
+        Đang tải cấu hình thanh toán...
       </section>
     );
   }
@@ -105,15 +105,20 @@ export function AdminPayments() {
     <section>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-amber-800">
-            Payment
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-cyan-700">
+            Thanh toán
           </p>
-          <h1 className="mt-3 text-3xl font-semibold">Quan ly QR thanh toan</h1>
+          <h1 className="mt-3 text-3xl font-semibold text-slate-950">
+            Quản lý QR thanh toán
+          </h1>
+          <p className="mt-2 max-w-2xl text-sm font-medium text-slate-600">
+            Cấu hình QR test cho MoMo, VNPAY và chuyển khoản trong luồng checkout.
+          </p>
         </div>
       </div>
 
       {message ? (
-        <div className="mt-5 rounded-md bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
+        <div className="mt-5 rounded-md bg-cyan-50 px-4 py-3 text-sm font-semibold text-cyan-800">
           {message}
         </div>
       ) : null}
@@ -121,22 +126,22 @@ export function AdminPayments() {
       <div className="mt-8 grid gap-6 lg:grid-cols-[380px_1fr]">
         <form
           onSubmit={handleCreate}
-          className="h-fit rounded-lg border border-amber-900/10 bg-white p-5 shadow-sm"
+          className="h-fit rounded-lg border border-cyan-950/10 bg-white p-5 shadow-sm"
         >
           <div className="flex items-center gap-3">
-            <CreditCard className="h-5 w-5 text-amber-800" aria-hidden="true" />
-            <h2 className="font-semibold">Them QR test</h2>
+            <CreditCard className="h-5 w-5 text-cyan-700" aria-hidden="true" />
+            <h2 className="font-semibold">Thêm QR test</h2>
           </div>
 
           <div className="mt-5 grid gap-4">
-            <AdminPaymentField name="title" label="Ten QR" required />
+            <AdminPaymentField name="title" label="Tên QR" required />
             <label className="block">
               <span className="text-xs font-semibold uppercase text-stone-600">
-                Loai thanh toan
+                Loại thanh toán
               </span>
               <select
                 name="provider"
-                className="mt-2 h-11 w-full rounded-md border border-amber-900/15 px-3 text-sm font-semibold outline-none focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
+                className="mt-2 h-11 w-full rounded-md border border-cyan-950/15 px-3 text-sm font-semibold outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
               >
                 {paymentProviders.map((provider) => (
                   <option key={provider.value} value={provider.value}>
@@ -145,25 +150,25 @@ export function AdminPayments() {
                 ))}
               </select>
             </label>
-            <AdminPaymentField name="bankName" label="Ngan hang/vi" />
-            <AdminPaymentField name="accountName" label="Ten tai khoan" />
-            <AdminPaymentField name="accountNumber" label="So tai khoan" />
-            <AdminPaymentField name="sortOrder" label="Thu tu" type="number" />
+            <AdminPaymentField name="bankName" label="Ngân hàng/ví" />
+            <AdminPaymentField name="accountName" label="Tên tài khoản" />
+            <AdminPaymentField name="accountNumber" label="Số tài khoản" />
+            <AdminPaymentField name="sortOrder" label="Thứ tự" type="number" />
 
             <label className="block">
               <span className="text-xs font-semibold uppercase text-stone-600">
-                Anh QR
+                Ảnh QR
               </span>
               <input
                 type="file"
                 accept="image/*"
                 onChange={handleUpload}
-                className="mt-2 block w-full text-sm font-semibold text-stone-600 file:mr-3 file:h-10 file:rounded-md file:border-0 file:bg-amber-700 file:px-3 file:text-sm file:font-semibold file:text-white"
+                className="mt-2 block w-full text-sm font-semibold text-slate-600 file:mr-3 file:h-10 file:rounded-md file:border-0 file:bg-cyan-500 file:px-3 file:text-sm file:font-semibold file:text-slate-950"
               />
             </label>
 
             {qrImageUrl ? (
-              <div className="rounded-lg border border-amber-900/10 bg-amber-50 p-3">
+              <div className="rounded-lg border border-cyan-950/10 bg-cyan-50 p-3">
                 <img
                   src={qrImageUrl}
                   alt="QR preview"
@@ -174,12 +179,12 @@ export function AdminPayments() {
 
             <label className="block">
               <span className="text-xs font-semibold uppercase text-stone-600">
-                Huong dan
+                Hướng dẫn
               </span>
               <textarea
                 name="instructions"
                 rows={3}
-                className="mt-2 w-full rounded-md border border-amber-900/15 px-3 py-2 text-sm font-semibold outline-none focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
+                className="mt-2 w-full rounded-md border border-cyan-950/15 px-3 py-2 text-sm font-semibold outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
               />
             </label>
 
@@ -190,16 +195,16 @@ export function AdminPayments() {
                 defaultChecked
                 className="h-4 w-4 accent-amber-700"
               />
-              Dang bat
+              Đang bật
             </label>
           </div>
 
           <button
             type="submit"
             disabled={isSubmitting || isUploading || !qrImageUrl}
-            className="mt-5 h-11 w-full rounded-md bg-amber-700 text-sm font-semibold text-white transition hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-5 h-11 w-full rounded-md bg-cyan-500 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isUploading ? "Dang upload..." : "Luu QR"}
+            {isUploading ? "Đang upload..." : "Lưu QR"}
           </button>
         </form>
 
@@ -214,8 +219,8 @@ export function AdminPayments() {
               />
             ))
           ) : (
-            <div className="rounded-lg border border-amber-900/10 bg-white p-6 text-sm font-semibold text-stone-600">
-              Chua co QR test nao.
+            <div className="rounded-lg border border-cyan-950/10 bg-white p-6 text-sm font-semibold text-slate-600">
+              Chưa có QR test nào.
             </div>
           )}
         </div>
@@ -255,10 +260,10 @@ function PaymentQrCard({
   return (
     <form
       onSubmit={handleUpdate}
-      className="rounded-lg border border-amber-900/10 bg-white p-4 shadow-sm"
+      className="rounded-lg border border-cyan-950/10 bg-white p-4 shadow-sm"
     >
       <div className="grid gap-4 md:grid-cols-[160px_1fr_auto]">
-        <div className="grid place-items-center rounded-lg bg-amber-50 p-3">
+        <div className="grid place-items-center rounded-lg bg-cyan-50 p-3">
           <img
             src={setting.qrImageUrl}
             alt={setting.title}
@@ -268,18 +273,18 @@ function PaymentQrCard({
         <div className="grid gap-3 md:grid-cols-2">
           <AdminPaymentField
             name="title"
-            label="Ten QR"
+            label="Tên QR"
             defaultValue={setting.title}
             required
           />
           <label className="block">
             <span className="text-xs font-semibold uppercase text-stone-600">
-              Loai
+              Loại
             </span>
             <select
               name="provider"
               defaultValue={setting.provider}
-              className="mt-2 h-10 w-full rounded-md border border-amber-900/15 px-3 text-sm font-semibold outline-none focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
+              className="mt-2 h-10 w-full rounded-md border border-cyan-950/15 px-3 text-sm font-semibold outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
             >
               {paymentProviders.map((provider) => (
                 <option key={provider.value} value={provider.value}>
@@ -290,45 +295,45 @@ function PaymentQrCard({
           </label>
           <AdminPaymentField
             name="bankName"
-            label="Ngan hang/vi"
+            label="Ngân hàng/ví"
             defaultValue={setting.bankName ?? ""}
           />
           <AdminPaymentField
             name="accountName"
-            label="Ten tai khoan"
+            label="Tên tài khoản"
             defaultValue={setting.accountName ?? ""}
           />
           <AdminPaymentField
             name="accountNumber"
-            label="So tai khoan"
+            label="Số tài khoản"
             defaultValue={setting.accountNumber ?? ""}
           />
           <AdminPaymentField
             name="sortOrder"
-            label="Thu tu"
+            label="Thứ tự"
             type="number"
             defaultValue={String(setting.sortOrder)}
           />
           <label className="block md:col-span-2">
             <span className="text-xs font-semibold uppercase text-stone-600">
-              URL anh QR
+              URL ảnh QR
             </span>
             <input
               name="qrImageUrl"
               defaultValue={setting.qrImageUrl}
               required
-              className="mt-2 h-10 w-full rounded-md border border-amber-900/15 px-3 text-sm font-semibold outline-none focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
+              className="mt-2 h-10 w-full rounded-md border border-cyan-950/15 px-3 text-sm font-semibold outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
             />
           </label>
           <label className="block md:col-span-2">
             <span className="text-xs font-semibold uppercase text-stone-600">
-              Huong dan
+              Hướng dẫn
             </span>
             <textarea
               name="instructions"
               rows={2}
               defaultValue={setting.instructions ?? ""}
-              className="mt-2 w-full rounded-md border border-amber-900/15 px-3 py-2 text-sm font-semibold outline-none focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
+              className="mt-2 w-full rounded-md border border-cyan-950/15 px-3 py-2 text-sm font-semibold outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
             />
           </label>
           <label className="inline-flex items-center gap-2 text-sm font-semibold text-stone-700">
@@ -336,18 +341,18 @@ function PaymentQrCard({
               name="isActive"
               type="checkbox"
               defaultChecked={setting.isActive}
-              className="h-4 w-4 accent-amber-700"
+              className="h-4 w-4 accent-cyan-500"
             />
-            Dang bat
+            Đang bật
           </label>
         </div>
         <div className="flex gap-2 md:flex-col">
           <button
             type="submit"
             disabled={disabled}
-            className="inline-flex h-10 items-center justify-center rounded-md bg-amber-700 px-3 text-sm font-semibold text-white transition hover:bg-amber-800 disabled:opacity-60"
+            className="inline-flex h-10 items-center justify-center rounded-md bg-cyan-500 px-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:opacity-60"
           >
-            Luu
+            Lưu
           </button>
           <button
             type="button"
@@ -356,8 +361,8 @@ function PaymentQrCard({
               void runAction(() => deleteAdminPaymentQrSetting(setting.id))
             }
             className="grid h-10 w-10 place-items-center rounded-md border border-red-200 text-red-700 transition hover:bg-red-50 disabled:opacity-60"
-            aria-label="Xoa QR"
-            title="Xoa QR"
+            aria-label="Xóa QR"
+            title="Xóa QR"
           >
             <Trash2 className="h-4 w-4" aria-hidden="true" />
           </button>
@@ -390,7 +395,7 @@ function AdminPaymentField({
         type={type}
         defaultValue={defaultValue}
         required={required}
-        className="mt-2 h-10 w-full rounded-md border border-amber-900/15 px-3 text-sm font-semibold outline-none focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
+        className="mt-2 h-10 w-full rounded-md border border-cyan-950/15 px-3 text-sm font-semibold outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
       />
     </label>
   );

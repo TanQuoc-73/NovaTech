@@ -61,9 +61,7 @@ export function CartDetail({ onCartChange }: { onCartChange?: (cart: Cart) => vo
   if (isLoading) {
     return (
       <section className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
-        <div className="rounded-lg border border-amber-900/10 bg-[#fffdf7] p-6 text-sm font-semibold text-stone-600">
-          Dang tai gio hang...
-        </div>
+        <CartDetailSkeleton />
       </section>
     );
   }
@@ -259,5 +257,59 @@ export function CartDetail({ onCartChange }: { onCartChange?: (cart: Cart) => vo
         </aside>
       </div>
     </section>
+  );
+}
+
+function CartDetailSkeleton() {
+  return (
+    <div aria-busy="true" className="animate-pulse">
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <div className="h-4 w-20 rounded bg-amber-200/70" />
+          <div className="mt-3 h-8 w-56 rounded bg-stone-200" />
+        </div>
+        <div className="h-10 w-36 rounded-md bg-stone-200" />
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+        <div className="overflow-hidden rounded-lg border border-amber-900/10 bg-[#fffdf7]">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div
+              key={index}
+              className="grid grid-cols-[72px_1fr] gap-4 border-b border-amber-900/10 p-4 last:border-b-0 lg:grid-cols-[72px_1fr_150px_120px_44px]"
+            >
+              <div className="h-18 w-18 rounded-md bg-amber-100" />
+              <div className="min-w-0">
+                <div className="h-5 w-4/5 rounded bg-stone-200" />
+                <div className="mt-3 h-4 w-1/2 rounded bg-stone-200" />
+                <div className="mt-3 h-3 w-28 rounded bg-stone-100" />
+              </div>
+              <div className="col-span-2 h-10 w-32 rounded-md bg-stone-200 lg:col-span-1" />
+              <div className="col-span-2 lg:col-span-1 lg:justify-self-end">
+                <div className="h-3 w-20 rounded bg-stone-100 lg:ml-auto" />
+                <div className="mt-3 h-5 w-28 rounded bg-stone-200 lg:ml-auto" />
+              </div>
+              <div className="col-span-2 h-10 rounded-md bg-stone-100 lg:col-span-1 lg:w-10" />
+            </div>
+          ))}
+        </div>
+
+        <aside className="h-fit rounded-lg border border-amber-900/10 bg-[#fffdf7] p-5">
+          <div className="h-5 w-40 rounded bg-stone-200" />
+          <div className="mt-5 grid gap-4">
+            <div className="flex items-center justify-between">
+              <div className="h-4 w-28 rounded bg-stone-100" />
+              <div className="h-4 w-10 rounded bg-stone-200" />
+            </div>
+            <div className="flex items-center justify-between border-t border-amber-900/10 pt-4">
+              <div className="h-4 w-20 rounded bg-stone-100" />
+              <div className="h-5 w-28 rounded bg-stone-200" />
+            </div>
+          </div>
+          <div className="mt-5 h-11 rounded-md bg-amber-200/80" />
+          <div className="mt-3 h-11 rounded-md bg-stone-100" />
+        </aside>
+      </div>
+    </div>
   );
 }

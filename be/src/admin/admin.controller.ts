@@ -19,7 +19,9 @@ import { AdminService } from './admin.service';
 import type {
   AdminBrandPayload,
   AdminCategoryPayload,
+  AdminOrderStatusPayload,
   AdminPaymentQrSettingPayload,
+  AdminPaymentStatusPayload,
   AdminProductPayload,
   AdminProductVariantImagePayload,
   AdminProductVariantPayload,
@@ -41,6 +43,27 @@ export class AdminController {
   @Get('dashboard')
   getDashboard() {
     return this.adminService.getDashboard();
+  }
+
+  @Get('orders')
+  getOrders() {
+    return this.adminService.getOrders();
+  }
+
+  @Patch('orders/:id/status')
+  updateOrderStatus(
+    @Param('id') id: string,
+    @Body() payload: AdminOrderStatusPayload,
+  ) {
+    return this.adminService.updateOrderStatus(id, payload);
+  }
+
+  @Patch('orders/:id/payment-status')
+  updateOrderPaymentStatus(
+    @Param('id') id: string,
+    @Body() payload: AdminPaymentStatusPayload,
+  ) {
+    return this.adminService.updateOrderPaymentStatus(id, payload);
   }
 
   @Post('uploads/product-image')

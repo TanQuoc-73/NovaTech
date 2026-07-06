@@ -690,9 +690,7 @@ export function SiteHeader({ dictionary, locale, searchQuery }: SiteHeaderProps)
                   </div>
 
                   {isCartLoading ? (
-                    <p className="px-4 py-5 text-sm font-semibold text-stone-500">
-                      {dictionary.ui.cart.loading}
-                    </p>
+                    <CartDropdownSkeleton />
                   ) : cart && cart.items.length > 0 ? (
                     <>
                       <div className="max-h-[55vh] overflow-y-auto py-2 sm:max-h-80">
@@ -836,6 +834,32 @@ export function SiteHeader({ dictionary, locale, searchQuery }: SiteHeaderProps)
         onClose={() => setIsAuthOpen(false)}
       />
     </>
+  );
+}
+
+function CartDropdownSkeleton() {
+  return (
+    <div aria-busy="true" className="animate-pulse py-2">
+      {Array.from({ length: 3 }).map((_, index) => (
+        <div key={index} className="flex gap-3 px-4 py-3">
+          <span className="h-12 w-12 shrink-0 rounded-md bg-amber-100" />
+          <span className="min-w-0 flex-1">
+            <span className="block h-4 w-4/5 rounded bg-stone-200" />
+            <span className="mt-2 block h-3 w-2/3 rounded bg-stone-100" />
+            <span className="mt-2 block h-3 w-20 rounded bg-amber-100" />
+          </span>
+          <span className="h-9 w-9 shrink-0 rounded-full bg-stone-100" />
+        </div>
+      ))}
+      <div className="border-t border-amber-900/10 px-4 py-3">
+        <div className="flex items-center justify-between">
+          <span className="h-4 w-16 rounded bg-stone-100" />
+          <span className="h-4 w-24 rounded bg-stone-200" />
+        </div>
+        <div className="mt-3 h-10 rounded-md bg-stone-100" />
+        <div className="mt-2 h-10 rounded-md bg-amber-200/80" />
+      </div>
+    </div>
   );
 }
 

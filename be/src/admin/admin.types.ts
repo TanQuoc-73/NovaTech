@@ -95,6 +95,54 @@ export type AdminRecentOrderDto = {
   createdAt: string;
 };
 
+export type AdminOrderStatus =
+  | 'pending'
+  | 'confirmed'
+  | 'processing'
+  | 'shipped'
+  | 'delivered'
+  | 'cancelled'
+  | 'refunded';
+
+export type AdminPaymentStatus = 'unpaid' | 'paid' | 'failed' | 'refunded';
+
+export type AdminOrderItemDto = {
+  id: string;
+  productName: string;
+  variantName: string;
+  sku: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+};
+
+export type AdminOrderDto = {
+  id: string;
+  orderNumber: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  status: AdminOrderStatus;
+  paymentStatus: AdminPaymentStatus;
+  paymentMethod: string;
+  subtotalAmount: number;
+  shippingAmount: number;
+  discountAmount: number;
+  totalAmount: number;
+  shippingAddress: string;
+  note: string | null;
+  createdAt: string;
+  items: AdminOrderItemDto[];
+};
+
+export type AdminOrderStatusPayload = {
+  status?: unknown;
+};
+
+export type AdminPaymentStatusPayload = {
+  paymentStatus?: unknown;
+};
+
 export type AdminCategoryPayload = {
   name?: unknown;
   slug?: unknown;

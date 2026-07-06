@@ -9,8 +9,14 @@ import type {
   AdminCategoryDto,
   AdminCategoryPayload,
   AdminDashboardDto,
+  AdminOrderDto,
+  AdminOrderItemDto,
+  AdminOrderStatus,
+  AdminOrderStatusPayload,
   AdminPaymentQrSettingDto,
   AdminPaymentQrSettingPayload,
+  AdminPaymentStatus,
+  AdminPaymentStatusPayload,
   AdminProductDto,
   AdminProductPayload,
   AdminProductVariantImageDto,
@@ -19,6 +25,23 @@ import type {
   AdminProductVariantPayload,
   AdminRecentOrderDto,
 } from './admin.types';
+
+const orderStatuses: AdminOrderStatus[] = [
+  'pending',
+  'confirmed',
+  'processing',
+  'shipped',
+  'delivered',
+  'cancelled',
+  'refunded',
+];
+
+const paymentStatuses: AdminPaymentStatus[] = [
+  'unpaid',
+  'paid',
+  'failed',
+  'refunded',
+];
 
 type CategoryRow = {
   id: string;
@@ -77,6 +100,37 @@ type OrderRow = {
   payment_status: string;
   total_amount: string | number;
   created_at: string;
+};
+
+type AdminOrderRow = {
+  id: string;
+  order_number: string;
+  customer_name: string;
+  customer_email: string;
+  customer_phone: string;
+  status: AdminOrderStatus;
+  payment_status: AdminPaymentStatus;
+  payment_method: string;
+  subtotal_amount: string | number;
+  shipping_amount: string | number;
+  discount_amount: string | number;
+  total_amount: string | number;
+  shipping_province: string;
+  shipping_district: string;
+  shipping_ward: string;
+  shipping_line1: string;
+  shipping_line2: string | null;
+  note: string | null;
+  created_at: string;
+  order_items: Array<{
+    id: string;
+    product_name: string;
+    variant_name: string;
+    sku: string;
+    quantity: number;
+    unit_price: string | number;
+    total_price: string | number;
+  }>;
 };
 
 type UploadedImageFile = {
@@ -170,6 +224,99 @@ export class AdminService {
       totalAmount: Number(order.total_amount ?? 0),
       createdAt: order.created_at,
     }));
+  }
+
+  async getOrders(): Promise<AdminOrderDto[]> {
+    const { data, error } = await this.supabaseService.client
+      .from('orders')
+      .select(
+        `
+          id,
+          order_number,
+          customer_name,
+          customer_email,
+          customer_phone,
+          status,
+          payment_status,
+          payment_method,
+          subtotal_amount,
+          shipping_amount,
+          discount_amount,
+          total_amount,
+          shipping_province,
+          shipping_district,
+          shipping_ward,
+          shipping_line1,
+          shipping_line2,
+          note,
+          created_at,
+          order_items (
+            id,
+            product_name,
+            variant_name,
+            sku,
+            quantity,
+            unit_price,
+            total_price
+          )
+        `,
+      )
+      .order('created_at', { ascending: false })
+      .limit(100);
+
+    if (error) {
+      if (error.code === 'PGRST205') {
+        return [];
+      }
+
+      throw error;
+    }
+
+    return ((data ?? []) as unknown as AdminOrderRow[]).map((order) =>
+      this.mapOrder(order),
+    );
+  }
+
+  async updateOrderStatus(id: string, payload: AdminOrderStatusPayload) {
+    const status = this.readOrderStatus(payload.status);
+
+    const { error } = await this.supabaseService.client
+      .from('orders')
+      .update({ status })
+      .eq('id', id);
+
+    if (error) {
+      throw error;
+    }
+
+    return this.getOrders();
+  }
+
+  async updateOrderPaymentStatus(
+    id: string,
+    payload: AdminPaymentStatusPayload,
+  ) {
+    const paymentStatus = this.readPaymentStatus(payload.paymentStatus);
+
+    const { error: orderError } = await this.supabaseService.client
+      .from('orders')
+      .update({ payment_status: paymentStatus })
+      .eq('id', id);
+
+    if (orderError) {
+      throw orderError;
+    }
+
+    const { error: paymentError } = await this.supabaseService.client
+      .from('payments')
+      .update({ status: paymentStatus })
+      .eq('order_id', id);
+
+    if (paymentError) {
+      throw paymentError;
+    }
+
+    return this.getOrders();
   }
 
   async uploadProductImage(file: UploadedImageFile | undefined) {
@@ -762,6 +909,49 @@ export class AdminService {
     return this.getDashboard();
   }
 
+  private mapOrder(order: AdminOrderRow): AdminOrderDto {
+    return {
+      id: order.id,
+      orderNumber: order.order_number,
+      customerName: order.customer_name,
+      customerEmail: order.customer_email,
+      customerPhone: order.customer_phone,
+      status: order.status,
+      paymentStatus: order.payment_status,
+      paymentMethod: order.payment_method,
+      subtotalAmount: Number(order.subtotal_amount ?? 0),
+      shippingAmount: Number(order.shipping_amount ?? 0),
+      discountAmount: Number(order.discount_amount ?? 0),
+      totalAmount: Number(order.total_amount ?? 0),
+      shippingAddress: [
+        order.shipping_line1,
+        order.shipping_line2,
+        order.shipping_ward,
+        order.shipping_district,
+        order.shipping_province,
+      ]
+        .filter(Boolean)
+        .join(', '),
+      note: order.note,
+      createdAt: order.created_at,
+      items: order.order_items.map((item) => this.mapOrderItem(item)),
+    };
+  }
+
+  private mapOrderItem(
+    item: AdminOrderRow['order_items'][number],
+  ): AdminOrderItemDto {
+    return {
+      id: item.id,
+      productName: item.product_name,
+      variantName: item.variant_name,
+      sku: item.sku,
+      quantity: item.quantity,
+      unitPrice: Number(item.unit_price ?? 0),
+      totalPrice: Number(item.total_price ?? 0),
+    };
+  }
+
   private mapProductVariant(
     variant: ProductRow['product_variants'][number],
   ): AdminProductVariantDto {
@@ -954,6 +1144,28 @@ export class AdminService {
     }
 
     return 'bank_transfer';
+  }
+
+  private readOrderStatus(value: unknown): AdminOrderStatus {
+    if (
+      typeof value === 'string' &&
+      orderStatuses.includes(value as AdminOrderStatus)
+    ) {
+      return value as AdminOrderStatus;
+    }
+
+    throw new BadRequestException('Invalid order status.');
+  }
+
+  private readPaymentStatus(value: unknown): AdminPaymentStatus {
+    if (
+      typeof value === 'string' &&
+      paymentStatuses.includes(value as AdminPaymentStatus)
+    ) {
+      return value as AdminPaymentStatus;
+    }
+
+    throw new BadRequestException('Invalid payment status.');
   }
 
   private readCreatedId(value: unknown) {

@@ -211,7 +211,7 @@ export class CatalogService {
     is_featured,
     categories:category_id (slug, name),
     brands:brand_id (name),
-    product_variants (
+    product_variants!inner (
       id,
       sku,
       name,
@@ -231,35 +231,43 @@ export class CatalogService {
   `;
 
   private mapProducts(products: ProductRow[]): CatalogProductDto[] {
-    return products.map((product) => {
-      const variant = product.product_variants[0];
+    return products.flatMap((product) => {
+      const variants = product.product_variants
+        .map((item) => ({
+          id: item.id,
+          sku: item.sku,
+          name: item.name,
+          color: item.color,
+          storage: item.storage,
+          ram: item.ram,
+          price: Number(item.price),
+          compareAtPrice: item.compare_at_price
+            ? Number(item.compare_at_price)
+            : undefined,
+          stock: item.stock_quantity,
+          images: item.product_variant_images
+            .map((image) => ({
+              id: image.id,
+              imageUrl: image.image_url,
+              altText: image.alt_text,
+              sortOrder: image.sort_order,
+            }))
+            .sort((left, right) => left.sortOrder - right.sortOrder),
+        }))
+        .filter((item) => Number.isFinite(item.price))
+        .sort((left, right) => left.price - right.price);
+      const variant = variants[0];
+
+      if (!variant) {
+        return [];
+      }
+
       const category = Array.isArray(product.categories)
         ? product.categories[0]
         : product.categories;
       const brand = Array.isArray(product.brands)
         ? product.brands[0]
         : product.brands;
-      const variants = product.product_variants.map((item) => ({
-        id: item.id,
-        sku: item.sku,
-        name: item.name,
-        color: item.color,
-        storage: item.storage,
-        ram: item.ram,
-        price: Number(item.price),
-        compareAtPrice: item.compare_at_price
-          ? Number(item.compare_at_price)
-          : undefined,
-        stock: item.stock_quantity,
-        images: item.product_variant_images
-          .map((image) => ({
-            id: image.id,
-            imageUrl: image.image_url,
-            altText: image.alt_text,
-            sortOrder: image.sort_order,
-          }))
-          .sort((left, right) => left.sortOrder - right.sortOrder),
-      }));
       const primaryVariantImage = variants[0]?.images[0]?.imageUrl;
 
       return {
@@ -267,12 +275,10 @@ export class CatalogService {
         name: product.name,
         brand: brand?.name ?? 'NovaTech',
         category: category?.slug ?? 'accessory',
-        price: Number(variant?.price ?? 0),
-        compareAtPrice: variant?.compare_at_price
-          ? Number(variant.compare_at_price)
-          : undefined,
+        price: variant.price,
+        compareAtPrice: variant.compareAtPrice,
         rating: 5,
-        stock: variant?.stock_quantity ?? 0,
+        stock: variant.stock,
         imageUrl: primaryVariantImage ?? product.thumbnail_url ?? '',
         badges: product.is_featured ? ['bestseller'] : ['new'],
         variants,

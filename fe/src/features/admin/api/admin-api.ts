@@ -101,6 +101,46 @@ export type AdminRecentOrder = {
   createdAt: string;
 };
 
+export type AdminOrderStatus =
+  | "pending"
+  | "confirmed"
+  | "processing"
+  | "shipped"
+  | "delivered"
+  | "cancelled"
+  | "refunded";
+
+export type AdminPaymentStatus = "unpaid" | "paid" | "failed" | "refunded";
+
+export type AdminOrderItem = {
+  id: string;
+  productName: string;
+  variantName: string;
+  sku: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+};
+
+export type AdminOrder = {
+  id: string;
+  orderNumber: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  status: AdminOrderStatus;
+  paymentStatus: AdminPaymentStatus;
+  paymentMethod: string;
+  subtotalAmount: number;
+  shippingAmount: number;
+  discountAmount: number;
+  totalAmount: number;
+  shippingAddress: string;
+  note: string | null;
+  createdAt: string;
+  items: AdminOrderItem[];
+};
+
 export type AdminUploadResult = {
   bucket: string;
   path: string;
@@ -110,6 +150,31 @@ export type AdminUploadResult = {
 export function getAdminDashboard() {
   return apiFetch<AdminDashboard>("/admin/dashboard", {
     authenticated: true,
+  });
+}
+
+export function getAdminOrders() {
+  return apiFetch<AdminOrder[]>("/admin/orders", {
+    authenticated: true,
+  });
+}
+
+export function updateAdminOrderStatus(id: string, status: AdminOrderStatus) {
+  return apiFetch<AdminOrder[]>(`/admin/orders/${id}/status`, {
+    method: "PATCH",
+    authenticated: true,
+    body: JSON.stringify({ status }),
+  });
+}
+
+export function updateAdminOrderPaymentStatus(
+  id: string,
+  paymentStatus: AdminPaymentStatus,
+) {
+  return apiFetch<AdminOrder[]>(`/admin/orders/${id}/payment-status`, {
+    method: "PATCH",
+    authenticated: true,
+    body: JSON.stringify({ paymentStatus }),
   });
 }
 

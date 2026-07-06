@@ -43,9 +43,9 @@ import { formatCurrency } from "@/shared/lib/format-currency";
 type AdminTab = "products" | "categories" | "brands";
 
 const tabs: Array<{ id: AdminTab; label: string }> = [
-  { id: "products", label: "San pham" },
-  { id: "categories", label: "Danh muc" },
-  { id: "brands", label: "Thuong hieu" },
+  { id: "products", label: "Sản phẩm" },
+  { id: "categories", label: "Danh mục" },
+  { id: "brands", label: "Thương hiệu" },
 ];
 
 export function AdminDashboard({ initialTab = "products" }: { initialTab?: AdminTab }) {
@@ -58,7 +58,7 @@ export function AdminDashboard({ initialTab = "products" }: { initialTab?: Admin
   useEffect(() => {
     getAdminDashboard()
       .then(setDashboard)
-      .catch(() => setMessage("Khong the tai du lieu admin."))
+      .catch(() => setMessage("Không thể tải dữ liệu admin."))
       .finally(() => setIsLoading(false));
   }, []);
 
@@ -69,7 +69,7 @@ export function AdminDashboard({ initialTab = "products" }: { initialTab?: Admin
     try {
       setDashboard(await action());
     } catch {
-      setMessage("Thao tac khong thanh cong. Kiem tra du lieu va quyen admin.");
+      setMessage("Thao tác không thành công. Kiểm tra dữ liệu và quyền admin.");
     } finally {
       setIsSubmitting(false);
     }
@@ -78,7 +78,7 @@ export function AdminDashboard({ initialTab = "products" }: { initialTab?: Admin
   if (isLoading) {
     return (
       <section className="grid min-h-[360px] place-items-center text-stone-700">
-        <p className="text-sm font-semibold">Dang tai admin dashboard...</p>
+        <p className="text-sm font-semibold">Đang tải kho hàng...</p>
       </section>
     );
   }
@@ -93,89 +93,94 @@ export function AdminDashboard({ initialTab = "products" }: { initialTab?: Admin
 
   return (
     <section>
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-amber-800">
-              Catalog
-            </p>
-            <h1 className="mt-3 text-3xl font-semibold">Quan ly san pham</h1>
-          </div>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-cyan-700">
+            Kho hàng
+          </p>
+          <h1 className="mt-3 text-3xl font-semibold text-slate-950">
+            Quản lý catalog
+          </h1>
+          <p className="mt-2 max-w-2xl text-sm font-medium text-slate-600">
+            Quản lý sản phẩm, cấu hình variant, tồn kho, danh mục và thương hiệu.
+          </p>
         </div>
+      </div>
 
-        {message ? (
-          <div className="mt-5 rounded-md bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
-            {message}
-          </div>
+      {message ? (
+        <div className="mt-5 rounded-md bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+          {message}
+        </div>
+      ) : null}
+
+      <div className="mt-8 grid gap-4 md:grid-cols-5">
+        <MetricCard
+          icon={<Package className="h-5 w-5" />}
+          label="Tổng sản phẩm"
+          value={dashboard.metrics.products}
+        />
+        <MetricCard
+          icon={<Package className="h-5 w-5" />}
+          label="Đang bán"
+          value={dashboard.metrics.activeProducts}
+        />
+        <MetricCard
+          icon={<Warehouse className="h-5 w-5" />}
+          label="Sắp hết hàng"
+          value={dashboard.metrics.lowStockVariants}
+        />
+        <MetricCard
+          icon={<Tags className="h-5 w-5" />}
+          label="Danh mục"
+          value={dashboard.metrics.categories}
+        />
+        <MetricCard
+          icon={<Tags className="h-5 w-5" />}
+          label="Thương hiệu"
+          value={dashboard.metrics.brands}
+        />
+      </div>
+
+      <div className="mt-8 flex flex-wrap gap-2 border-b border-cyan-950/10">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => setActiveTab(tab.id)}
+            className={`h-11 rounded-t-md px-4 text-sm font-semibold transition ${
+              activeTab === tab.id
+                ? "bg-white text-cyan-700 shadow-sm"
+                : "text-slate-600 hover:bg-white/60 hover:text-slate-950"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-6">
+        {activeTab === "products" ? (
+          <ProductsPanel
+            dashboard={dashboard}
+            isSubmitting={isSubmitting}
+            runAction={runAction}
+          />
         ) : null}
-
-        <div className="mt-8 grid gap-4 md:grid-cols-5">
-          <MetricCard
-            icon={<Package className="h-5 w-5" />}
-            label="Tong san pham"
-            value={dashboard.metrics.products}
+        {activeTab === "categories" ? (
+          <CategoriesPanel
+            dashboard={dashboard}
+            isSubmitting={isSubmitting}
+            runAction={runAction}
           />
-          <MetricCard
-            icon={<Package className="h-5 w-5" />}
-            label="Dang ban"
-            value={dashboard.metrics.activeProducts}
+        ) : null}
+        {activeTab === "brands" ? (
+          <BrandsPanel
+            dashboard={dashboard}
+            isSubmitting={isSubmitting}
+            runAction={runAction}
           />
-          <MetricCard
-            icon={<Warehouse className="h-5 w-5" />}
-            label="Sap het hang"
-            value={dashboard.metrics.lowStockVariants}
-          />
-          <MetricCard
-            icon={<Tags className="h-5 w-5" />}
-            label="Danh muc"
-            value={dashboard.metrics.categories}
-          />
-          <MetricCard
-            icon={<Tags className="h-5 w-5" />}
-            label="Thuong hieu"
-            value={dashboard.metrics.brands}
-          />
-        </div>
-
-        <div className="mt-8 flex flex-wrap gap-2 border-b border-amber-900/10">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id)}
-              className={`h-11 rounded-t-md px-4 text-sm font-semibold transition ${
-                activeTab === tab.id
-                  ? "bg-white text-amber-900"
-                  : "text-stone-600 hover:bg-white/60 hover:text-stone-950"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="mt-6">
-          {activeTab === "products" ? (
-            <ProductsPanel
-              dashboard={dashboard}
-              isSubmitting={isSubmitting}
-              runAction={runAction}
-            />
-          ) : null}
-          {activeTab === "categories" ? (
-            <CategoriesPanel
-              dashboard={dashboard}
-              isSubmitting={isSubmitting}
-              runAction={runAction}
-            />
-          ) : null}
-          {activeTab === "brands" ? (
-            <BrandsPanel
-              dashboard={dashboard}
-              isSubmitting={isSubmitting}
-              runAction={runAction}
-            />
-          ) : null}
-        </div>
+        ) : null}
+      </div>
     </section>
   );
 }
@@ -190,12 +195,14 @@ function MetricCard({
   value: number;
 }) {
   return (
-    <article className="rounded-lg border border-amber-900/10 bg-white p-5 shadow-sm">
+    <article className="rounded-lg border border-cyan-950/10 bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-sm font-medium text-stone-500">{label}</p>
-        <span className="text-amber-800">{icon}</span>
+        <p className="text-sm font-medium text-slate-500">{label}</p>
+        <span className="grid h-10 w-10 place-items-center rounded-full bg-cyan-50 text-cyan-700">
+          {icon}
+        </span>
       </div>
-      <p className="mt-3 text-3xl font-semibold">{value}</p>
+      <p className="mt-3 text-3xl font-semibold text-slate-950">{value}</p>
     </article>
   );
 }
@@ -354,30 +361,30 @@ function ProductsPanel({
         onSubmit={handleCreateProduct}
         className="h-fit rounded-lg border border-amber-900/10 bg-white p-5 shadow-sm"
       >
-        <PanelTitle title="Them san pham" />
-        <AdminInput name="name" label="Ten san pham" required />
+        <PanelTitle title="Thêm sản phẩm" />
+        <AdminInput name="name" label="Tên sản phẩm" required />
         <AdminInput name="slug" label="Slug" required />
-        <AdminSelect name="categoryId" label="Danh muc" required>
-          <option value="">Chon danh muc</option>
+        <AdminSelect name="categoryId" label="Danh mục" required>
+          <option value="">Chọn danh mục</option>
           {dashboard.categories.map((category) => (
             <option key={category.id} value={category.id}>
               {category.name}
             </option>
           ))}
         </AdminSelect>
-        <AdminSelect name="brandId" label="Thuong hieu" required>
-          <option value="">Chon thuong hieu</option>
+        <AdminSelect name="brandId" label="Thương hiệu" required>
+          <option value="">Chọn thương hiệu</option>
           {dashboard.brands.map((brand) => (
             <option key={brand.id} value={brand.id}>
               {brand.name}
             </option>
           ))}
         </AdminSelect>
-        <AdminInput name="variantName" label="Ten variant" required />
+        <AdminInput name="variantName" label="Tên variant" required />
         <AdminInput name="sku" label="SKU" required />
-        <AdminInput name="price" label="Gia" type="number" required />
-        <AdminInput name="stockQuantity" label="Ton kho" type="number" required />
-        <SubmitButton disabled={isSubmitting}>Them san pham</SubmitButton>
+        <AdminInput name="price" label="Giá" type="number" required />
+        <AdminInput name="stockQuantity" label="Tồn kho" type="number" required />
+        <SubmitButton disabled={isSubmitting}>Thêm sản phẩm</SubmitButton>
       </form>
 
       <div className="overflow-hidden rounded-lg border border-amber-900/10 bg-white shadow-sm">
@@ -385,10 +392,10 @@ function ProductsPanel({
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-sm font-semibold text-stone-950">
               <SlidersHorizontal className="h-4 w-4 text-amber-800" aria-hidden="true" />
-              Bo loc san pham
+              Bộ lọc sản phẩm
             </div>
             <p className="text-xs font-semibold text-stone-500">
-              {resultStart}-{resultEnd} / {filteredProducts.length} san pham
+              {resultStart}-{resultEnd} / {filteredProducts.length} sản phẩm
             </p>
           </div>
 
@@ -404,7 +411,7 @@ function ProductsPanel({
                   setProductSearch(event.target.value);
                   setCurrentPage(1);
                 }}
-                placeholder="Tim ten, slug, SKU..."
+                placeholder="Tìm tên, slug, SKU..."
                 className="h-10 w-full rounded-md border border-amber-900/15 bg-white pl-9 pr-3 text-sm font-semibold text-stone-800 outline-none transition placeholder:text-stone-400 focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
               />
             </label>
@@ -415,10 +422,10 @@ function ProductsPanel({
                 setBrandFilter(event.target.value);
                 setCurrentPage(1);
               }}
-              aria-label="Loc thuong hieu"
+              aria-label="Lọc thương hiệu"
               className="h-10 rounded-md border border-amber-900/15 bg-white px-3 text-sm font-semibold text-stone-800 outline-none transition focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
             >
-              <option value="">Tat ca thuong hieu</option>
+              <option value="">Tất cả thương hiệu</option>
               {dashboard.brands.map((brand) => (
                 <option key={brand.id} value={brand.id}>
                   {brand.name}
@@ -432,10 +439,10 @@ function ProductsPanel({
                 setCategoryFilter(event.target.value);
                 setCurrentPage(1);
               }}
-              aria-label="Loc danh muc"
+              aria-label="Lọc danh mục"
               className="h-10 rounded-md border border-amber-900/15 bg-white px-3 text-sm font-semibold text-stone-800 outline-none transition focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
             >
-              <option value="">Tat ca danh muc</option>
+              <option value="">Tất cả danh mục</option>
               {dashboard.categories.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.name}
@@ -449,13 +456,13 @@ function ProductsPanel({
                 setStatusFilter(event.target.value);
                 setCurrentPage(1);
               }}
-              aria-label="Loc trang thai"
+              aria-label="Lọc trạng thái"
               className="h-10 rounded-md border border-amber-900/15 bg-white px-3 text-sm font-semibold text-stone-800 outline-none transition focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
             >
-              <option value="all">Tat ca trang thai</option>
-              <option value="active">Dang ban</option>
-              <option value="hidden">Dang an</option>
-              <option value="featured">Noi bat</option>
+              <option value="all">Tất cả trạng thái</option>
+              <option value="active">Đang bán</option>
+              <option value="hidden">Đang ẩn</option>
+              <option value="featured">Nổi bật</option>
             </select>
 
             <select
@@ -464,23 +471,23 @@ function ProductsPanel({
                 setStockFilter(event.target.value);
                 setCurrentPage(1);
               }}
-              aria-label="Loc ton kho"
+              aria-label="Lọc tồn kho"
               className="h-10 rounded-md border border-amber-900/15 bg-white px-3 text-sm font-semibold text-stone-800 outline-none transition focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
             >
-              <option value="all">Tat ca ton kho</option>
-              <option value="in_stock">Con hang</option>
-              <option value="low_stock">Sap het hang</option>
-              <option value="out_stock">Het hang</option>
+              <option value="all">Tất cả tồn kho</option>
+              <option value="in_stock">Còn hàng</option>
+              <option value="low_stock">Sắp hết hàng</option>
+              <option value="out_stock">Hết hàng</option>
             </select>
           </div>
         </div>
 
         <div className="grid grid-cols-[64px_1fr_120px_100px_120px_120px] border-b border-amber-900/10 px-4 py-3 text-xs font-semibold uppercase text-stone-500">
-          <span>Anh</span>
-          <span>San pham</span>
-          <span>Gia</span>
-          <span>Ton</span>
-          <span>Trang thai</span>
+          <span>Ảnh</span>
+          <span>Sản phẩm</span>
+          <span>Giá</span>
+          <span>Tồn</span>
+          <span>Trạng thái</span>
           <span></span>
         </div>
         {paginatedProducts.length ? (
@@ -524,7 +531,7 @@ function ProductsPanel({
                     : "bg-stone-100 text-stone-600"
                 }`}
               >
-                {product.isActive ? "Dang ban" : "An"}
+                {product.isActive ? "Đang bán" : "Ẩn"}
               </button>
               <IconDeleteButton
                 disabled={isSubmitting}
@@ -534,7 +541,7 @@ function ProductsPanel({
           ))
         ) : (
           <div className="px-4 py-8 text-center text-sm font-semibold text-stone-500">
-            Khong co san pham nao khop voi bo loc.
+            Không có sản phẩm nào khớp với bộ lọc.
           </div>
         )}
 
@@ -548,7 +555,7 @@ function ProductsPanel({
               disabled={safeCurrentPage <= 1}
               onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
               className="grid h-9 w-9 place-items-center rounded-md border border-amber-900/15 text-stone-700 transition hover:border-amber-700 hover:text-amber-800 disabled:cursor-not-allowed disabled:opacity-40"
-              aria-label="Trang truoc"
+              aria-label="Trang trước"
             >
               <ChevronLeft className="h-4 w-4" aria-hidden="true" />
             </button>
@@ -559,8 +566,8 @@ function ProductsPanel({
                 onClick={() => setCurrentPage(page)}
                 className={`h-9 min-w-9 rounded-md px-3 text-sm font-semibold transition ${
                   page === safeCurrentPage
-                    ? "bg-amber-700 text-white"
-                    : "border border-amber-900/15 text-stone-700 hover:border-amber-700 hover:text-amber-800"
+                    ? "bg-cyan-500 text-slate-950"
+                    : "border border-cyan-950/15 text-slate-700 hover:border-cyan-500 hover:text-cyan-700"
                 }`}
               >
                 {page}
@@ -572,7 +579,7 @@ function ProductsPanel({
               onClick={() =>
                 setCurrentPage((page) => Math.min(totalPages, page + 1))
               }
-              className="grid h-9 w-9 place-items-center rounded-md border border-amber-900/15 text-stone-700 transition hover:border-amber-700 hover:text-amber-800 disabled:cursor-not-allowed disabled:opacity-40"
+              className="grid h-9 w-9 place-items-center rounded-md border border-cyan-950/15 text-slate-700 transition hover:border-cyan-500 hover:text-cyan-700 disabled:cursor-not-allowed disabled:opacity-40"
               aria-label="Trang sau"
             >
               <ChevronRight className="h-4 w-4" aria-hidden="true" />
@@ -653,16 +660,16 @@ function ProductDetailModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-stone-950/55 px-4 py-6">
-      <section className="flex max-h-[90vh] w-full max-w-6xl flex-col overflow-hidden rounded-lg bg-[#fffdf7] shadow-2xl">
-        <div className="flex items-start justify-between gap-4 border-b border-amber-900/10 px-5 py-4">
+    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/55 px-4 py-6">
+      <section className="flex max-h-[90vh] w-full max-w-6xl flex-col overflow-hidden rounded-lg bg-[#f8fbfd] shadow-2xl">
+        <div className="flex items-start justify-between gap-4 border-b border-cyan-950/10 bg-white px-5 py-4">
           <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase text-amber-800">
+            <p className="text-xs font-semibold uppercase text-cyan-700">
               Chi tiết sản phẩm
             </p>
             <h2 className="mt-1 truncate text-xl font-semibold">{product.name}</h2>
             <div className="mt-2 flex flex-wrap gap-2 text-xs font-semibold">
-              <span className="rounded-sm bg-amber-100 px-2 py-1 text-amber-800">
+              <span className="rounded-sm bg-cyan-50 px-2 py-1 text-cyan-700">
                 {product.category}
               </span>
               <span className="rounded-sm bg-sky-100 px-2 py-1 text-sky-800">
@@ -685,7 +692,7 @@ function ProductDetailModal({
           <button
             type="button"
             onClick={onClose}
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-amber-900/15 text-stone-700 transition hover:bg-white"
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-cyan-950/15 text-slate-700 transition hover:border-cyan-500 hover:text-cyan-700"
             aria-label="Đóng"
           >
             <X className="h-4 w-4" aria-hidden="true" />
@@ -694,8 +701,8 @@ function ProductDetailModal({
 
         <div className="overflow-y-auto p-5">
           <div className="mb-5 grid gap-4 lg:grid-cols-[320px_1fr]">
-            <div className="overflow-hidden rounded-lg border border-amber-900/10 bg-white">
-              <div className="grid aspect-[4/3] place-items-center bg-amber-50">
+            <div className="overflow-hidden rounded-lg border border-cyan-950/10 bg-white">
+              <div className="grid aspect-[4/3] place-items-center bg-cyan-50">
                 {previewImageUrl ? (
                   <img
                     src={previewImageUrl}
@@ -737,7 +744,7 @@ function ProductDetailModal({
                 />
               </div>
 
-              <div className="rounded-lg border border-amber-900/10 bg-white p-4">
+              <div className="rounded-lg border border-cyan-950/10 bg-white p-4">
                 <PanelTitle title="Tổng quan sản phẩm" />
                 <div className="grid gap-3 text-sm md:grid-cols-2">
                   <ProductMeta label="ID" value={product.id} />
@@ -762,7 +769,7 @@ function ProductDetailModal({
           <div className="grid gap-5 lg:grid-cols-[360px_1fr]">
             <form
               onSubmit={handleUpdateProduct}
-              className="h-fit rounded-lg border border-amber-900/10 bg-white p-4"
+              className="h-fit rounded-lg border border-cyan-950/10 bg-white p-4"
             >
             <PanelTitle title="Chỉnh sửa sản phẩm" />
             <AdminInput
@@ -818,7 +825,7 @@ function ProductDetailModal({
               label="Mô tả chi tiết"
               defaultValue={product.description ?? ""}
             />
-            <div className="mb-3 grid gap-2 rounded-md bg-amber-50 p-3">
+            <div className="mb-3 grid gap-2 rounded-md bg-cyan-50 p-3">
               <AdminCheckbox
                 name="isActive"
                 label="Đang bán"
@@ -848,11 +855,11 @@ function ProductDetailModal({
             <div className="space-y-4">
               <form
                 onSubmit={handleCreateVariant}
-                className="rounded-lg border border-amber-900/10 bg-white p-4"
+                className="rounded-lg border border-cyan-950/10 bg-white p-4"
               >
               <div className="mb-4 flex items-start justify-between gap-3">
                 <PanelTitle title="Thêm variant mới" />
-                <span className="rounded-sm bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-800">
+                <span className="rounded-sm bg-cyan-50 px-2 py-1 text-xs font-semibold text-cyan-700">
                   {productVariants.length} variant hiện có
                 </span>
               </div>
@@ -871,7 +878,7 @@ function ProductDetailModal({
               <SubmitButton disabled={isSubmitting}>Thêm variant</SubmitButton>
               </form>
 
-              <section className="rounded-lg border border-amber-900/10 bg-white p-4">
+              <section className="rounded-lg border border-cyan-950/10 bg-white p-4">
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                   <PanelTitle title="Danh sách variant" />
                   <span className="text-sm font-semibold text-stone-500">
@@ -889,7 +896,7 @@ function ProductDetailModal({
                     />
                   ))}
                   {!productVariants.length ? (
-                    <div className="rounded-lg border border-dashed border-amber-900/15 p-5 text-sm font-semibold text-stone-500">
+                    <div className="rounded-lg border border-dashed border-cyan-950/15 p-5 text-sm font-semibold text-slate-500">
                       Sản phẩm chưa có variant.
                     </div>
                   ) : null}
@@ -897,7 +904,6 @@ function ProductDetailModal({
               </section>
             </div>
           </div>
-        </div>
         </div>
       </section>
     </div>
@@ -914,14 +920,14 @@ function ProductInfoCard({
   value: string;
 }) {
   return (
-    <div className="rounded-lg border border-amber-900/10 bg-white p-4">
-      <div className="flex items-center gap-2 text-xs font-semibold uppercase text-amber-800">
-        <span className="grid h-8 w-8 place-items-center rounded-full bg-amber-100 text-amber-800">
+    <div className="rounded-lg border border-cyan-950/10 bg-white p-4">
+      <div className="flex items-center gap-2 text-xs font-semibold uppercase text-cyan-700">
+        <span className="grid h-8 w-8 place-items-center rounded-full bg-cyan-50 text-cyan-700">
           {icon}
         </span>
         {label}
       </div>
-      <p className="mt-3 truncate text-lg font-semibold text-stone-950">{value}</p>
+      <p className="mt-3 truncate text-lg font-semibold text-slate-950">{value}</p>
     </div>
   );
 }
@@ -937,8 +943,8 @@ function ProductMeta({
 }) {
   return (
     <div className={wide ? "md:col-span-2" : undefined}>
-      <p className="text-xs font-semibold uppercase text-stone-500">{label}</p>
-      <p className="mt-1 line-clamp-3 break-words font-semibold text-stone-900">
+      <p className="text-xs font-semibold uppercase text-slate-500">{label}</p>
+      <p className="mt-1 line-clamp-3 break-words font-semibold text-slate-900">
         {value}
       </p>
     </div>
@@ -980,8 +986,8 @@ function VariantEditor({
   }
 
   return (
-    <article className="overflow-hidden rounded-lg border border-amber-900/10 bg-[#fffdf7]">
-      <div className="border-b border-amber-900/10 bg-white p-4">
+    <article className="overflow-hidden rounded-lg border border-cyan-950/10 bg-[#f8fbfd]">
+      <div className="border-b border-cyan-950/10 bg-white p-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
@@ -1090,7 +1096,7 @@ function VariantEditor({
         </div>
       </form>
 
-      <div className="mt-4 border-t border-amber-900/10 pt-4">
+      <div className="mt-4 border-t border-cyan-950/10 pt-4">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <p className="text-sm font-semibold text-stone-950">Ảnh variant</p>
           <span className="text-xs font-semibold text-stone-500">
@@ -1099,15 +1105,15 @@ function VariantEditor({
         </div>
         <form
           onSubmit={handleCreateImage}
-          className="grid gap-3 rounded-md bg-amber-50 p-3 md:grid-cols-[1fr_1fr_96px_auto]"
+          className="grid gap-3 rounded-md bg-cyan-50 p-3 md:grid-cols-[1fr_1fr_96px_auto]"
         >
-          <AdminImageInput name="imageUrl" label="URL anh" required />
+          <AdminImageInput name="imageUrl" label="URL ảnh" required />
           <AdminInput name="altText" label="Alt text" />
-          <AdminInput name="sortOrder" label="Thu tu" type="number" />
+          <AdminInput name="sortOrder" label="Thứ tự" type="number" />
           <button
             type="submit"
           disabled={isSubmitting}
-          className="mt-5 h-10 rounded-md bg-amber-700 px-3 text-sm font-semibold text-white transition hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-60"
+          className="mt-5 h-10 rounded-md bg-cyan-500 px-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-60"
         >
             Thêm
           </button>
@@ -1138,9 +1144,9 @@ function VariantEditor({
 
 function VariantStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md bg-amber-50 px-3 py-2">
-      <p className="text-[11px] font-semibold uppercase text-stone-500">{label}</p>
-      <p className="mt-1 truncate text-sm font-semibold text-stone-950">{value}</p>
+    <div className="rounded-md bg-cyan-50 px-3 py-2">
+      <p className="text-[11px] font-semibold uppercase text-slate-500">{label}</p>
+      <p className="mt-1 truncate text-sm font-semibold text-slate-950">{value}</p>
     </div>
   );
 }
@@ -1175,7 +1181,7 @@ function VariantImageEditor({
   return (
     <form
       onSubmit={handleUpdate}
-      className="grid gap-3 rounded-md border border-amber-900/10 p-3 md:grid-cols-[80px_1fr_1fr_84px_auto_auto]"
+      className="grid gap-3 rounded-md border border-cyan-950/10 p-3 md:grid-cols-[80px_1fr_1fr_84px_auto_auto]"
     >
       <div className="h-16 overflow-hidden rounded-md bg-stone-100">
         <img
@@ -1186,7 +1192,7 @@ function VariantImageEditor({
       </div>
       <AdminImageInput
         name="imageUrl"
-        label="URL anh"
+        label="URL ảnh"
         defaultValue={image.imageUrl}
         required
       />
@@ -1197,16 +1203,16 @@ function VariantImageEditor({
       />
       <AdminInput
         name="sortOrder"
-        label="Thu tu"
+        label="Thứ tự"
         type="number"
         defaultValue={String(image.sortOrder)}
       />
       <button
         type="submit"
         disabled={isSubmitting}
-        className="mt-5 h-10 rounded-md bg-amber-700 px-3 text-sm font-semibold text-white transition hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-5 h-10 rounded-md bg-cyan-500 px-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        Luu
+        Lưu
       </button>
       <button
         type="button"
@@ -1218,7 +1224,7 @@ function VariantImageEditor({
         }
         className="mt-5 h-10 rounded-md border border-red-200 px-3 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        Xoa
+        Xóa
       </button>
     </form>
   );
@@ -1274,15 +1280,15 @@ function CategoriesPanel({
 
   return (
     <CrudPanel
-      title="Them danh muc"
+      title="Thêm danh mục"
       onCreate={handleCreate}
       isSubmitting={isSubmitting}
-      fields={<AdminInput name="sortOrder" label="Thu tu" type="number" />}
+      fields={<AdminInput name="sortOrder" label="Thứ tự" type="number" />}
       rows={dashboard.categories.map((category) => ({
         id: category.id,
         title: category.name,
         subtitle: category.slug,
-        meta: category.isActive ? "Dang hien" : "Dang an",
+        meta: category.isActive ? "Đang hiện" : "Đang ẩn",
         onToggle: () =>
           runAction(() =>
             updateAdminCategory(category.id, { isActive: !category.isActive }),
@@ -1317,7 +1323,7 @@ function BrandsPanel({
 
   return (
     <CrudPanel
-      title="Them thuong hieu"
+      title="Thêm thương hiệu"
       onCreate={handleCreate}
       isSubmitting={isSubmitting}
       rows={dashboard.brands.map((brand) => ({
@@ -1355,20 +1361,20 @@ function CrudPanel({
     <div className="grid gap-6 lg:grid-cols-[360px_1fr]">
       <form
         onSubmit={onCreate}
-        className="h-fit rounded-lg border border-amber-900/10 bg-white p-5 shadow-sm"
+        className="h-fit rounded-lg border border-cyan-950/10 bg-white p-5 shadow-sm"
       >
         <PanelTitle title={title} />
-        <AdminInput name="name" label="Ten" required />
+        <AdminInput name="name" label="Tên" required />
         <AdminInput name="slug" label="Slug" required />
         {fields}
-        <SubmitButton disabled={isSubmitting}>Them</SubmitButton>
+        <SubmitButton disabled={isSubmitting}>Thêm</SubmitButton>
       </form>
 
-      <div className="overflow-hidden rounded-lg border border-amber-900/10 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-lg border border-cyan-950/10 bg-white shadow-sm">
         {rows.map((row) => (
           <div
             key={row.id}
-            className="grid grid-cols-[1fr_120px_44px] items-center gap-3 border-b border-amber-900/10 px-4 py-3 text-sm last:border-b-0"
+            className="grid grid-cols-[1fr_120px_44px] items-center gap-3 border-b border-cyan-950/10 px-4 py-3 text-sm last:border-b-0"
           >
             <div className="min-w-0">
               <p className="truncate font-semibold text-stone-950">{row.title}</p>
@@ -1380,7 +1386,7 @@ function CrudPanel({
               type="button"
               disabled={isSubmitting || !row.onToggle}
               onClick={row.onToggle}
-              className="h-9 rounded-md bg-stone-100 px-3 text-xs font-semibold text-stone-600 transition hover:bg-amber-50 hover:text-amber-800 disabled:cursor-default disabled:hover:bg-stone-100 disabled:hover:text-stone-600"
+              className="h-9 rounded-md bg-slate-100 px-3 text-xs font-semibold text-slate-600 transition hover:bg-cyan-50 hover:text-cyan-700 disabled:cursor-default disabled:hover:bg-slate-100 disabled:hover:text-slate-600"
             >
               {row.meta}
             </button>
@@ -1393,7 +1399,7 @@ function CrudPanel({
 }
 
 function PanelTitle({ title }: { title: string }) {
-  return <h2 className="mb-4 text-base font-semibold text-stone-950">{title}</h2>;
+  return <h2 className="mb-4 text-base font-semibold text-slate-950">{title}</h2>;
 }
 
 function AdminInput({
@@ -1469,7 +1475,7 @@ function AdminImageInput({
     }
 
     if (!file.type.startsWith("image/")) {
-      setMessage("Chi chon file anh.");
+      setMessage("Chỉ chọn file ảnh.");
       return;
     }
 
@@ -1483,9 +1489,9 @@ function AdminImageInput({
         inputRef.current.value = result.publicUrl;
       }
 
-      setMessage("Da upload anh.");
+      setMessage("Đã upload ảnh.");
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Khong the upload anh.");
+      setMessage(error instanceof Error ? error.message : "Không thể upload ảnh.");
     } finally {
       setIsUploading(false);
       fileInput.value = "";
@@ -1504,7 +1510,7 @@ function AdminImageInput({
           className="h-10 min-w-0 flex-1 rounded-md border border-amber-900/15 px-3 text-sm font-semibold outline-none focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
         />
         <span className="relative inline-flex h-10 shrink-0 items-center rounded-md border border-amber-900/15 px-3 text-sm font-semibold text-stone-700 transition hover:border-amber-700 hover:text-amber-800">
-          {isUploading ? "Dang tai..." : "Chon anh"}
+          {isUploading ? "Đang tải..." : "Chọn ảnh"}
           <input
             type="file"
             accept="image/*"

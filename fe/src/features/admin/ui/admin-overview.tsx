@@ -21,6 +21,7 @@ import {
   type AdminRecentOrder,
 } from "@/features/admin/api/admin-api";
 import { formatCurrency } from "@/shared/lib/format-currency";
+import { PageSkeleton } from "@/shared/ui/loading-skeleton";
 
 export function AdminOverview() {
   const [dashboard, setDashboard] = useState<AdminDashboard | null>(null);
@@ -43,11 +44,7 @@ export function AdminOverview() {
   );
 
   if (isLoading) {
-    return (
-      <section className="grid min-h-[360px] place-items-center text-slate-700">
-        <p className="text-sm font-semibold">Đang tải tổng quan...</p>
-      </section>
-    );
+    return <PageSkeleton description cards={4} />;
   }
 
   if (!dashboard) {

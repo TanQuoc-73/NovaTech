@@ -443,9 +443,7 @@ export function SiteHeader({ dictionary, locale, searchQuery }: SiteHeaderProps)
             {isSearchOpen && searchValue.trim().length >= 2 ? (
               <div className="absolute left-0 right-0 top-12 z-20 overflow-hidden rounded-lg border border-amber-900/10 bg-[#fffaf2] py-2 text-stone-800 shadow-xl shadow-stone-950/20">
                 {isSearching ? (
-                  <p className="px-4 py-3 text-sm font-semibold text-stone-500">
-                    {dictionary.ui.search.loading}
-                  </p>
+                  <SearchDropdownSkeleton label={dictionary.ui.search.loading} />
                 ) : searchSuggestions.length > 0 ? (
                   <>
                     {searchSuggestions.map((product) => (
@@ -859,6 +857,23 @@ function CartDropdownSkeleton() {
         <div className="mt-3 h-10 rounded-md bg-stone-100" />
         <div className="mt-2 h-10 rounded-md bg-amber-200/80" />
       </div>
+    </div>
+  );
+}
+
+function SearchDropdownSkeleton({ label }: { label: string }) {
+  return (
+    <div aria-busy="true" className="animate-pulse py-2">
+      <span className="sr-only">{label}</span>
+      {Array.from({ length: 3 }).map((_, index) => (
+        <div key={index} className="flex items-center gap-3 px-4 py-3">
+          <span className="h-11 w-11 shrink-0 rounded-md bg-amber-100" />
+          <span className="min-w-0 flex-1">
+            <span className="block h-4 w-4/5 rounded bg-stone-200" />
+            <span className="mt-2 block h-3 w-24 rounded bg-amber-100" />
+          </span>
+        </div>
+      ))}
     </div>
   );
 }

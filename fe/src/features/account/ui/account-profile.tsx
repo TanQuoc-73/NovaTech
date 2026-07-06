@@ -18,6 +18,7 @@ import {
 } from "@/features/auth/model/auth-client";
 import type { Dictionary } from "@/shared/i18n";
 import { getSupabaseClient } from "@/shared/lib/supabase/client";
+import { FormSkeleton } from "@/shared/ui/loading-skeleton";
 
 export function AccountProfile({ dictionary }: { dictionary: Dictionary }) {
   const [user, setUser] = useState<SupabaseUser | null>(null);
@@ -78,15 +79,7 @@ export function AccountProfile({ dictionary }: { dictionary: Dictionary }) {
   }, []);
 
   if (isLoading) {
-    return (
-      <section className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
-        <div className="rounded-lg border border-amber-900/10 bg-white p-6 shadow-sm">
-          <p className="text-sm font-semibold text-stone-600">
-            Đang tải thông tin tài khoản...
-          </p>
-        </div>
-      </section>
-    );
+    return <FormSkeleton />;
   }
 
   if (!user) {

@@ -14,6 +14,7 @@ import {
 } from "@/features/payments/api/payment-api";
 import type { Dictionary } from "@/shared/i18n";
 import { formatCurrency } from "@/shared/lib/format-currency";
+import { FormSkeleton } from "@/shared/ui/loading-skeleton";
 
 export function CheckoutForm({ dictionary }: { dictionary: Dictionary }) {
   const [cart, setCart] = useState<Cart | null>(null);
@@ -99,11 +100,10 @@ export function CheckoutForm({ dictionary }: { dictionary: Dictionary }) {
 
   if (isLoading) {
     return (
-      <section className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
-        <div className="rounded-lg border border-amber-900/10 bg-[#fffdf7] p-6 text-sm font-semibold text-stone-600">
-          {dictionary.ui.checkout.loading}
-        </div>
-      </section>
+      <>
+        <FormSkeleton />
+        <span className="sr-only">{dictionary.ui.checkout.loading}</span>
+      </>
     );
   }
 

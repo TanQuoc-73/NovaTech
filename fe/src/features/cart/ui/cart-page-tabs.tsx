@@ -12,6 +12,7 @@ import {
   type CustomerOrderStatus,
 } from "@/features/orders/api/orders-api";
 import { formatCurrency } from "@/shared/lib/format-currency";
+import { ListSkeleton } from "@/shared/ui/loading-skeleton";
 
 type CartTab = "cart" | "ordered" | "shipping" | "received";
 
@@ -178,9 +179,7 @@ function OrderList({
   if (isLoading) {
     return (
       <section className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
-        <div className="rounded-lg border border-amber-900/10 bg-[#fffdf7] p-6 text-sm font-semibold text-stone-600">
-          Dang tai don hang...
-        </div>
+        <ListSkeleton rows={3} />
       </section>
     );
   }

@@ -22,6 +22,7 @@ import {
   type AdminPaymentStatus,
 } from "@/features/admin/api/admin-api";
 import { formatCurrency } from "@/shared/lib/format-currency";
+import { PageSkeleton } from "@/shared/ui/loading-skeleton";
 
 const pageSize = 10;
 
@@ -177,11 +178,7 @@ export function AdminOrders() {
   }
 
   if (isLoading) {
-    return (
-      <section className="grid min-h-[360px] place-items-center text-slate-700">
-        <p className="text-sm font-semibold">Đang tải đơn hàng...</p>
-      </section>
-    );
+    return <PageSkeleton description cards={4} />;
   }
 
   return (

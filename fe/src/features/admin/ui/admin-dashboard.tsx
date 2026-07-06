@@ -39,6 +39,7 @@ import {
   uploadAdminProductImage,
 } from "@/features/admin/api/admin-api";
 import { formatCurrency } from "@/shared/lib/format-currency";
+import { PageSkeleton } from "@/shared/ui/loading-skeleton";
 
 type AdminTab = "products" | "categories" | "brands";
 
@@ -76,11 +77,7 @@ export function AdminDashboard({ initialTab = "products" }: { initialTab?: Admin
   }
 
   if (isLoading) {
-    return (
-      <section className="grid min-h-[360px] place-items-center text-stone-700">
-        <p className="text-sm font-semibold">Đang tải kho hàng...</p>
-      </section>
-    );
+    return <PageSkeleton description cards={5} />;
   }
 
   if (!dashboard) {

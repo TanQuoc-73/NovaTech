@@ -13,6 +13,7 @@ import {
   type AdminDashboard,
   type AdminPaymentQrSetting,
 } from "@/features/admin/api/admin-api";
+import { FormSkeleton } from "@/shared/ui/loading-skeleton";
 
 const paymentProviders = [
   { value: "bank_transfer", label: "QR test / chuyển khoản" },
@@ -92,11 +93,7 @@ export function AdminPayments() {
   }
 
   if (isLoading) {
-    return (
-      <section className="grid min-h-[320px] place-items-center text-sm font-semibold text-slate-600">
-        Đang tải cấu hình thanh toán...
-      </section>
-    );
+    return <FormSkeleton />;
   }
 
   const settings = dashboard?.paymentQrSettings ?? [];

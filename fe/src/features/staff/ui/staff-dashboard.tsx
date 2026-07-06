@@ -5,6 +5,7 @@ import { ClipboardList, Headphones, PackageCheck, Timer } from "lucide-react";
 
 import { getStaffDashboard, type StaffDashboard } from "@/features/staff/api/staff-api";
 import { formatCurrency } from "@/shared/lib/format-currency";
+import { ListSkeleton, PageSkeleton } from "@/shared/ui/loading-skeleton";
 
 export function StaffDashboardView() {
   const [dashboard, setDashboard] = useState<StaffDashboard | null>(null);
@@ -143,9 +144,14 @@ export function StaffPageTitle({
 
 export function StaffLoading({ label }: { label: string }) {
   return (
-    <section className="grid min-h-[320px] place-items-center rounded-lg border border-amber-900/10 bg-white p-6 shadow-sm">
-      <p className="text-sm font-semibold text-stone-600">{label}</p>
-    </section>
+    <PageSkeleton
+      eyebrowWidth="w-20"
+      titleWidth="w-56"
+      cards={4}
+    >
+      <ListSkeleton rows={3} className="mt-8" />
+      <span className="sr-only">{label}</span>
+    </PageSkeleton>
   );
 }
 

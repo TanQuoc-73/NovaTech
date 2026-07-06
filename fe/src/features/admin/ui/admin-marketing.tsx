@@ -62,10 +62,10 @@ export function AdminMarketing() {
         </div>
       ) : null}
 
-      <div className="grid gap-6 xl:grid-cols-3">
+      <div className="grid min-w-0 gap-6 xl:grid-cols-[repeat(3,minmax(0,1fr))]">
         <MarketingPanel icon={ImagePlus} title="Hero banner">
           <form
-            className="grid gap-3"
+            className="grid min-w-0 gap-3"
             onSubmit={(event) => {
               event.preventDefault();
               const formData = new FormData(event.currentTarget);
@@ -89,13 +89,13 @@ export function AdminMarketing() {
           >
             <AdminInput name="title" placeholder="Tieu de banner" required />
             <AdminInput name="subtitle" placeholder="Mo ta ngan" />
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-2">
               <AdminInput name="label" placeholder="Label" />
               <AdminInput name="tag" placeholder="Tag" />
             </div>
             <AdminInput name="imageUrl" placeholder="URL anh banner" />
             <AdminInput name="href" placeholder="/news hoac /products" />
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-2">
               <AdminInput name="priceText" placeholder="Gia/CTA" />
               <AdminInput name="sortOrder" placeholder="Thu tu" type="number" />
             </div>
@@ -117,7 +117,7 @@ export function AdminMarketing() {
 
         <MarketingPanel icon={Newspaper} title="Tin tức">
           <form
-            className="grid gap-3"
+            className="grid min-w-0 gap-3"
             onSubmit={(event) => {
               event.preventDefault();
               const formData = new FormData(event.currentTarget);
@@ -161,7 +161,7 @@ export function AdminMarketing() {
 
         <MarketingPanel icon={TicketPercent} title="Voucher">
           <form
-            className="grid gap-3"
+            className="grid min-w-0 gap-3"
             onSubmit={(event) => {
               event.preventDefault();
               const formData = new FormData(event.currentTarget);
@@ -188,11 +188,11 @@ export function AdminMarketing() {
               event.currentTarget.reset();
             }}
           >
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-2">
               <AdminInput name="code" placeholder="TECHWEEK" required />
               <select
                 name="discountType"
-                className="h-10 rounded-md border border-cyan-950/10 px-3 text-sm font-semibold"
+                className="h-10 w-full min-w-0 rounded-md border border-cyan-950/10 px-3 text-sm font-semibold"
                 defaultValue="percent"
               >
                 <option value="percent">Phần trăm</option>
@@ -201,11 +201,11 @@ export function AdminMarketing() {
             </div>
             <AdminInput name="title" placeholder="Ten voucher" required />
             <AdminTextarea name="description" placeholder="Mo ta" />
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-2">
               <AdminInput name="discountValue" placeholder="Gia tri" type="number" required />
               <AdminInput name="minOrderAmount" placeholder="Don toi thieu" type="number" />
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-2">
               <AdminInput name="maxDiscountAmount" placeholder="Giam toi da" type="number" />
               <AdminInput name="usageLimit" placeholder="Gioi han luot" type="number" />
             </div>
@@ -242,12 +242,12 @@ function MarketingPanel({
   children: ReactNode;
 }) {
   return (
-    <section className="rounded-lg border border-cyan-950/10 bg-white p-5 shadow-sm">
+    <section className="min-w-0 overflow-hidden rounded-lg border border-cyan-950/10 bg-white p-5 shadow-sm">
       <h2 className="flex items-center gap-2 font-semibold">
         <Icon className="h-4 w-4 text-cyan-700" aria-hidden="true" />
         {title}
       </h2>
-      <div className="mt-4 grid gap-5">{children}</div>
+      <div className="mt-4 grid min-w-0 gap-5">{children}</div>
     </section>
   );
 }
@@ -256,7 +256,7 @@ function AdminInput(props: InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className="h-10 rounded-md border border-cyan-950/10 px-3 text-sm font-semibold outline-none focus:border-cyan-600"
+      className="h-10 w-full min-w-0 rounded-md border border-cyan-950/10 px-3 text-sm font-semibold outline-none focus:border-cyan-600"
     />
   );
 }
@@ -266,7 +266,7 @@ function AdminTextarea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
     <textarea
       {...props}
       rows={3}
-      className="rounded-md border border-cyan-950/10 px-3 py-2 text-sm font-semibold outline-none focus:border-cyan-600"
+      className="w-full min-w-0 rounded-md border border-cyan-950/10 px-3 py-2 text-sm font-semibold outline-none focus:border-cyan-600"
     />
   );
 }
@@ -275,7 +275,7 @@ function AdminSubmit({ children }: { children: ReactNode }) {
   return (
     <button
       type="submit"
-      className="h-10 rounded-md bg-cyan-600 px-4 text-sm font-semibold text-white transition hover:bg-cyan-700"
+      className="h-10 w-full rounded-md bg-cyan-600 px-4 text-sm font-semibold text-white transition hover:bg-cyan-700"
     >
       {children}
     </button>
@@ -283,7 +283,7 @@ function AdminSubmit({ children }: { children: ReactNode }) {
 }
 
 function AdminList({ children }: { children: ReactNode }) {
-  return <div className="grid gap-2 border-t border-cyan-950/10 pt-4">{children}</div>;
+  return <div className="grid min-w-0 gap-2 border-t border-cyan-950/10 pt-4">{children}</div>;
 }
 
 function AdminListItem({
@@ -296,7 +296,7 @@ function AdminListItem({
   onDelete: () => void;
 }) {
   return (
-    <article className="flex items-center justify-between gap-3 rounded-md bg-slate-50 px-3 py-2">
+    <article className="flex min-w-0 items-center justify-between gap-3 rounded-md bg-slate-50 px-3 py-2">
       <span className="min-w-0">
         <span className="block truncate text-sm font-semibold">{title}</span>
         <span className="mt-0.5 block truncate text-xs font-semibold text-slate-500">

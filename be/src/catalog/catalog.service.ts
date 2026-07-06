@@ -50,6 +50,10 @@ type ProductRow = {
       sort_order: number;
     }>;
   }>;
+  reviews: Array<{
+    rating: number;
+    is_approved: boolean;
+  }>;
 };
 
 @Injectable()
@@ -227,6 +231,10 @@ export class CatalogService {
         alt_text,
         sort_order
       )
+    ),
+    reviews (
+      rating,
+      is_approved
     )
   `;
 
@@ -277,13 +285,30 @@ export class CatalogService {
         category: category?.slug ?? 'accessory',
         price: variant.price,
         compareAtPrice: variant.compareAtPrice,
-        rating: 5,
+        rating: this.calculateRating(product.reviews),
         stock: variant.stock,
         imageUrl: primaryVariantImage ?? product.thumbnail_url ?? '',
         badges: product.is_featured ? ['bestseller'] : ['new'],
         variants,
       };
     });
+  }
+
+  private calculateRating(reviews: ProductRow['reviews']) {
+    const approvedReviews = (reviews ?? []).filter(
+      (review) => review.is_approved,
+    );
+
+    if (!approvedReviews.length) {
+      return 5;
+    }
+
+    const total = approvedReviews.reduce(
+      (sum, review) => sum + review.rating,
+      0,
+    );
+
+    return Math.round((total / approvedReviews.length) * 10) / 10;
   }
 
   private normalizeSort(sort: string | undefined): CatalogProductSort {

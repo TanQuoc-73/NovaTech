@@ -10,6 +10,7 @@ export const dictionaries = {
     nav: {
       categories: "Danh mục",
       products: "Sản phẩm",
+      news: "Tin tức",
       warranty: "Bảo hành",
       signIn: "Đăng nhập",
       cart: "Giỏ hàng",
@@ -260,6 +261,7 @@ export const dictionaries = {
     nav: {
       categories: "Categories",
       products: "Products",
+      news: "News",
       warranty: "Warranty",
       signIn: "Sign in",
       cart: "Cart",
@@ -510,6 +512,7 @@ export const dictionaries = {
     nav: {
       categories: "分类",
       products: "商品",
+      news: "资讯",
       warranty: "保修",
       signIn: "登录",
       cart: "购物车",

@@ -1,19 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
-import type { Dictionary } from "@/shared/i18n";
+import type { Dictionary, Locale } from "@/shared/i18n";
 
 type HeroCarouselProps = {
   dictionary: Dictionary;
+  locale: Locale;
 };
 
 const statsKeys = ["products", "brands", "support"] as const;
 
-export function HeroCarousel({ dictionary }: HeroCarouselProps) {
+export function HeroCarousel({ dictionary, locale }: HeroCarouselProps) {
+  const router = useRouter();
   const [activeSlide, setActiveSlide] = useState(0);
   const slides = dictionary.hero.slides;
   const currentSlide = slides[activeSlide];
+  const newsHref = `/news?lang=${locale}`;
   const sideSlides = slides
     .map((slide, index) => ({ slide, index }))
     .filter((item) => item.index !== activeSlide)
@@ -31,7 +35,19 @@ export function HeroCarousel({ dictionary }: HeroCarouselProps) {
     <section className="border-b border-amber-900/10 bg-[#fff8ed]">
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1.7fr)_minmax(320px,0.8fr)]">
-          <div className="h-[430px] overflow-hidden rounded-lg border border-amber-200 bg-[#111827] text-[#f8fafc] shadow-xl shadow-amber-950/10 sm:h-[500px] md:h-[520px]">
+          <div
+            role="link"
+            tabIndex={0}
+            aria-label={currentSlide.title}
+            onClick={() => router.push(newsHref)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                router.push(newsHref);
+              }
+            }}
+            className="h-[430px] cursor-pointer overflow-hidden rounded-lg border border-amber-200 bg-[#111827] text-[#f8fafc] shadow-xl shadow-amber-950/10 outline-none transition focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fff8ed] sm:h-[500px] md:h-[520px]"
+          >
             <div className="relative h-full p-5 sm:p-7 lg:p-8">
               <div
                 className={`absolute inset-0 bg-gradient-to-br ${currentSlide.gradient} opacity-95 transition-colors duration-700`}
@@ -110,7 +126,10 @@ export function HeroCarousel({ dictionary }: HeroCarouselProps) {
                         type="button"
                         aria-label={`${dictionary.hero.goToSlide} ${index + 1}`}
                         aria-current={activeSlide === index ? "true" : undefined}
-                        onClick={() => setActiveSlide(index)}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setActiveSlide(index);
+                        }}
                         className={`h-2.5 rounded-full transition-all ${
                           activeSlide === index
                             ? "w-9 bg-amber-200"

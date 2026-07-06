@@ -41,6 +41,7 @@ type SiteHeaderProps = {
 const navItems = [
   { key: "categories", href: "/categories" },
   { key: "products", href: "/products" },
+  { key: "news", href: "/news" },
   { key: "warranty", href: "/warranty" },
 ] as const;
 

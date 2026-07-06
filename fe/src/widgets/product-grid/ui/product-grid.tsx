@@ -190,11 +190,12 @@ function ProductCompareModal({
           firstProduct.category as keyof typeof dictionary.categories
         ]
       : firstProduct.category;
-  const selectedVariants = products.map((product) =>
-    product.variants.find(
-      (variant) => variant.id === selectedVariantIds[product.id],
-    ) ?? product.variants[0],
-  );
+  const selectedVariants = products.map(
+    (product) =>
+      product.variants.find(
+        (variant) => variant.id === selectedVariantIds[product.id],
+      ) ?? product.variants[0],
+  ) as [ProductVariant | undefined, ProductVariant | undefined];
 
   const overviewRows = [
     {
@@ -207,7 +208,8 @@ function ProductCompareModal({
     },
     {
       label: dictionary.ui.compare.price,
-      getValue: (product: Product) => formatCurrency(product.price),
+      getValue: (product: Product, variant: ProductVariant | undefined) =>
+        formatCurrency(variant?.price ?? product.price),
     },
     {
       label: dictionary.ui.compare.rating,
@@ -216,8 +218,8 @@ function ProductCompareModal({
     },
     {
       label: dictionary.ui.compare.stock,
-      getValue: (product: Product) =>
-        `${product.stock} ${dictionary.common.inStock}`,
+      getValue: (product: Product, variant: ProductVariant | undefined) =>
+        `${variant?.stock ?? product.stock} ${dictionary.common.inStock}`,
     },
     {
       label: dictionary.ui.compare.variants,
@@ -333,13 +335,13 @@ function ProductCompareModal({
                   <div className="border-r border-t border-amber-900/10 bg-amber-50 p-3 text-xs font-semibold uppercase text-stone-600 first:border-t-0 sm:text-sm">
                     {row.label}
                   </div>
-                  {[firstProduct, secondProduct].map((product) => (
+                  {products.map((product, index) => (
                     <div
                       key={`${row.label}-${product.id}`}
                       className="min-w-0 border-t border-amber-900/10 p-3 text-sm font-semibold leading-6 text-stone-900 first:border-t-0"
                     >
                       <span className="line-clamp-2 break-words">
-                        {row.getValue(product)}
+                        {row.getValue(product, selectedVariants[index])}
                       </span>
                     </div>
                   ))}

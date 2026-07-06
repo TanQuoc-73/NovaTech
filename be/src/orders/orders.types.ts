@@ -15,6 +15,16 @@ export type CustomerOrderItemDto = {
   unitPrice: number;
   quantity: number;
   totalPrice: number;
+  review: CustomerOrderItemReviewDto | null;
+};
+
+export type CustomerOrderItemReviewDto = {
+  id: string;
+  rating: number;
+  title: string | null;
+  content: string | null;
+  isApproved: boolean;
+  createdAt: string;
 };
 
 export type CustomerOrderDto = {
@@ -27,4 +37,10 @@ export type CustomerOrderDto = {
   createdAt: string;
   shippingAddress: string;
   items: CustomerOrderItemDto[];
+};
+
+export type CreateOrderItemReviewPayload = {
+  rating?: number;
+  title?: string;
+  content?: string;
 };

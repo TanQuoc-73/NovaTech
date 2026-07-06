@@ -17,6 +17,16 @@ export type CustomerOrderItem = {
   unitPrice: number;
   quantity: number;
   totalPrice: number;
+  review: CustomerOrderItemReview | null;
+};
+
+export type CustomerOrderItemReview = {
+  id: string;
+  rating: number;
+  title: string | null;
+  content: string | null;
+  isApproved: boolean;
+  createdAt: string;
 };
 
 export type CustomerOrder = {
@@ -41,5 +51,20 @@ export function cancelMyOrder(orderId: string) {
   return apiFetch<CustomerOrder[]>(`/orders/me/${orderId}/cancel`, {
     method: "PATCH",
     authenticated: true,
+  });
+}
+
+export function submitOrderItemReview(
+  itemId: string,
+  payload: {
+    rating: number;
+    title?: string;
+    content?: string;
+  },
+) {
+  return apiFetch<CustomerOrder[]>(`/orders/me/items/${itemId}/review`, {
+    method: "POST",
+    authenticated: true,
+    body: JSON.stringify(payload),
   });
 }

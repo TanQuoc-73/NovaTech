@@ -50,10 +50,7 @@ export function AdminMarketing() {
   return (
     <section className="grid gap-6">
       <div>
-        <p className="text-sm font-semibold text-cyan-700">Marketing</p>
-        <h1 className="mt-1 text-2xl font-semibold text-slate-950">
-          Banner, tin tức và voucher
-        </h1>
+        <h1 className="text-2xl font-semibold text-slate-950">Marketing</h1>
       </div>
 
       {message ? (
@@ -62,7 +59,7 @@ export function AdminMarketing() {
         </div>
       ) : null}
 
-      <div className="grid min-w-0 gap-6 xl:grid-cols-[repeat(3,minmax(0,1fr))]">
+      <div className="grid min-w-0 gap-5 xl:grid-cols-[repeat(3,minmax(0,1fr))]">
         <MarketingPanel icon={ImagePlus} title="Hero banner">
           <form
             className="grid min-w-0 gap-3"
@@ -87,19 +84,23 @@ export function AdminMarketing() {
               event.currentTarget.reset();
             }}
           >
-            <AdminInput name="title" placeholder="Tieu de banner" required />
-            <AdminInput name="subtitle" placeholder="Mo ta ngan" />
+            <AdminField label="Tiêu đề">
+              <AdminInput name="title" required />
+            </AdminField>
+            <AdminField label="Mô tả">
+              <AdminTextarea name="subtitle" rows={2} />
+            </AdminField>
+            <AdminField label="Ảnh">
+              <AdminInput name="imageUrl" />
+            </AdminField>
             <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-2">
-              <AdminInput name="label" placeholder="Label" />
-              <AdminInput name="tag" placeholder="Tag" />
+              <AdminField label="Link">
+                <AdminInput name="href" placeholder="/news" />
+              </AdminField>
+              <AdminField label="Thứ tự">
+                <AdminInput name="sortOrder" type="number" />
+              </AdminField>
             </div>
-            <AdminInput name="imageUrl" placeholder="URL anh banner" />
-            <AdminInput name="href" placeholder="/news hoac /products" />
-            <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-2">
-              <AdminInput name="priceText" placeholder="Gia/CTA" />
-              <AdminInput name="sortOrder" placeholder="Thu tu" type="number" />
-            </div>
-            <AdminInput name="highlight" placeholder="Diem noi bat" />
             <AdminSubmit>Thêm banner</AdminSubmit>
           </form>
 
@@ -137,13 +138,23 @@ export function AdminMarketing() {
               event.currentTarget.reset();
             }}
           >
-            <AdminInput name="title" placeholder="Tieu de bai viet" required />
-            <AdminInput name="slug" placeholder="slug-bai-viet" required />
-            <AdminInput name="category" placeholder="Danh muc" />
-            <AdminInput name="imageUrl" placeholder="URL anh tin tuc" />
-            <AdminInput name="href" placeholder="/products?category=laptop" />
-            <AdminTextarea name="excerpt" placeholder="Tom tat" />
-            <AdminTextarea name="content" placeholder="Noi dung ngan" />
+            <AdminField label="Tiêu đề">
+              <AdminInput name="title" required />
+            </AdminField>
+            <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-2">
+              <AdminField label="Slug">
+                <AdminInput name="slug" required />
+              </AdminField>
+              <AdminField label="Danh mục">
+                <AdminInput name="category" />
+              </AdminField>
+            </div>
+            <AdminField label="Ảnh">
+              <AdminInput name="imageUrl" />
+            </AdminField>
+            <AdminField label="Tóm tắt">
+              <AdminTextarea name="excerpt" rows={2} />
+            </AdminField>
             <AdminSubmit>Thêm tin</AdminSubmit>
           </form>
 
@@ -189,25 +200,38 @@ export function AdminMarketing() {
             }}
           >
             <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-2">
-              <AdminInput name="code" placeholder="TECHWEEK" required />
-              <select
-                name="discountType"
-                className="h-10 w-full min-w-0 rounded-md border border-cyan-950/10 px-3 text-sm font-semibold"
-                defaultValue="percent"
-              >
-                <option value="percent">Phần trăm</option>
-                <option value="fixed">Cố định</option>
-              </select>
+              <AdminField label="Mã">
+                <AdminInput name="code" required />
+              </AdminField>
+              <AdminField label="Loại">
+                <select
+                  name="discountType"
+                  className="h-10 w-full min-w-0 rounded-md border border-cyan-950/10 px-3 text-sm font-semibold"
+                  defaultValue="percent"
+                >
+                  <option value="percent">%</option>
+                  <option value="fixed">VNĐ</option>
+                </select>
+              </AdminField>
             </div>
-            <AdminInput name="title" placeholder="Ten voucher" required />
-            <AdminTextarea name="description" placeholder="Mo ta" />
+            <AdminField label="Tên">
+              <AdminInput name="title" required />
+            </AdminField>
             <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-2">
-              <AdminInput name="discountValue" placeholder="Gia tri" type="number" required />
-              <AdminInput name="minOrderAmount" placeholder="Don toi thieu" type="number" />
+              <AdminField label="Giá trị">
+                <AdminInput name="discountValue" type="number" required />
+              </AdminField>
+              <AdminField label="Đơn tối thiểu">
+                <AdminInput name="minOrderAmount" type="number" />
+              </AdminField>
             </div>
             <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-2">
-              <AdminInput name="maxDiscountAmount" placeholder="Giam toi da" type="number" />
-              <AdminInput name="usageLimit" placeholder="Gioi han luot" type="number" />
+              <AdminField label="Giảm tối đa">
+                <AdminInput name="maxDiscountAmount" type="number" />
+              </AdminField>
+              <AdminField label="Lượt dùng">
+                <AdminInput name="usageLimit" type="number" />
+              </AdminField>
             </div>
             <AdminSubmit>Thêm voucher</AdminSubmit>
           </form>
@@ -242,13 +266,28 @@ function MarketingPanel({
   children: ReactNode;
 }) {
   return (
-    <section className="min-w-0 overflow-hidden rounded-lg border border-cyan-950/10 bg-white p-5 shadow-sm">
-      <h2 className="flex items-center gap-2 font-semibold">
+    <section className="min-w-0 overflow-hidden rounded-lg border border-cyan-950/10 bg-white p-4 shadow-sm">
+      <h2 className="flex items-center gap-2 text-base font-semibold">
         <Icon className="h-4 w-4 text-cyan-700" aria-hidden="true" />
         {title}
       </h2>
-      <div className="mt-4 grid min-w-0 gap-5">{children}</div>
+      <div className="mt-4 grid min-w-0 gap-4">{children}</div>
     </section>
+  );
+}
+
+function AdminField({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <label className="grid min-w-0 gap-1.5">
+      <span className="text-xs font-semibold text-slate-500">{label}</span>
+      {children}
+    </label>
   );
 }
 
@@ -256,7 +295,7 @@ function AdminInput(props: InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className="h-10 w-full min-w-0 rounded-md border border-cyan-950/10 px-3 text-sm font-semibold outline-none focus:border-cyan-600"
+      className="h-10 w-full min-w-0 rounded-md border border-cyan-950/10 px-3 text-sm font-semibold outline-none placeholder:text-slate-400 focus:border-cyan-600"
     />
   );
 }
@@ -265,8 +304,8 @@ function AdminTextarea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
     <textarea
       {...props}
-      rows={3}
-      className="w-full min-w-0 rounded-md border border-cyan-950/10 px-3 py-2 text-sm font-semibold outline-none focus:border-cyan-600"
+      rows={props.rows ?? 3}
+      className="w-full min-w-0 rounded-md border border-cyan-950/10 px-3 py-2 text-sm font-semibold outline-none placeholder:text-slate-400 focus:border-cyan-600"
     />
   );
 }

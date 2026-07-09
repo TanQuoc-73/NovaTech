@@ -16,6 +16,7 @@ import {
 import { getMyOrders, type CustomerOrder } from "@/features/orders/api/orders-api";
 import { getDictionary, resolveLocale } from "@/shared/i18n";
 import { SiteHeader } from "@/widgets/site-header";
+import { SiteFooter } from "@/widgets/site-footer";
 import { formatCurrency } from "@/shared/lib/format-currency";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -92,8 +93,9 @@ function OrderConfirmClient({
   const t = dictionary.ui.checkout;
 
   return (
-    <main className="min-h-screen bg-[#fff8ed] text-stone-950">
-      <SiteHeader dictionary={dictionary} locale={locale} />
+    <main className="min-h-screen bg-[#fff8ed] text-stone-950 flex flex-col justify-between">
+      <div>
+        <SiteHeader dictionary={dictionary} locale={locale} />
 
       {/* ── LOADING ── */}
       {status === "loading" && (
@@ -368,6 +370,8 @@ function OrderConfirmClient({
           </div>
         </section>
       )}
+      </div>
+      <SiteFooter dictionary={dictionary} locale={locale} />
     </main>
   );
 }

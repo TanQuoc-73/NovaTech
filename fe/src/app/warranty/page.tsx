@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { getDictionary, resolveLocale, type Locale } from "@/shared/i18n";
 import { SiteHeader } from "@/widgets/site-header";
+import { SiteFooter } from "@/widgets/site-footer";
 
 type WarrantyPageProps = {
   searchParams?: Promise<{
@@ -127,8 +128,9 @@ export default async function WarrantyPage({ searchParams }: WarrantyPageProps) 
   const copy = pageCopy[locale];
 
   return (
-    <main className="min-h-screen bg-[#fff8ed] text-stone-950">
-      <SiteHeader dictionary={dictionary} locale={locale} />
+    <main className="min-h-screen bg-[#fff8ed] text-stone-950 flex flex-col justify-between">
+      <div>
+        <SiteHeader dictionary={dictionary} locale={locale} />
 
       <section className="mx-auto max-w-7xl px-6 py-10 lg:px-8">
         <div className="max-w-3xl">
@@ -197,6 +199,8 @@ export default async function WarrantyPage({ searchParams }: WarrantyPageProps) 
           </aside>
         </div>
       </section>
+      </div>
+      <SiteFooter dictionary={dictionary} locale={locale} />
     </main>
   );
 }

@@ -6,6 +6,7 @@ import {
 } from "@/features/catalog/api/catalog-api";
 import { getDictionary, resolveLocale } from "@/shared/i18n";
 import { SiteHeader } from "@/widgets/site-header";
+import { SiteFooter } from "@/widgets/site-footer";
 import type { Locale } from "@/shared/i18n";
 
 type CategoriesPageProps = {
@@ -54,8 +55,9 @@ export default async function CategoriesPage({ searchParams }: CategoriesPagePro
   ]);
 
   return (
-    <main className="min-h-screen bg-[#fff8ed] text-stone-950">
-      <SiteHeader dictionary={dictionary} locale={locale} />
+    <main className="min-h-screen bg-[#fff8ed] text-stone-950 flex flex-col justify-between">
+      <div>
+        <SiteHeader dictionary={dictionary} locale={locale} />
 
       <section className="mx-auto max-w-7xl px-6 py-10 lg:px-8">
         <div className="mb-8">
@@ -107,6 +109,8 @@ export default async function CategoriesPage({ searchParams }: CategoriesPagePro
           ))}
         </div>
       </section>
+      </div>
+      <SiteFooter dictionary={dictionary} locale={locale} />
     </main>
   );
 }

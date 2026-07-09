@@ -8,6 +8,7 @@ import { getDictionary, resolveLocale } from "@/shared/i18n";
 import { ProductFilters } from "@/widgets/product-filters";
 import { ProductGrid } from "@/widgets/product-grid";
 import { SiteHeader } from "@/widgets/site-header";
+import { SiteFooter } from "@/widgets/site-footer";
 
 type ProductsPageProps = {
   searchParams?: Promise<{
@@ -71,8 +72,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   ]);
 
   return (
-    <main className="min-h-screen bg-[#fff8ed] text-stone-950">
-      <SiteHeader dictionary={dictionary} locale={locale} searchQuery={searchQuery} />
+    <main className="min-h-screen bg-[#fff8ed] text-stone-950 flex flex-col justify-between">
+      <div>
+        <SiteHeader dictionary={dictionary} locale={locale} searchQuery={searchQuery} />
 
       <section id="featured-products" className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
         <div className="mb-6 grid gap-4 lg:flex lg:items-end lg:justify-between">
@@ -113,6 +115,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           </div>
         )}
       </section>
+      </div>
+      <SiteFooter dictionary={dictionary} locale={locale} />
     </main>
   );
 }

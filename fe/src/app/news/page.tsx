@@ -4,6 +4,7 @@ import { CalendarDays, ChevronRight, Newspaper, Tags } from "lucide-react";
 import { getNewsArticles } from "@/features/catalog/api/catalog-api";
 import { getDictionary, resolveLocale, type Locale } from "@/shared/i18n";
 import { SiteHeader } from "@/widgets/site-header";
+import { SiteFooter } from "@/widgets/site-footer";
 
 type NewsPageProps = {
   searchParams?: Promise<{
@@ -172,8 +173,9 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
       : copy.articles;
 
   return (
-    <main className="min-h-screen bg-[#fff8ed] text-stone-950">
-      <SiteHeader dictionary={dictionary} locale={locale} />
+    <main className="min-h-screen bg-[#fff8ed] text-stone-950 flex flex-col justify-between">
+      <div>
+        <SiteHeader dictionary={dictionary} locale={locale} />
 
       <section className="border-b border-amber-900/10 bg-[#fff3df]">
         <div className="mx-auto grid max-w-7xl gap-8 px-6 py-10 lg:grid-cols-[1fr_380px] lg:px-8 lg:py-14">
@@ -266,6 +268,8 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
           ))}
         </div>
       </section>
+      </div>
+      <SiteFooter dictionary={dictionary} locale={locale} />
     </main>
   );
 }

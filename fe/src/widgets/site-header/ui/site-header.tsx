@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  Heart,
   LogOut,
   Moon,
   Search,
@@ -246,6 +247,17 @@ export function SiteHeader({ dictionary, locale, searchQuery }: SiteHeaderProps)
 
     return () =>
       window.removeEventListener("novatech:cart-updated", handleCartUpdated);
+  }, []);
+
+  useEffect(() => {
+    function handleOpenAuth() {
+      setIsAuthOpen(true);
+    }
+
+    window.addEventListener("novatech:open-auth", handleOpenAuth);
+
+    return () =>
+      window.removeEventListener("novatech:open-auth", handleOpenAuth);
   }, []);
 
   useEffect(() => {
@@ -619,6 +631,15 @@ export function SiteHeader({ dictionary, locale, searchQuery }: SiteHeaderProps)
                     >
                       <ShoppingCart className="h-4 w-4 text-amber-800" aria-hidden="true" />
                       {dictionary.ui.account.cartOrders}
+                    </Link>
+
+                    <Link
+                      href="/account#wishlist"
+                      onClick={() => setIsAccountMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 text-sm font-semibold transition hover:bg-amber-100/70"
+                    >
+                      <Heart className="h-4 w-4 text-amber-800" aria-hidden="true" />
+                      {dictionary.ui.account.wishlist}
                     </Link>
 
                     <button

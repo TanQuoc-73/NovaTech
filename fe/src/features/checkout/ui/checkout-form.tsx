@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import Link from "next/link";
-import { CheckCircle2, ShieldCheck, ShoppingCart } from "lucide-react";
+import { ShieldCheck, ShoppingCart } from "lucide-react";
 
 import { getAddresses, type Address } from "@/features/auth/model/auth-client";
 import { getCart, type Cart } from "@/features/cart/api/cart-api";
@@ -13,7 +13,7 @@ import {
   type Voucher,
   type VoucherValidation,
 } from "@/features/catalog/api/catalog-api";
-import { createCheckout, type CheckoutResult } from "@/features/checkout/api/checkout-api";
+import { createCheckout } from "@/features/checkout/api/checkout-api";
 import {
   getPaymentQrSettings,
   type PaymentQrSetting,
@@ -29,7 +29,6 @@ export function CheckoutForm({ dictionary }: { dictionary: Dictionary }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const [result, setResult] = useState<CheckoutResult | null>(null);
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [paymentQrSettings, setPaymentQrSettings] = useState<
     PaymentQrSetting[]
@@ -103,8 +102,12 @@ export function CheckoutForm({ dictionary }: { dictionary: Dictionary }) {
         return;
       }
 
-      setResult(checkoutResult);
-      setCart(null);
+      // Redirect to confirmation page
+      const params = new URLSearchParams({
+        order: checkoutResult.orderNumber,
+        payment: "success",
+      });
+      window.location.href = `/orders/confirm?${params.toString()}`;
     } catch (error) {
       setMessage(
         error instanceof Error
@@ -137,35 +140,6 @@ export function CheckoutForm({ dictionary }: { dictionary: Dictionary }) {
         <FormSkeleton />
         <span className="sr-only">{dictionary.ui.checkout.loading}</span>
       </>
-    );
-  }
-
-  if (result) {
-    return (
-      <section className="mx-auto max-w-3xl px-6 py-12 lg:px-8">
-        <div className="rounded-lg border border-green-200 bg-white p-8 text-center shadow-sm">
-          <CheckCircle2 className="mx-auto h-12 w-12 text-green-700" aria-hidden="true" />
-          <h1 className="mt-4 text-2xl font-semibold">
-            {dictionary.ui.checkout.successTitle}
-          </h1>
-          <p className="mt-2 text-sm font-medium text-stone-600">
-            {dictionary.ui.checkout.orderCode}:{" "}
-            <span className="font-semibold text-stone-950">
-              {result.orderNumber}
-            </span>
-          </p>
-          <p className="mt-1 text-sm font-medium text-stone-600">
-            {dictionary.ui.checkout.totalPayment}:{" "}
-            {formatCurrency(result.totalAmount)}
-          </p>
-          <Link
-            href="/cart?tab=ordered"
-            className="mt-6 inline-flex h-10 items-center rounded-md bg-amber-700 px-4 text-sm font-semibold text-white transition hover:bg-amber-800"
-          >
-            {dictionary.ui.checkout.viewOrder}
-          </Link>
-        </div>
-      </section>
     );
   }
 

@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Scale, ShoppingCart, Star, X } from "lucide-react";
+import { Heart, Scale, ShoppingCart, Star, X } from "lucide-react";
 
 import { ProductCard, type Product } from "@/entities/product";
+import { useWishlist } from "@/features/wishlist/model/use-wishlist";
 import { addCartItem } from "@/features/cart/api/cart-api";
 import type { Cart } from "@/features/cart/api/cart-api";
 import { formatCurrency } from "@/shared/lib/format-currency";
@@ -21,6 +22,7 @@ export function ProductGrid({
   dictionary,
   enableCompare = false,
 }: ProductGridProps) {
+  const { isWishlisted, toggleWishlist } = useWishlist();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [compareProducts, setCompareProducts] = useState<Product[]>([]);
   const [compareMessage, setCompareMessage] = useState<string | null>(null);
@@ -99,6 +101,8 @@ export function ProductGrid({
               compareProducts.some((item) => item.id === product.id)
             }
             compareState={enableCompare ? getCompareState(product) : "idle"}
+            isWishlisted={isWishlisted(product.id)}
+            onWishlistToggle={toggleWishlist}
           />
         ))}
       </div>
@@ -144,6 +148,8 @@ export function ProductGrid({
           product={selectedProduct}
           dictionary={dictionary}
           onClose={() => setSelectedProduct(null)}
+          isWishlisted={isWishlisted(selectedProduct.id)}
+          onWishlistToggle={toggleWishlist}
         />
       ) : null}
 
@@ -460,12 +466,16 @@ type ProductDetailModalProps = {
   product: Product;
   dictionary: Dictionary;
   onClose: () => void;
+  isWishlisted?: boolean;
+  onWishlistToggle?: (product: Product) => void;
 };
 
 function ProductDetailModal({
   product,
   dictionary,
   onClose,
+  isWishlisted = false,
+  onWishlistToggle,
 }: ProductDetailModalProps) {
   const [selectedVariantId, setSelectedVariantId] = useState(
     product.variants[0]?.id ?? "",
@@ -776,6 +786,21 @@ function ProductDetailModal({
                 ? dictionary.ui.product.adding
                 : dictionary.ui.product.addToCart}
             </button>
+            {onWishlistToggle ? (
+              <button
+                type="button"
+                aria-label={isWishlisted ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
+                title={isWishlisted ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
+                onClick={() => onWishlistToggle(product)}
+                className={`inline-flex h-10 w-10 items-center justify-center rounded-md border transition sm:h-11 ${
+                  isWishlisted
+                    ? "border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
+                    : "border-amber-900/15 bg-white text-stone-700 hover:border-amber-700 hover:text-amber-800"
+                }`}
+              >
+                <Heart className={`h-4 w-4 ${isWishlisted ? "fill-red-500 text-red-500" : ""}`} aria-hidden="true" />
+              </button>
+            ) : null}
             <button
               type="button"
               onClick={onClose}

@@ -1,7 +1,7 @@
 import type { Product } from "@/entities/product/model/types";
 import { formatCurrency } from "@/shared/lib/format-currency";
 import type { Dictionary } from "@/shared/i18n";
-import { Scale } from "lucide-react";
+import { Heart, Scale } from "lucide-react";
 
 type ProductCardProps = {
   product: Product;
@@ -10,6 +10,8 @@ type ProductCardProps = {
   onCompareToggle?: (product: Product) => void;
   isCompareSelected?: boolean;
   compareState?: "idle" | "compatible" | "incompatible";
+  isWishlisted?: boolean;
+  onWishlistToggle?: (product: Product) => void;
 };
 
 export function ProductCard({
@@ -19,6 +21,8 @@ export function ProductCard({
   onCompareToggle,
   isCompareSelected = false,
   compareState = "idle",
+  isWishlisted = false,
+  onWishlistToggle,
 }: ProductCardProps) {
   const categoryLabel =
     product.category in dictionary.categories
@@ -54,6 +58,26 @@ export function ProductCard({
           : ""
       }`}
     >
+      {onWishlistToggle ? (
+        <button
+          type="button"
+          aria-label={isWishlisted ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
+          aria-pressed={isWishlisted}
+          title={isWishlisted ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
+          onClick={(event) => {
+            event.stopPropagation();
+            onWishlistToggle(product);
+          }}
+          className={`absolute left-4 top-4 z-10 grid h-10 w-10 place-items-center rounded-full border shadow-lg transition focus:opacity-100 focus:outline-none focus:ring-4 focus:ring-amber-300/70 ${
+            isWishlisted
+              ? "border-red-200 bg-red-50 text-red-600 opacity-100"
+              : "border-amber-900/10 bg-white/95 text-stone-700 opacity-0 hover:border-red-500 hover:text-red-500 group-hover:opacity-100 group-focus-within:opacity-100"
+          }`}
+        >
+          <Heart className={`h-4 w-4 ${isWishlisted ? "fill-red-500 text-red-500" : ""}`} aria-hidden="true" />
+        </button>
+      ) : null}
+
       {onCompareToggle ? (
         <button
           type="button"

@@ -67,5 +67,6 @@ export async function apiFetch<T>(
     throw new Error(errorMessage);
   }
 
-  return response.json() as Promise<T>;
+  const text = await response.text();
+  return text ? (JSON.parse(text) as T) : ({} as T);
 }

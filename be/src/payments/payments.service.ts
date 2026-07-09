@@ -101,9 +101,8 @@ export class PaymentsService {
   createFrontendRedirectUrl(success: boolean, orderNumber?: string) {
     const frontendUrl =
       this.configService.get<string>('FRONTEND_URL') ?? 'http://localhost:3000';
-    const url = new URL('/cart', frontendUrl);
+    const url = new URL('/orders/confirm', frontendUrl);
 
-    url.searchParams.set('tab', 'ordered');
     url.searchParams.set('payment', success ? 'success' : 'failed');
 
     if (orderNumber) {

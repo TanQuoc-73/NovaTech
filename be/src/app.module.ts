@@ -12,6 +12,7 @@ import { SupabaseModule } from './infrastructure/supabase/supabase.module';
 import { OrdersModule } from './orders/orders.module';
 import { PaymentsModule } from './payments/payments.module';
 import { StaffModule } from './staff/staff.module';
+import { WishlistModule } from './wishlist/wishlist.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { StaffModule } from './staff/staff.module';
     OrdersModule,
     PaymentsModule,
     StaffModule,
+    WishlistModule,
   ],
   controllers: [AppController],
   providers: [AppService],

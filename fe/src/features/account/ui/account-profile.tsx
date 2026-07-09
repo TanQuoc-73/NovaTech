@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
-import { Home, LogIn, Mail, Phone, Shield, Trash2, UserCircle } from "lucide-react";
+import { Heart, Home, LogIn, Mail, Phone, Shield, Trash2, UserCircle } from "lucide-react";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 import { AuthModal } from "@/features/auth";
@@ -19,8 +19,11 @@ import {
 import type { Dictionary } from "@/shared/i18n";
 import { getSupabaseClient } from "@/shared/lib/supabase/client";
 import { FormSkeleton } from "@/shared/ui/loading-skeleton";
+import { useWishlist } from "@/features/wishlist/model/use-wishlist";
+import { ProductGrid } from "@/widgets/product-grid";
 
 export function AccountProfile({ dictionary }: { dictionary: Dictionary }) {
+  const { wishlistItems } = useWishlist();
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [profile, setProfile] = useState<AuthProfile | null>(null);
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -409,6 +412,31 @@ export function AccountProfile({ dictionary }: { dictionary: Dictionary }) {
             )}
           </div>
         </div>
+
+        {/* Chức năng Yêu thích */}
+        <div id="wishlist" className="rounded-lg border border-amber-900/10 bg-white p-6 shadow-sm animate-fade-in">
+          <div className="flex items-center gap-3">
+            <Heart className="h-5 w-5 text-red-600 fill-red-500" aria-hidden="true" />
+            <h2 className="text-base font-semibold">Sản phẩm yêu thích</h2>
+          </div>
+          <p className="mt-1 text-sm text-stone-500">
+            Xem danh sách các sản phẩm bạn đã lưu.
+          </p>
+
+          <div className="mt-6">
+            {wishlistItems.length ? (
+              <ProductGrid
+                products={wishlistItems}
+                dictionary={dictionary}
+              />
+            ) : (
+              <div className="rounded-lg border border-dashed border-amber-900/20 bg-[#fffdf7] p-5 text-sm font-medium text-stone-500">
+                Chưa có sản phẩm yêu thích nào.
+              </div>
+            )}
+          </div>
+        </div>
+
         </div>
       </div>
     </section>

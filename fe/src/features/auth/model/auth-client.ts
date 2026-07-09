@@ -38,6 +38,12 @@ function getRedirectUrl() {
   return `${siteUrl}/`;
 }
 
+function getResetPasswordRedirectUrl() {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin;
+
+  return `${siteUrl}/auth/reset-password`;
+}
+
 export async function consumeAuthRedirectSession() {
   if (typeof window === "undefined" || !window.location.hash) {
     return null;
@@ -120,6 +126,16 @@ export async function syncAuthProfileSafely() {
 
 export async function signOut() {
   return getSupabaseClient().auth.signOut();
+}
+
+export async function resetPasswordForEmail(email: string) {
+  return getSupabaseClient().auth.resetPasswordForEmail(email, {
+    redirectTo: getResetPasswordRedirectUrl(),
+  });
+}
+
+export async function updatePassword(newPassword: string) {
+  return getSupabaseClient().auth.updateUser({ password: newPassword });
 }
 
 export async function getCurrentProfile() {

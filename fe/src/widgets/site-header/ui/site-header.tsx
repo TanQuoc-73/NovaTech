@@ -399,9 +399,18 @@ export function SiteHeader({ dictionary, locale, searchQuery }: SiteHeaderProps)
         <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
           <Link
             href={`/?lang=${locale}`}
-            className="text-lg font-bold tracking-normal text-amber-50"
+            className="flex items-center"
           >
-            NovaTech
+            <img
+              src="/NovaTech_daymode.png"
+              alt="NovaTech"
+              className="logo-light h-9 w-auto object-contain"
+            />
+            <img
+              src="/NovaTech_nightmode.png"
+              alt="NovaTech"
+              className="logo-dark h-9 w-auto object-contain"
+            />
           </Link>
 
           <nav className="hidden items-center gap-6 md:flex">

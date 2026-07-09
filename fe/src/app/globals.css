@@ -261,6 +261,20 @@ a {
   --tw-shadow-color: rgba(15, 23, 42, 0.12) !important;
 }
 
+
+.logo-light {
+  display: block;
+}
+.logo-dark {
+  display: none;
+}
+[data-theme="dark"] .logo-light {
+  display: none;
+}
+[data-theme="dark"] .logo-dark {
+  display: block;
+}
+
 @media print {
   @page {
     size: A4;

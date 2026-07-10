@@ -24,6 +24,8 @@ type AppEnvironment = {
   MOMO_ENDPOINT?: string;
   MOMO_REDIRECT_URL?: string;
   MOMO_IPN_URL?: string;
+  OPENAI_API_KEY?: string;
+  OPENAI_CHAT_MODEL?: string;
 };
 
 const requiredKeys = [

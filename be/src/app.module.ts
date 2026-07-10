@@ -14,6 +14,7 @@ import { SupabaseModule } from './infrastructure/supabase/supabase.module';
 import { OrdersModule } from './orders/orders.module';
 import { PaymentsModule } from './payments/payments.module';
 import { StaffModule } from './staff/staff.module';
+import { AiModule } from './ai/ai.module';
 import { WishlistModule } from './wishlist/wishlist.module';
 
 @Module({
@@ -35,6 +36,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
     PaymentsModule,
     StaffModule,
     WishlistModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -325,7 +325,7 @@ export function AdminOverview() {
                       border: "1px solid #e2e8f0",
                       fontSize: 13,
                     }}
-                    formatter={(val: number) => formatCurrency(val)}
+                    formatter={(val) => formatCurrency(Number(val) || 0)}
                     labelFormatter={(label) => {
                       const d = new Date(label + "T00:00:00");
                       return d.toLocaleDateString("vi-VN");

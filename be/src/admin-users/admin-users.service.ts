@@ -19,8 +19,16 @@ export class AdminUsersService {
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (role && (validRoles as readonly string[]).includes(role)) {
-      query = query.eq('role', role);
+    if (role) {
+      const roleList = role.split(',').filter(
+        (r) => (validRoles as readonly string[]).includes(r),
+      );
+
+      if (roleList.length === 1) {
+        query = query.eq('role', roleList[0]);
+      } else if (roleList.length > 1) {
+        query = query.in('role', roleList);
+      }
     }
 
     if (q && q.trim()) {

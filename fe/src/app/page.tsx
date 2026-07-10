@@ -278,7 +278,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 maxPrice={maxPrice}
                 inStock={inStock}
                 featured={featured}
-                align="start"
               />
             </div>
 

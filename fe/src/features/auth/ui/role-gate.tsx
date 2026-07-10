@@ -53,10 +53,25 @@ export function RoleGate({ allowedRoles, children }: RoleGateProps) {
     return children;
   }
 
+  if (status === "checking") {
+    return (
+      <main className="grid min-h-screen place-items-center bg-[var(--background)]">
+        <div className="flex flex-col items-center gap-6">
+          <div className="relative">
+            <img src="/NovaTech_daymode.png" alt="" className="logo-light h-12 w-auto" />
+            <img src="/NovaTech_nightmode.png" alt="" className="logo-dark h-12 w-auto" />
+            <span className="absolute inset-0 -m-3 animate-spin rounded-full border-2 border-transparent border-t-[var(--primary)]" />
+          </div>
+          <p className="text-sm text-[var(--muted)]">Đang xác thực...</p>
+        </div>
+      </main>
+    );
+  }
+
   return (
-    <main className="grid min-h-screen place-items-center bg-[#fff8ed] px-6 text-stone-700">
-      <p className="text-sm font-semibold">
-        {status === "checking" ? "Dang kiem tra quyen..." : "Khong co quyen truy cap."}
+    <main className="grid min-h-screen place-items-center bg-[var(--background)] px-6">
+      <p className="text-sm text-[var(--muted)]">
+        Không có quyền truy cập.
       </p>
     </main>
   );

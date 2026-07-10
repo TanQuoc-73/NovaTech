@@ -7,6 +7,7 @@ import {
 import { getDictionary, resolveLocale } from "@/shared/i18n";
 import { ProductFilters } from "@/widgets/product-filters";
 import { ProductGrid } from "@/widgets/product-grid";
+import { ProductPagination } from "@/widgets/product-pagination";
 import { SiteHeader } from "@/widgets/site-header";
 import { SiteFooter } from "@/widgets/site-footer";
 
@@ -21,6 +22,7 @@ type ProductsPageProps = {
     maxPrice?: string | string[];
     inStock?: string | string[];
     featured?: string | string[];
+    page?: string | string[];
   }>;
 };
 
@@ -56,7 +58,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const maxPrice = getSingleParam(params?.maxPrice)?.trim() ?? "";
   const inStock = getSingleParam(params?.inStock) === "true";
   const featured = getSingleParam(params?.featured) === "true";
-  const [categories, brands, products] = await Promise.all([
+  const currentPage = Math.max(1, Number(getSingleParam(params?.page)) || 1);
+  const [categories, brands, result] = await Promise.all([
     getCatalogCategories(),
     getCatalogBrands(),
     getCatalogProducts({
@@ -68,24 +71,22 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       maxPrice,
       inStock,
       featured,
+      page: currentPage,
+      limit: 12,
     }),
   ]);
 
+  const products = result.data;
+  const totalPages = result.totalPages;
+  const totalProducts = result.total;
+
   return (
-    <main className="min-h-screen bg-[#fff8ed] text-stone-950 flex flex-col justify-between">
+    <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)] flex flex-col justify-between">
       <div>
         <SiteHeader dictionary={dictionary} locale={locale} searchQuery={searchQuery} />
 
       <section id="featured-products" className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
-        <div className="mb-6 grid gap-4 lg:flex lg:items-end lg:justify-between">
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-amber-800">
-              {dictionary.nav.products}
-            </p>
-            <h1 className="mt-2 text-2xl font-semibold text-stone-950">
-              {dictionary.ui.listing.title}
-            </h1>
-          </div>
+        <div className="mb-6">
           <ProductFilters
             brands={brands}
             categories={categories}
@@ -104,13 +105,22 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         </div>
 
         {products.length > 0 ? (
-          <ProductGrid
-            products={products}
-            dictionary={dictionary}
-            enableCompare
-          />
+          <>
+            <ProductGrid
+              products={products}
+              dictionary={dictionary}
+              enableCompare
+            />
+            <ProductPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalProducts={totalProducts}
+              basePath="/products"
+              searchParams={params}
+            />
+          </>
         ) : (
-          <div className="rounded-lg border border-dashed border-amber-900/20 bg-[#fffdf7] p-6 text-sm text-stone-600">
+          <div className="rounded-lg border border-dashed border-[var(--border)] bg-[var(--surface)] p-6 text-sm text-[var(--muted)]">
             {dictionary.ui.listing.emptyFilter}
           </div>
         )}

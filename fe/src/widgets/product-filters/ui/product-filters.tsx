@@ -22,7 +22,6 @@ type ProductFiltersProps = {
   inStock: boolean;
   featured: boolean;
   actionPath?: string;
-  align?: "start" | "end";
 };
 
 const sortOptions: Array<{
@@ -50,7 +49,6 @@ export function ProductFilters({
   inStock,
   featured,
   actionPath = "/",
-  align = "end",
 }: ProductFiltersProps) {
   const hasActiveFilters =
     Boolean(selectedBrand) ||
@@ -63,22 +61,23 @@ export function ProductFilters({
 
   return (
     <>
-      <details className="group w-full rounded-lg border border-amber-900/10 bg-[#fffdf7] sm:hidden">
+      <details className="group w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] sm:hidden">
         <summary
           aria-label={dictionary.ui.listing.filteredTitle}
-          className="flex h-11 cursor-pointer list-none items-center justify-between gap-3 px-3 text-sm font-semibold text-stone-800 [&::-webkit-details-marker]:hidden"
+          className="flex h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 text-sm font-semibold text-[var(--foreground)] [&::-webkit-details-marker]:hidden"
         >
-          <span className="grid h-8 w-8 place-items-center rounded-full bg-amber-100 text-amber-900">
-            <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
+          <span className="flex items-center gap-2 text-sm font-semibold">
+            <SlidersHorizontal className="h-4 w-4 text-[var(--primary)]" aria-hidden="true" />
+            {dictionary.ui.filters.apply}
           </span>
-          <span className="flex items-center gap-2 text-xs font-semibold text-amber-800">
+          <span className="flex items-center gap-2 text-xs font-semibold text-[var(--primary)]">
             {hasActiveFilters ? dictionary.ui.filters.active : null}
-            <span className="transition group-open:rotate-180">v</span>
+            <span className="transition group-open:rotate-180">▼</span>
           </span>
         </summary>
         <form
           action={`${actionPath}#featured-products`}
-          className="grid grid-cols-2 gap-2 border-t border-amber-900/10 p-3"
+          className="grid grid-cols-2 gap-2 border-t border-[var(--border)] p-4"
         >
           <FilterFields
             brands={brands}
@@ -100,9 +99,7 @@ export function ProductFilters({
 
       <form
         action={`${actionPath}#featured-products`}
-        className={`hidden w-full flex-wrap items-center gap-2 sm:flex ${
-          align === "start" ? "justify-start" : "justify-end"
-        }`}
+        className="hidden flex-wrap items-center gap-2 sm:flex"
       >
         <FilterFields
           brands={brands}
@@ -139,6 +136,9 @@ function FilterFields({
   featured,
   actionPath,
 }: ProductFiltersProps & { actionPath: string }) {
+  const fieldClass =
+    "h-10 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 text-sm font-semibold text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted)] hover:border-[var(--primary)]/50 focus:border-[var(--primary)] focus:ring-3 focus:ring-[var(--primary)]/20";
+
   return (
     <>
       <input type="hidden" name="lang" value={locale} />
@@ -148,12 +148,26 @@ function FilterFields({
         name="brand"
         defaultValue={selectedBrand}
         aria-label={dictionary.ui.filters.brandAll}
-        className="h-10 min-w-0 rounded-md border border-amber-900/15 bg-[#fffdf7] px-3 text-sm font-semibold text-stone-800 outline-none transition hover:border-amber-700 focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
+        className={fieldClass}
       >
         <option value="">{dictionary.ui.filters.brandAll}</option>
         {brands.map((brand) => (
           <option key={brand.id} value={brand.slug}>
             {brand.name}
+          </option>
+        ))}
+      </select>
+
+      <select
+        name="category"
+        defaultValue={selectedCategory}
+        aria-label={dictionary.ui.filters.categoryAll}
+        className={fieldClass}
+      >
+        <option value="">{dictionary.ui.filters.categoryAll}</option>
+        {categories.map((category) => (
+          <option key={category.id} value={category.slug}>
+            {category.name}
           </option>
         ))}
       </select>
@@ -164,7 +178,7 @@ function FilterFields({
         inputMode="numeric"
         placeholder={dictionary.ui.filters.minPrice}
         aria-label={dictionary.ui.filters.minPrice}
-        className="h-10 min-w-0 rounded-md border border-amber-900/15 bg-[#fffdf7] px-3 text-sm font-semibold text-stone-800 outline-none transition placeholder:text-stone-400 hover:border-amber-700 focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70 sm:w-28"
+        className={`${fieldClass} w-28`}
       />
 
       <input
@@ -173,50 +187,36 @@ function FilterFields({
         inputMode="numeric"
         placeholder={dictionary.ui.filters.maxPrice}
         aria-label={dictionary.ui.filters.maxPrice}
-        className="h-10 min-w-0 rounded-md border border-amber-900/15 bg-[#fffdf7] px-3 text-sm font-semibold text-stone-800 outline-none transition placeholder:text-stone-400 hover:border-amber-700 focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70 sm:w-28"
+        className={`${fieldClass} w-28`}
       />
 
-      <label className="inline-flex h-10 items-center gap-2 rounded-md border border-amber-900/15 bg-[#fffdf7] px-3 text-sm font-semibold text-stone-800 transition hover:border-amber-700">
+      <label className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--primary)]/50">
         <input
           name="inStock"
           type="checkbox"
           value="true"
           defaultChecked={inStock}
-          className="h-4 w-4 accent-amber-700"
+          className="h-4 w-4 accent-[var(--primary)]"
         />
         {dictionary.ui.filters.inStock}
       </label>
 
-      <label className="inline-flex h-10 items-center gap-2 rounded-md border border-amber-900/15 bg-[#fffdf7] px-3 text-sm font-semibold text-stone-800 transition hover:border-amber-700">
+      <label className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--primary)]/50">
         <input
           name="featured"
           type="checkbox"
           value="true"
           defaultChecked={featured}
-          className="h-4 w-4 accent-amber-700"
+          className="h-4 w-4 accent-[var(--primary)]"
         />
         {dictionary.ui.filters.featured}
       </label>
 
       <select
-        name="category"
-        defaultValue={selectedCategory}
-        aria-label={dictionary.ui.filters.categoryAll}
-        className="h-10 min-w-0 rounded-md border border-amber-900/15 bg-[#fffdf7] px-3 text-sm font-semibold text-stone-800 outline-none transition hover:border-amber-700 focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
-      >
-        <option value="">{dictionary.ui.filters.categoryAll}</option>
-        {categories.map((category) => (
-          <option key={category.id} value={category.slug}>
-            {category.name}
-          </option>
-        ))}
-      </select>
-
-      <select
         name="sort"
         defaultValue={selectedSort}
         aria-label={dictionary.ui.filters.sort.newest}
-        className="h-10 min-w-0 rounded-md border border-amber-900/15 bg-[#fffdf7] px-3 text-sm font-semibold text-stone-800 outline-none transition hover:border-amber-700 focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
+        className={fieldClass}
       >
         {sortOptions.map((option) => (
           <option key={option.value} value={option.value}>
@@ -227,14 +227,14 @@ function FilterFields({
 
       <button
         type="submit"
-        className="h-10 rounded-md bg-amber-700 px-4 text-sm font-semibold text-white transition hover:bg-amber-800"
+        className="h-10 rounded-lg bg-[var(--primary)] px-4 text-sm font-semibold text-white transition hover:opacity-90"
       >
         {dictionary.ui.filters.apply}
       </button>
 
       <Link
         href={`${actionPath}?lang=${locale}#featured-products`}
-        className="inline-flex h-10 items-center justify-center rounded-md border border-amber-900/15 px-4 text-sm font-semibold text-stone-700 transition hover:border-amber-700 hover:text-amber-800"
+        className="inline-flex h-10 items-center justify-center rounded-lg border border-[var(--border)] px-4 text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
       >
         {dictionary.ui.filters.clear}
       </Link>

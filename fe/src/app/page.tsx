@@ -135,9 +135,9 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     categories,
     brands,
     heroBanners,
-    products,
+    productsResult,
     featuredProducts,
-    latestProducts,
+    latestProductsResult,
   ] =
     await Promise.all([
       getCatalogCategories(),
@@ -154,12 +154,15 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             inStock,
             featured,
           })
-        : Promise.resolve([]),
+        : Promise.resolve({ data: [], total: 0, page: 1, limit: 12, totalPages: 0 }),
       hasCatalogFilters ? Promise.resolve([]) : getFeaturedProducts(),
       hasCatalogFilters
-        ? Promise.resolve([])
+        ? Promise.resolve({ data: [], total: 0, page: 1, limit: 12, totalPages: 0 })
         : getCatalogProducts({ sort: "newest" }),
     ]);
+
+  const products = Array.isArray(productsResult) ? productsResult : productsResult.data;
+  const latestProducts = Array.isArray(latestProductsResult) ? latestProductsResult : latestProductsResult.data;
 
   return (
     <main className="min-h-screen bg-[#fff8ed] text-stone-950 flex flex-col justify-between">

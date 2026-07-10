@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 
 import {
   getCatalogBrands,
@@ -7,108 +8,114 @@ import {
 import { getDictionary, resolveLocale } from "@/shared/i18n";
 import { SiteHeader } from "@/widgets/site-header";
 import { SiteFooter } from "@/widgets/site-footer";
-import type { Locale } from "@/shared/i18n";
-
 type CategoriesPageProps = {
   searchParams?: Promise<{
     lang?: string | string[];
   }>;
 };
 
-const pageCopy: Record<
-  Locale,
-  {
-    title: string;
-    categoryDescription: string;
-    brandsEyebrow: string;
-    brandsTitle: string;
-  }
-> = {
-  vi: {
-    title: "Mua sắm theo danh mục",
-    categoryDescription: "Xem các sản phẩm thuộc danh mục {category}.",
-    brandsEyebrow: "Thương hiệu",
-    brandsTitle: "Lọc sản phẩm theo hãng",
-  },
-  en: {
-    title: "Shop by category",
-    categoryDescription: "View products in the {category} category.",
-    brandsEyebrow: "Brands",
-    brandsTitle: "Filter products by brand",
-  },
-  zh: {
-    title: "按分类选购",
-    categoryDescription: "查看 {category} 分类中的商品。",
-    brandsEyebrow: "品牌",
-    brandsTitle: "按品牌筛选商品",
-  },
+const categoryIcons: Record<string, string> = {
+  laptop: "💻",
+  smartphone: "📱",
+  tablet: "📟",
+  monitor: "🖥️",
+  audio: "🎧",
+  accessory: "🔌",
+  keyboard: "⌨️",
+  mouse: "🖱️",
+  camera: "📷",
+  watch: "⌚",
+  gaming: "🎮",
+  printer: "🖨️",
+  storage: "💾",
+  network: "📡",
+  smart_home: "🏠",
 };
 
 export default async function CategoriesPage({ searchParams }: CategoriesPageProps) {
   const params = await searchParams;
   const locale = resolveLocale(params?.lang);
   const dictionary = getDictionary(locale);
-  const copy = pageCopy[locale];
   const [categories, brands] = await Promise.all([
     getCatalogCategories(),
     getCatalogBrands(),
   ]);
 
   return (
-    <main className="min-h-screen bg-[#fff8ed] text-stone-950 flex flex-col justify-between">
+    <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)] flex flex-col justify-between">
       <div>
         <SiteHeader dictionary={dictionary} locale={locale} />
 
-      <section className="mx-auto max-w-7xl px-6 py-10 lg:px-8">
-        <div className="mb-8">
-          <p className="text-sm font-semibold text-amber-800">
-            {dictionary.nav.categories}
-          </p>
-          <h1 className="mt-2 text-2xl font-semibold text-stone-950">
-            {copy.title}
-          </h1>
-        </div>
+        <section className="mx-auto max-w-7xl px-6 pt-12 pb-12 lg:px-8">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {categories.map((category) => (
+              <Link
+                key={category.id}
+                href={`/products?lang=${locale}&category=${category.slug}`}
+                className="group relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[var(--primary)]/40 hover:shadow-lg"
+              >
+                {category.imageUrl ? (
+                  <div className="absolute inset-0 opacity-5">
+                    <img
+                      src={category.imageUrl}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                ) : null}
 
-        <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-4">
-          {categories.map((category) => (
-            <Link
-              key={category.id}
-              href={`/products?lang=${locale}&category=${category.slug}#featured-products`}
-              className="rounded-lg border border-amber-900/10 bg-[#fffdf7] p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-amber-700/50 hover:bg-amber-50"
-            >
-              <h2 className="text-base font-semibold text-stone-950">
-                {category.name}
-              </h2>
-              <p className="mt-2 text-sm text-stone-600">
-                {copy.categoryDescription.replace("{category}", category.name)}
-              </p>
-            </Link>
-          ))}
-        </div>
-      </section>
+                <div className="relative">
+                  <div className="mb-4 grid h-16 w-16 place-items-center rounded-2xl bg-[var(--badge-bg)] text-2xl shadow-sm transition-transform duration-300 group-hover:scale-110">
+                    {categoryIcons[category.slug] ?? category.name.charAt(0).toUpperCase()}
+                  </div>
 
-      <section className="mx-auto max-w-7xl px-6 pb-16 lg:px-8">
-        <div className="mb-5">
-          <p className="text-sm font-semibold text-amber-800">
-            {copy.brandsEyebrow}
-          </p>
-          <h2 className="mt-2 text-xl font-semibold text-stone-950">
-            {copy.brandsTitle}
-          </h2>
-        </div>
+                  <h2 className="text-lg font-semibold text-[var(--foreground)]">
+                    {category.name}
+                  </h2>
 
-        <div className="flex flex-wrap gap-3">
-          {brands.map((brand) => (
-            <Link
-              key={brand.id}
-              href={`/products?lang=${locale}&brand=${brand.slug}#featured-products`}
-              className="rounded-md border border-amber-900/10 bg-[#fffdf7] px-4 py-3 text-sm font-semibold text-stone-800 transition hover:border-amber-700/50 hover:bg-amber-50"
-            >
-              {brand.name}
-            </Link>
-          ))}
-        </div>
-      </section>
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
+                    {category.name}
+                  </p>
+
+                  <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[var(--primary)] opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-1">
+                    {locale === "vi" ? "Xem sản phẩm" : locale === "zh" ? "查看商品" : "View products"}
+                    <ChevronRight className="h-4 w-4" />
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section className="border-t border-[var(--border)]">
+          <div className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
+            <div className="flex flex-wrap justify-center gap-4">
+              {brands.map((brand) => (
+                <Link
+                  key={brand.id}
+                  href={`/products?lang=${locale}&brand=${brand.slug}`}
+                  className="group inline-flex items-center gap-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-5 py-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--primary)]/40 hover:shadow-md"
+                >
+                  {brand.logoUrl ? (
+                    <img
+                      src={brand.logoUrl}
+                      alt={brand.name}
+                      className="h-7 w-7 rounded-lg object-contain"
+                    />
+                  ) : (
+                    <span className="grid h-7 w-7 place-items-center rounded-lg bg-[var(--badge-bg)] text-xs font-bold text-[var(--badge-text)]">
+                      {brand.name.charAt(0)}
+                    </span>
+                  )}
+                  <span className="text-sm font-semibold text-[var(--foreground)] group-hover:text-[var(--primary)]">
+                    {brand.name}
+                  </span>
+                  <ChevronRight className="h-3.5 w-3.5 text-[var(--muted)] transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-[var(--primary)]" />
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
       </div>
       <SiteFooter dictionary={dictionary} locale={locale} />
     </main>

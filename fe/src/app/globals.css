@@ -13,6 +13,14 @@
   --foreground: #0f172a;
   --muted: #475569;
   --border: rgba(14, 116, 144, 0.2);
+  --backdrop: rgba(15, 23, 42, 0.65);
+  --shadow-modal: 0 32px 80px rgba(0, 0, 0, 0.12);
+  --brand-gradient: linear-gradient(135deg, #0E7490 0%, #06B6D4 50%, #67E8F9 100%);
+  --success-bg: rgba(22, 163, 74, 0.12);
+  --danger-bg: rgba(220, 38, 38, 0.08);
+  --badge-bg: rgba(6, 182, 212, 0.12);
+  --badge-text: #0E7490;
+  --image-bg: linear-gradient(135deg, #dff3fb 0%, #eaf6fb 50%, #f0f9ff 100%);
   color-scheme: light;
 }
 
@@ -28,6 +36,14 @@
   --foreground: #0f172a;
   --muted: #475569;
   --border: rgba(14, 116, 144, 0.2);
+  --backdrop: rgba(15, 23, 42, 0.65);
+  --shadow-modal: 0 32px 80px rgba(0, 0, 0, 0.12);
+  --brand-gradient: linear-gradient(135deg, #0E7490 0%, #06B6D4 50%, #67E8F9 100%);
+  --success-bg: rgba(22, 163, 74, 0.12);
+  --danger-bg: rgba(220, 38, 38, 0.08);
+  --badge-bg: rgba(6, 182, 212, 0.12);
+  --badge-text: #0E7490;
+  --image-bg: linear-gradient(135deg, #dff3fb 0%, #eaf6fb 50%, #f0f9ff 100%);
   color-scheme: light;
 }
 
@@ -43,6 +59,14 @@
   --foreground: #f8fafc;
   --muted: #94a3b8;
   --border: rgba(125, 211, 252, 0.22);
+  --backdrop: rgba(15, 23, 42, 0.8);
+  --shadow-modal: 0 32px 80px rgba(0, 0, 0, 0.55);
+  --brand-gradient: linear-gradient(135deg, #09090B 0%, #0E7490 50%, #06B6D4 100%);
+  --success-bg: rgba(34, 197, 94, 0.14);
+  --danger-bg: rgba(220, 38, 38, 0.12);
+  --badge-bg: rgba(6, 182, 212, 0.18);
+  --badge-text: #67E8F9;
+  --image-bg: linear-gradient(135deg, #1a2a3a 0%, #1f3347 50%, #243044 100%);
   color-scheme: dark;
 }
 

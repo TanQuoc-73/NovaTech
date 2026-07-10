@@ -49,10 +49,6 @@ export function AdminMarketing() {
 
   return (
     <section className="grid gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-slate-950">Marketing</h1>
-      </div>
-
       {message ? (
         <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
           {message}

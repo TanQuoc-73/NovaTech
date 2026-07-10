@@ -128,19 +128,16 @@ export default async function WarrantyPage({ searchParams }: WarrantyPageProps) 
   const copy = pageCopy[locale];
 
   return (
-    <main className="min-h-screen bg-[#fff8ed] text-stone-950 flex flex-col justify-between">
+    <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)] flex flex-col justify-between">
       <div>
         <SiteHeader dictionary={dictionary} locale={locale} />
 
       <section className="mx-auto max-w-7xl px-6 py-10 lg:px-8">
         <div className="max-w-3xl">
-          <p className="text-sm font-semibold text-amber-800">
-            {dictionary.nav.warranty}
-          </p>
-          <h1 className="mt-2 text-3xl font-semibold text-stone-950">
+          <h1 className="text-3xl font-semibold text-[var(--foreground)]">
             {copy.title}
           </h1>
-          <p className="mt-4 text-base leading-7 text-stone-700">
+          <p className="mt-4 text-base leading-7 text-[var(--muted)]">
             {copy.subtitle}
           </p>
         </div>
@@ -149,15 +146,15 @@ export default async function WarrantyPage({ searchParams }: WarrantyPageProps) 
           {copy.steps.map((step, index) => (
             <article
               key={step.title}
-              className="rounded-lg border border-amber-900/10 bg-[#fffdf7] p-5 shadow-sm"
+              className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
             >
-              <span className="grid h-9 w-9 place-items-center rounded-md bg-amber-100 text-sm font-bold text-amber-900">
+              <span className="grid h-9 w-9 place-items-center rounded-lg bg-[var(--badge-bg)] text-sm font-bold text-[var(--badge-text)]">
                 {index + 1}
               </span>
-              <h2 className="mt-4 text-base font-semibold text-stone-950">
+              <h2 className="mt-4 text-base font-semibold text-[var(--foreground)]">
                 {step.title}
               </h2>
-              <p className="mt-2 text-sm leading-6 text-stone-600">
+              <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
                 {step.description}
               </p>
             </article>
@@ -167,15 +164,15 @@ export default async function WarrantyPage({ searchParams }: WarrantyPageProps) 
 
       <section className="mx-auto max-w-7xl px-6 pb-16 lg:px-8">
         <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-          <div className="rounded-lg border border-amber-900/10 bg-[#fffdf7] p-6">
-            <h2 className="text-xl font-semibold text-stone-950">
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6">
+            <h2 className="text-xl font-semibold text-[var(--foreground)]">
               {copy.policiesTitle}
             </h2>
             <div className="mt-5 grid gap-3">
               {copy.policies.map((policy) => (
                 <p
                   key={policy}
-                  className="rounded-md bg-amber-50 px-4 py-3 text-sm font-semibold leading-6 text-stone-700"
+                  className="rounded-lg bg-[var(--badge-bg)] px-4 py-3 text-sm font-semibold leading-6 text-[var(--foreground)]"
                 >
                   {policy}
                 </p>
@@ -183,16 +180,16 @@ export default async function WarrantyPage({ searchParams }: WarrantyPageProps) 
             </div>
           </div>
 
-          <aside className="h-fit rounded-lg border border-amber-900/10 bg-[#fffdf7] p-6">
-            <h2 className="text-base font-semibold text-stone-950">
+          <aside className="h-fit rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6">
+            <h2 className="text-base font-semibold text-[var(--foreground)]">
               {copy.quickHelpTitle}
             </h2>
-            <p className="mt-3 text-sm leading-6 text-stone-600">
+            <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
               {copy.quickHelpDescription}
             </p>
             <Link
               href={`/?lang=${locale}#featured-products`}
-              className="mt-5 inline-flex h-10 items-center rounded-md bg-amber-700 px-4 text-sm font-semibold text-white transition hover:bg-amber-800"
+              className="mt-5 inline-flex h-10 items-center rounded-lg bg-[var(--primary)] px-4 text-sm font-semibold text-white transition hover:opacity-90"
             >
               {copy.continueShopping}
             </Link>

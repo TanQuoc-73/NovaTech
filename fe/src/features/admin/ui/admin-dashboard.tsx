@@ -90,20 +90,6 @@ export function AdminDashboard({ initialTab = "products" }: { initialTab?: Admin
 
   return (
     <section>
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-cyan-700">
-            Kho hàng
-          </p>
-          <h1 className="mt-3 text-3xl font-semibold text-slate-950">
-            Quản lý catalog
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm font-medium text-slate-600">
-            Quản lý sản phẩm, cấu hình variant, tồn kho, danh mục và thương hiệu.
-          </p>
-        </div>
-      </div>
-
       {message ? (
         <div className="mt-5 rounded-md bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
           {message}

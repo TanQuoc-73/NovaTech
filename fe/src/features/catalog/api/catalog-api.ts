@@ -30,6 +30,16 @@ export type CatalogProductFilters = {
   maxPrice?: string;
   inStock?: boolean;
   featured?: boolean;
+  page?: number;
+  limit?: number;
+};
+
+export type PaginatedResult<T> = {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 };
 
 export type HeroBanner = {
@@ -133,7 +143,7 @@ export function getFeaturedProducts() {
   return fetchJson<Product[]>("/catalog/products/featured");
 }
 
-export function getCatalogProducts(filters: CatalogProductFilters = {}) {
+export async function getCatalogProducts(filters: CatalogProductFilters = {}) {
   const searchParams = new URLSearchParams();
 
   if (filters.q?.trim()) {
@@ -168,9 +178,21 @@ export function getCatalogProducts(filters: CatalogProductFilters = {}) {
     searchParams.set("featured", "true");
   }
 
-  const queryString = searchParams.toString();
+  const page = filters.page ?? 1;
+  const limit = filters.limit ?? 12;
+  searchParams.set("page", String(page));
+  searchParams.set("limit", String(limit));
 
-  return fetchJson<Product[]>(
+  const queryString = searchParams.toString();
+  const raw = await fetchJson<Product[] | PaginatedResult<Product>>(
     `/catalog/products${queryString ? `?${queryString}` : ""}`,
   );
+
+  if (Array.isArray(raw)) {
+    const start = (page - 1) * limit;
+    const data = raw.slice(start, start + limit);
+    return { data, total: raw.length, page, limit, totalPages: Math.ceil(raw.length / limit) };
+  }
+
+  return raw;
 }

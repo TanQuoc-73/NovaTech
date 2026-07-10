@@ -173,41 +173,41 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
       : copy.articles;
 
   return (
-    <main className="min-h-screen bg-[#fff8ed] text-stone-950 flex flex-col justify-between">
+    <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)] flex flex-col justify-between">
       <div>
         <SiteHeader dictionary={dictionary} locale={locale} />
 
-      <section className="border-b border-amber-900/10 bg-[#fff3df]">
+      <section className="border-b border-[var(--border)] bg-[var(--surface-soft)]">
         <div className="mx-auto grid max-w-7xl gap-8 px-6 py-10 lg:grid-cols-[1fr_380px] lg:px-8 lg:py-14">
           <div className="max-w-3xl">
-            <p className="inline-flex items-center gap-2 text-sm font-semibold text-amber-800">
+            <p className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--primary)]">
               <Newspaper className="h-4 w-4" aria-hidden="true" />
               {copy.eyebrow}
             </p>
-            <h1 className="mt-3 text-3xl font-semibold leading-tight text-stone-950 sm:text-4xl">
+            <h1 className="mt-3 text-3xl font-semibold leading-tight text-[var(--foreground)] sm:text-4xl">
               {copy.title}
             </h1>
-            <p className="mt-4 text-base leading-7 text-stone-700">
+            <p className="mt-4 text-base leading-7 text-[var(--muted)]">
               {copy.subtitle}
             </p>
             <Link
               href={`/products?lang=${locale}`}
-              className="mt-6 inline-flex h-11 items-center gap-2 rounded-md bg-amber-700 px-4 text-sm font-semibold text-white transition hover:bg-amber-800"
+              className="mt-6 inline-flex h-11 items-center gap-2 rounded-lg bg-[var(--primary)] px-4 text-sm font-semibold text-white transition hover:opacity-90"
             >
               {copy.viewProducts}
               <ChevronRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
 
-          <aside className="rounded-lg border border-amber-900/10 bg-[#fffdf7] p-5 shadow-sm">
-            <p className="text-sm font-semibold text-amber-800">
+          <aside className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm">
+            <p className="text-sm font-semibold text-[var(--primary)]">
               {copy.spotlightTitle}
             </p>
-            <p className="mt-3 text-sm leading-6 text-stone-600">
+            <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
               {copy.spotlightDescription}
             </p>
             <div className="mt-5">
-              <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">
+              <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
                 <Tags className="h-4 w-4" aria-hidden="true" />
                 {copy.topicsTitle}
               </p>
@@ -215,7 +215,7 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
                 {copy.topics.map((topic) => (
                   <span
                     key={topic}
-                    className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-950"
+                    className="rounded-full bg-[var(--badge-bg)] px-3 py-1 text-xs font-semibold text-[var(--badge-text)]"
                   >
                     {topic}
                   </span>
@@ -227,39 +227,34 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
       </section>
 
       <section className="mx-auto max-w-7xl px-6 py-10 lg:px-8 lg:py-12">
-        <div className="mb-6">
-          <p className="text-sm font-semibold text-amber-800">
-            {copy.latestLabel}
-          </p>
-          <h2 className="mt-2 text-2xl font-semibold text-stone-950">
-            {dictionary.nav.news}
-          </h2>
-        </div>
+        <h2 className="mb-6 text-2xl font-semibold text-[var(--foreground)]">
+          {dictionary.nav.news}
+        </h2>
 
         <div className="grid gap-4 lg:grid-cols-3">
           {articles.map((article) => (
             <article
               key={article.title}
-              className="flex min-h-72 flex-col rounded-lg border border-amber-900/10 bg-[#fffdf7] p-5 shadow-sm"
+              className="flex min-h-72 flex-col rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
             >
               <div className="flex items-center justify-between gap-3">
-                <span className="rounded-full bg-stone-900 px-3 py-1 text-xs font-semibold text-amber-50">
+                <span className="rounded-full bg-[var(--foreground)] px-3 py-1 text-xs font-semibold text-[var(--background)]">
                   {article.category}
                 </span>
-                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-500">
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--muted)]">
                   <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
                   {article.date}
                 </span>
               </div>
-              <h3 className="mt-5 text-xl font-semibold leading-snug text-stone-950">
+              <h3 className="mt-5 text-xl font-semibold leading-snug text-[var(--foreground)]">
                 {article.title}
               </h3>
-              <p className="mt-3 flex-1 text-sm leading-6 text-stone-600">
+              <p className="mt-3 flex-1 text-sm leading-6 text-[var(--muted)]">
                 {article.excerpt}
               </p>
               <Link
                 href={`${article.href}&lang=${locale}#featured-products`}
-                className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-amber-800 transition hover:text-amber-950"
+                className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[var(--primary)] transition hover:opacity-80"
               >
                 {copy.readMore}
                 <ChevronRight className="h-4 w-4" aria-hidden="true" />

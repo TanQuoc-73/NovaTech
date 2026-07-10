@@ -514,3 +514,58 @@ export function deleteAdminProductVariantImage(
     },
   );
 }
+
+// ---- User Management ----
+
+export type AdminUser = {
+  id: string;
+  email: string;
+  fullName: string | null;
+  phone: string | null;
+  avatarUrl: string | null;
+  role: "customer" | "admin" | "staff";
+  createdAt: string;
+  updatedAt: string;
+  orderCount: number;
+};
+
+export function getAdminUsers(
+  opts?: { q?: string; role?: string },
+) {
+  const params = new URLSearchParams();
+  if (opts?.q) params.set("q", opts.q);
+  if (opts?.role) params.set("role", opts.role);
+  const qs = params.toString();
+  return apiFetch<AdminUser[]>(`/admin/users${qs ? `?${qs}` : ""}`, {
+    authenticated: true,
+  });
+}
+
+export function updateAdminUser(
+  id: string,
+  payload: Record<string, unknown>,
+) {
+  return apiFetch<AdminUser>(`/admin/users/${id}`, {
+    method: "PATCH",
+    authenticated: true,
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateAdminUserRole(
+  id: string,
+  role: string,
+) {
+  return apiFetch<AdminUser>(`/admin/users/${id}/role`, {
+    method: "PATCH",
+    authenticated: true,
+    body: JSON.stringify({ role }),
+  });
+}
+
+export function deleteAdminUser(id: string) {
+  return apiFetch<{ success: boolean }>(`/admin/users/${id}`, {
+    method: "DELETE",
+    authenticated: true,
+  });
+}

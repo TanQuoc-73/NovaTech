@@ -314,6 +314,48 @@ export class CatalogService {
     const maxPrice = this.readOptionalPrice(filters.maxPrice);
     const shouldFilterInStock = this.readBooleanFilter(filters.inStock);
     const shouldFilterFeatured = this.readBooleanFilter(filters.featured);
+    const hasPriceFilter = minPrice !== undefined || maxPrice !== undefined;
+    const hasStockFilter = shouldFilterInStock;
+
+    let productIds: string[] | null = null;
+
+    if (hasPriceFilter || hasStockFilter) {
+      let variantQuery = this.supabaseService.client
+        .from('product_variants')
+        .select('product_id')
+        .eq('is_active', true);
+
+      if (hasPriceFilter) {
+        if (minPrice !== undefined) {
+          variantQuery = variantQuery.gte('price', minPrice);
+        }
+        if (maxPrice !== undefined) {
+          variantQuery = variantQuery.lte('price', maxPrice);
+        }
+      }
+
+      if (hasStockFilter) {
+        variantQuery = variantQuery.gt('stock_quantity', 0);
+      }
+
+      const { data: matchingVariants, error: variantError } =
+        await variantQuery.limit(256);
+
+      if (variantError) {
+        throw variantError;
+      }
+
+      productIds = [
+        ...new Set(
+          (matchingVariants ?? []).map((v) => v.product_id as string),
+        ),
+      ];
+
+      if (productIds.length === 0) {
+        return [];
+      }
+    }
+
     let request = this.supabaseService.client
       .from('products')
       .select(this.productSelect)
@@ -321,8 +363,16 @@ export class CatalogService {
       .eq('product_variants.is_active', true)
       .limit(64);
 
+    if (productIds) {
+      request = request.in('id', productIds);
+    }
+
     if (sort === 'name_asc') {
       request = request.order('name', { ascending: true });
+    } else if (sort === 'price_asc') {
+      request = request.order('product_variants.price', { ascending: true, foreignTable: 'product_variants' });
+    } else if (sort === 'price_desc') {
+      request = request.order('product_variants.price', { ascending: false, foreignTable: 'product_variants' });
     } else {
       request = request.order('created_at', { ascending: false });
     }
@@ -369,28 +419,8 @@ export class CatalogService {
 
     let products = this.mapProducts(data ?? []);
 
-    if (minPrice !== undefined) {
-      products = products.filter((product) => product.price >= minPrice);
-    }
-
-    if (maxPrice !== undefined) {
-      products = products.filter((product) => product.price <= maxPrice);
-    }
-
-    if (shouldFilterInStock) {
-      products = products.filter((product) => product.stock > 0);
-    }
-
-    if (sort === 'price_asc') {
-      return products.sort((left, right) => left.price - right.price);
-    }
-
-    if (sort === 'price_desc') {
-      return products.sort((left, right) => right.price - left.price);
-    }
-
     if (sort === 'stock_desc') {
-      return products.sort((left, right) => right.stock - left.stock);
+      products.sort((left, right) => right.stock - left.stock);
     }
 
     return products;

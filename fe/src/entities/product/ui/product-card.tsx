@@ -1,7 +1,7 @@
 import type { Product } from "@/entities/product/model/types";
 import { formatCurrency } from "@/shared/lib/format-currency";
 import type { Dictionary } from "@/shared/i18n";
-import { Heart, Scale } from "lucide-react";
+import { Heart, Scale, ShoppingCart } from "lucide-react";
 
 type ProductCardProps = {
   product: Product;
@@ -46,12 +46,12 @@ export function ProductCard({
           onSelect(product);
         }
       }}
-      className={`group relative grid min-h-[300px] cursor-pointer rounded-lg border bg-[#fffdf7] p-2.5 shadow-sm transition hover:-translate-y-0.5 hover:border-amber-700/40 focus:outline-none focus:ring-4 focus:ring-amber-300/60 sm:min-h-[360px] sm:p-4 ${
+      className={`group relative grid min-h-[300px] cursor-pointer rounded-xl border bg-[var(--surface)] p-2.5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md sm:min-h-[360px] sm:p-4 ${
         isCompareSelected
-          ? "border-amber-700 ring-2 ring-amber-300/70"
+          ? "border-[var(--primary)] ring-2 ring-[var(--primary)]/40"
           : compareState === "compatible"
-            ? "border-amber-500/70 shadow-md shadow-amber-900/10 ring-2 ring-amber-200/80"
-            : "border-amber-900/10"
+            ? "border-[var(--primary)]/50 shadow-md ring-2 ring-[var(--primary)]/20"
+            : "border-[var(--border)] hover:border-[var(--primary)]/40"
       } ${
         compareState === "incompatible"
           ? "opacity-35 grayscale-[0.35] hover:opacity-60"
@@ -68,10 +68,10 @@ export function ProductCard({
             event.stopPropagation();
             onWishlistToggle(product);
           }}
-          className={`absolute left-4 top-4 z-10 grid h-10 w-10 place-items-center rounded-full border shadow-lg transition focus:opacity-100 focus:outline-none focus:ring-4 focus:ring-amber-300/70 ${
+          className={`absolute left-3 top-3 z-10 grid h-9 w-9 place-items-center rounded-full shadow-lg transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-[var(--primary)]/40 ${
             isWishlisted
               ? "border-red-200 bg-red-50 text-red-600 opacity-100"
-              : "border-amber-900/10 bg-white/95 text-stone-700 opacity-0 hover:border-red-500 hover:text-red-500 group-hover:opacity-100 group-focus-within:opacity-100"
+              : "border-[var(--border)] bg-[var(--surface)] text-[var(--muted)] opacity-0 hover:border-red-400 hover:bg-red-50 hover:text-red-500 group-hover:opacity-100 group-focus-within:opacity-100"
           }`}
         >
           <Heart className={`h-4 w-4 ${isWishlisted ? "fill-red-500 text-red-500" : ""}`} aria-hidden="true" />
@@ -92,29 +92,29 @@ export function ProductCard({
             }
             onCompareToggle(product);
           }}
-          className={`absolute right-4 top-4 z-10 grid h-10 w-10 place-items-center rounded-full border shadow-lg transition focus:opacity-100 focus:outline-none focus:ring-4 focus:ring-amber-300/70 ${
+          className={`absolute right-3 top-3 z-10 grid h-9 w-9 place-items-center rounded-full shadow-lg transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-[var(--primary)]/40 ${
             isCompareSelected
-              ? "border-amber-700 bg-amber-600 text-white opacity-100"
+              ? "bg-[var(--primary)] text-white opacity-100"
               : compareState === "compatible"
-                ? "border-amber-600 bg-amber-100 text-amber-900 opacity-100"
+                ? "border-[var(--primary)] bg-[var(--badge-bg)] text-[var(--badge-text)] opacity-100"
                 : compareState === "incompatible"
-                  ? "cursor-not-allowed border-stone-200 bg-white/90 text-stone-300 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"
-              : "border-amber-900/10 bg-white/95 text-stone-700 opacity-0 hover:border-amber-700 hover:text-amber-900 group-hover:opacity-100 group-focus-within:opacity-100"
+                  ? "cursor-not-allowed border-[var(--border)] bg-[var(--surface)] text-[var(--muted)] opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"
+              : "border-[var(--border)] bg-[var(--surface)] text-[var(--muted)] opacity-0 hover:border-[var(--primary)] hover:text-[var(--primary)] group-hover:opacity-100 group-focus-within:opacity-100"
           }`}
         >
           <Scale className="h-4 w-4" aria-hidden="true" />
         </button>
       ) : null}
 
-      <div className="flex h-[7.5rem] items-center justify-center overflow-hidden rounded-md bg-gradient-to-br from-amber-100 via-orange-50 to-stone-100 sm:h-40">
+      <div className="flex h-[7.5rem] items-center justify-center overflow-hidden rounded-lg bg-[var(--image-bg)] sm:h-40">
         {product.imageUrl ? (
           <img
             src={product.imageUrl}
             alt={product.name}
-            className="h-full w-full object-contain p-1 sm:object-cover sm:p-0"
+            className="h-full w-full object-contain p-1 transition-transform duration-500 group-hover:scale-110 sm:object-cover sm:p-0"
           />
         ) : (
-          <span className="text-center text-sm font-semibold text-stone-500">
+          <span className="text-center text-sm font-semibold text-[var(--muted)]">
             {product.brand}
           </span>
         )}
@@ -124,7 +124,7 @@ export function ProductCard({
         {product.badges.map((badge) => (
           <span
             key={badge}
-            className="rounded-sm bg-amber-100 px-1.5 py-1 text-[11px] font-semibold text-amber-800 sm:px-2 sm:text-xs"
+            className="rounded-md bg-[var(--badge-bg)] px-1.5 py-1 text-[11px] font-semibold text-[var(--badge-text)] sm:px-2 sm:text-xs"
           >
             {badge in dictionary.badges
               ? dictionary.badges[badge as keyof typeof dictionary.badges]
@@ -134,31 +134,34 @@ export function ProductCard({
       </div>
 
       <div className="mt-3">
-        <p className="line-clamp-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-stone-500 sm:text-xs sm:tracking-[0.12em]">
+        <p className="line-clamp-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--muted)] sm:text-xs sm:tracking-[0.12em]">
           {categoryLabel}
         </p>
-        <h3 className="mt-1.5 line-clamp-2 text-sm font-semibold text-stone-950 sm:mt-2 sm:text-base">
+        <h3 className="mt-1.5 line-clamp-2 text-sm font-semibold text-[var(--foreground)] sm:mt-2 sm:text-base">
           {product.name}
         </h3>
       </div>
 
       <div className="mt-3 self-end sm:mt-4">
         <div className="grid gap-1 sm:flex sm:items-baseline sm:gap-2">
-          <p className="text-sm font-semibold text-stone-950 sm:text-lg">
+          <p className="text-sm font-semibold text-[var(--foreground)] sm:text-lg">
             {formatCurrency(product.price)}
           </p>
           {product.compareAtPrice ? (
-            <p className="text-xs text-stone-400 line-through sm:text-sm">
+            <p className="text-xs text-[var(--muted)] line-through sm:text-sm">
               {formatCurrency(product.compareAtPrice)}
             </p>
           ) : null}
         </div>
-        <div className="mt-2 grid gap-1 text-[11px] text-stone-600 sm:mt-3 sm:flex sm:items-center sm:justify-between sm:text-sm">
-          <span>
-            {product.rating.toFixed(1)} {dictionary.common.rating}
+        <div className="mt-2 grid gap-1 text-[11px] text-[var(--muted)] sm:mt-3 sm:flex sm:items-center sm:justify-between sm:text-sm">
+          <span className="flex items-center gap-1">
+            <span className="text-[var(--primary)]">★</span>
+            {product.rating.toFixed(1)}
           </span>
           <span>
-            {product.stock} {dictionary.common.inStock}
+            {product.stock > 0
+              ? `${product.stock} ${dictionary.common.inStock}`
+              : dictionary.ui.product.outOfStock}
           </span>
         </div>
       </div>

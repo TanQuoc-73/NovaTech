@@ -183,18 +183,7 @@ export function AdminOrders() {
 
   return (
     <section>
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-cyan-700">
-            Đơn hàng
-          </p>
-          <h1 className="mt-3 text-3xl font-semibold text-slate-950">
-            Quản lý đơn hàng
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm font-medium text-slate-600">
-            Theo dõi đơn mới, cập nhật trạng thái giao hàng và thanh toán.
-          </p>
-        </div>
+      <div className="flex flex-wrap items-center justify-end gap-4">
         <span className="rounded-md border border-cyan-950/10 bg-white px-3 py-2 text-sm font-semibold text-slate-600">
           {visibleOrders.length} / {orders.length} đơn
         </span>

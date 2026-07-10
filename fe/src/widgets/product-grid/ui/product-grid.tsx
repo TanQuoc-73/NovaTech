@@ -108,13 +108,13 @@ export function ProductGrid({
       </div>
 
       {enableCompare && compareProducts.length > 0 ? (
-        <div className="sticky bottom-4 z-30 mx-auto mt-5 flex max-w-3xl flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-900/10 bg-[#fffaf2] p-3 shadow-xl shadow-stone-950/15">
+        <div className="sticky bottom-4 z-30 mx-auto mt-5 flex max-w-3xl flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-3 shadow-xl shadow-stone-950/15">
           <div className="min-w-0">
-            <p className="flex items-center gap-2 text-sm font-semibold text-stone-950">
-              <Scale className="h-4 w-4 text-amber-800" aria-hidden="true" />
+            <p className="flex items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
+              <Scale className="h-4 w-4 text-[var(--primary)]" aria-hidden="true" />
               {dictionary.ui.compare.title}
             </p>
-            <p className="mt-1 text-xs font-semibold text-stone-500">
+            <p className="mt-1 text-xs font-semibold text-[var(--muted)]">
               {compareMessage ??
                 `${compareProducts.length}/2 - ${dictionary.ui.compare.hint}`}
             </p>
@@ -124,7 +124,7 @@ export function ProductGrid({
               type="button"
               disabled={compareProducts.length !== 2}
               onClick={() => setIsCompareOpen(true)}
-              className="h-9 rounded-md bg-amber-700 px-3 text-sm font-semibold text-white transition hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-50"
+              className="h-9 rounded-md bg-[var(--primary)] px-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {dictionary.ui.compare.open}
             </button>
@@ -135,7 +135,7 @@ export function ProductGrid({
                 setCompareMessage(null);
                 setIsCompareOpen(false);
               }}
-              className="h-9 rounded-md border border-amber-900/15 px-3 text-sm font-semibold text-stone-700 transition hover:border-amber-700 hover:text-amber-800"
+              className="h-9 rounded-md border border-[var(--border)] px-3 text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
             >
               {dictionary.ui.compare.clear}
             </button>
@@ -284,21 +284,21 @@ function ProductCompareModal({
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-50 grid place-items-center bg-stone-950/70 px-3 py-4 backdrop-blur-sm sm:px-4">
+    <div className="fixed inset-0 z-50 grid place-items-center bg-[var(--backdrop)] px-3 py-4 backdrop-blur-sm sm:px-4">
       <button
         type="button"
         aria-label={dictionary.ui.compare.close}
         className="absolute inset-0 cursor-default"
         onClick={onClose}
       />
-      <section className="relative flex max-h-[88dvh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-amber-200/60 bg-[#fffaf2] shadow-2xl shadow-stone-950/30">
-        <div className="flex items-start justify-between gap-4 border-b border-amber-900/10 p-4 sm:p-6">
+      <section className="relative flex max-h-[88dvh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-2xl" style={{ boxShadow: "var(--shadow-modal)" }}>
+        <div className="flex items-start justify-between gap-4 border-b border-[var(--border)] p-4 sm:p-6">
           <div>
-            <p className="flex items-center gap-2 text-sm font-semibold text-amber-800">
+            <p className="flex items-center gap-2 text-sm font-semibold text-[var(--primary)]">
               <Scale className="h-4 w-4" aria-hidden="true" />
               {dictionary.ui.compare.title}
             </p>
-            <h2 className="mt-2 text-xl font-semibold text-stone-950 sm:text-2xl">
+            <h2 className="mt-2 text-xl font-semibold text-[var(--foreground)] sm:text-2xl">
               {categoryLabel}
             </h2>
           </div>
@@ -306,7 +306,7 @@ function ProductCompareModal({
             type="button"
             aria-label={dictionary.ui.compare.close}
             onClick={onClose}
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-md border border-amber-900/15 text-stone-700 transition hover:bg-amber-100"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-md border border-[var(--border)] text-[var(--muted)] transition hover:bg-[var(--surface-soft)]"
           >
             <X className="h-4 w-4" aria-hidden="true" />
           </button>
@@ -331,20 +331,20 @@ function ProductCompareModal({
             ))}
           </div>
 
-          <h3 className="mt-5 text-sm font-semibold uppercase tracking-[0.12em] text-amber-800">
+          <h3 className="mt-5 text-sm font-semibold uppercase tracking-[0.12em] text-[var(--primary)]">
             {dictionary.ui.compare.overview}
           </h3>
-          <div className="mt-4 overflow-x-auto rounded-xl border border-amber-900/10 bg-white [scrollbar-color:#06B6D4_#E0F7FF] [scrollbar-width:thin]">
+          <div className="mt-4 overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--surface)]">
             <div className="grid min-w-[620px] grid-cols-[150px_minmax(0,1fr)_minmax(0,1fr)] text-sm sm:min-w-0 sm:grid-cols-[180px_minmax(0,1fr)_minmax(0,1fr)]">
               {overviewRows.map((row) => (
                 <div key={row.label} className="contents">
-                  <div className="border-r border-t border-amber-900/10 bg-amber-50 p-3 text-xs font-semibold uppercase text-stone-600 first:border-t-0 sm:text-sm">
+                  <div className="border-r border-t border-[var(--border)] bg-[var(--surface-soft)] p-3 text-xs font-semibold uppercase text-[var(--muted)] first:border-t-0 sm:text-sm">
                     {row.label}
                   </div>
                   {products.map((product, index) => (
                     <div
                       key={`${row.label}-${product.id}`}
-                      className="min-w-0 border-t border-amber-900/10 p-3 text-sm font-semibold leading-6 text-stone-900 first:border-t-0"
+                      className="min-w-0 border-t border-[var(--border)] p-3 text-sm font-semibold leading-6 text-[var(--foreground)] first:border-t-0"
                     >
                       <span className="line-clamp-2 break-words">
                         {row.getValue(product, selectedVariants[index])}
@@ -356,20 +356,20 @@ function ProductCompareModal({
             </div>
           </div>
 
-          <h3 className="mt-5 text-sm font-semibold uppercase tracking-[0.12em] text-amber-800">
+          <h3 className="mt-5 text-sm font-semibold uppercase tracking-[0.12em] text-[var(--primary)]">
             {dictionary.ui.compare.variantSpecs}
           </h3>
-          <div className="mt-4 overflow-x-auto rounded-xl border border-amber-900/10 bg-white [scrollbar-color:#06B6D4_#E0F7FF] [scrollbar-width:thin]">
+          <div className="mt-4 overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--surface)]">
             <div className="grid min-w-[620px] grid-cols-[150px_minmax(0,1fr)_minmax(0,1fr)] text-sm sm:min-w-0 sm:grid-cols-[180px_minmax(0,1fr)_minmax(0,1fr)]">
               {variantRows.map((row) => (
                 <div key={row.label} className="contents">
-                  <div className="border-r border-t border-amber-900/10 bg-amber-50 p-3 text-xs font-semibold uppercase text-stone-600 first:border-t-0 sm:text-sm">
+                  <div className="border-r border-t border-[var(--border)] bg-[var(--surface-soft)] p-3 text-xs font-semibold uppercase text-[var(--muted)] first:border-t-0 sm:text-sm">
                     {row.label}
                   </div>
                   {selectedVariants.map((variant, index) => (
                     <div
                       key={`${row.label}-${products[index].id}`}
-                      className="min-w-0 border-t border-amber-900/10 p-3 text-sm font-semibold leading-6 text-stone-900 first:border-t-0"
+                      className="min-w-0 border-t border-[var(--border)] p-3 text-sm font-semibold leading-6 text-[var(--foreground)] first:border-t-0"
                     >
                       <span className="line-clamp-2 break-words">
                         {row.getValue(variant)}
@@ -406,16 +406,16 @@ function ProductCompareHeader({
   const imageUrl = selectedVariant?.images[0]?.imageUrl ?? product.imageUrl;
 
   return (
-    <article className="relative overflow-hidden rounded-xl border border-amber-900/10 bg-white p-3 sm:p-4">
+    <article className="relative overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)] p-3 sm:p-4">
       <button
         type="button"
         aria-label={dictionary.ui.compare.remove}
         onClick={() => onRemove(product.id)}
-        className="absolute right-4 top-4 z-10 grid h-8 w-8 place-items-center rounded-full bg-white/95 text-stone-600 shadow-sm transition hover:bg-red-50 hover:text-red-700"
+        className="absolute right-4 top-4 z-10 grid h-8 w-8 place-items-center rounded-full bg-[var(--surface)] text-[var(--muted)] shadow-sm transition hover:bg-red-50 hover:text-red-700"
       >
         <X className="h-3.5 w-3.5" aria-hidden="true" />
       </button>
-      <div className="flex h-48 w-full items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-amber-100 via-orange-50 to-stone-100 p-4 sm:h-56 lg:h-64">
+      <div className="flex h-48 w-full items-center justify-center overflow-hidden rounded-lg bg-[var(--image-bg)] p-4 sm:h-56 lg:h-64">
         {imageUrl ? (
           <img
             src={imageUrl}
@@ -429,13 +429,13 @@ function ProductCompareHeader({
         )}
       </div>
       <div className="min-w-0 pt-3">
-        <p className="line-clamp-1 text-xs font-semibold uppercase tracking-[0.08em] text-stone-500">
+        <p className="line-clamp-1 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">
           {product.brand}
         </p>
-        <h3 className="mt-1 line-clamp-2 min-h-10 text-sm font-semibold leading-5 text-stone-950 sm:text-base sm:leading-6">
+        <h3 className="mt-1 line-clamp-2 min-h-10 text-sm font-semibold leading-5 text-[var(--foreground)] sm:text-base sm:leading-6">
           {product.name}
         </h3>
-        <p className="mt-2 truncate text-sm font-semibold text-amber-800">
+        <p className="mt-2 truncate text-sm font-semibold text-[var(--primary)]">
           {formatCurrency(selectedVariant?.price ?? product.price)}
         </p>
         {product.variants.length > 0 ? (
@@ -445,7 +445,7 @@ function ProductCompareHeader({
               value={selectedVariant?.id ?? ""}
               onClick={(event) => event.stopPropagation()}
               onChange={(event) => onVariantChange(event.target.value)}
-              className="h-10 w-full rounded-md border border-amber-900/15 bg-[#fffdf7] px-3 text-sm font-semibold text-stone-800 outline-none transition focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
+              className="h-10 w-full rounded-md border border-[var(--border)] bg-[var(--surface)] px-3 text-sm font-semibold text-[var(--foreground)] outline-none transition focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/30"
             >
               {product.variants.map((variant) => (
                 <option key={variant.id} value={variant.id}>
@@ -547,7 +547,7 @@ function ProductDetailModal({
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-50 grid place-items-center bg-stone-950/70 px-3 py-4 backdrop-blur-sm sm:px-4 sm:py-6">
+    <div className="fixed inset-0 z-50 grid place-items-center bg-[var(--backdrop)] px-3 py-4 backdrop-blur-sm sm:px-4 sm:py-6">
       <button
         type="button"
         aria-label={dictionary.ui.product.closeDetail}
@@ -555,21 +555,21 @@ function ProductDetailModal({
         onClick={onClose}
       />
 
-      <section className="relative grid h-[86dvh] w-full max-w-5xl overflow-hidden rounded-2xl border border-amber-200/60 bg-[#fffaf2] shadow-2xl shadow-stone-950/30 md:h-[720px] md:grid-cols-[1fr_1.08fr]">
-        <div className="flex min-h-40 items-center justify-center bg-gradient-to-br from-amber-100 via-orange-50 to-stone-100 p-3 sm:min-h-56 sm:p-4 md:min-h-0 md:p-8">
-          <div className="grid h-36 w-full max-w-[13rem] place-items-center overflow-hidden rounded-xl border border-amber-900/10 bg-white/80 p-3 text-center shadow-sm sm:h-52 sm:max-w-[18rem] sm:rounded-2xl sm:p-4 md:aspect-square md:h-auto md:max-w-md">
+      <section className="relative grid h-[86dvh] w-full max-w-5xl overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] md:h-[720px] md:grid-cols-[1fr_1.08fr]" style={{ boxShadow: "var(--shadow-modal)" }}>
+        <div className="flex min-h-40 items-center justify-center bg-[var(--image-bg)] p-3 sm:min-h-56 sm:p-4 md:min-h-0 md:p-8">
+          <div className="grid h-36 w-full max-w-[13rem] place-items-center overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)]/80 p-3 text-center shadow-sm sm:h-52 sm:max-w-[18rem] sm:rounded-2xl sm:p-4 md:aspect-square md:h-auto md:max-w-md">
             {displayImageUrl ? (
               <img
                 src={displayImageUrl}
                 alt={selectedVariant?.name ?? product.name}
-                className="h-full w-full object-contain"
+                className="h-full w-full object-contain transition-transform duration-500 hover:scale-110"
               />
             ) : (
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-amber-800">
+                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--primary)]">
                   {product.brand}
                 </p>
-                <p className="mt-3 px-6 text-xl font-semibold text-stone-950">
+                <p className="mt-3 px-6 text-xl font-semibold text-[var(--foreground)]">
                   {categoryLabel}
                 </p>
               </div>
@@ -577,15 +577,15 @@ function ProductDetailModal({
           </div>
         </div>
 
-        <div className="grid min-h-0 grid-rows-[auto_1fr_auto] bg-[#fffaf2]">
-          <div className="border-b border-amber-900/10 p-3 md:p-6 md:px-8">
+        <div className="grid min-h-0 grid-rows-[auto_1fr_auto] bg-[var(--surface)]">
+          <div className="border-b border-[var(--border)] p-3 md:p-6 md:px-8">
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
                 <div className="flex flex-wrap gap-1.5 sm:gap-2">
                   {product.badges.map((badge) => (
                     <span
                       key={badge}
-                      className="rounded-sm bg-amber-100 px-1.5 py-1 text-[11px] font-semibold text-amber-800 sm:px-2 sm:text-xs"
+                      className="rounded-md bg-[var(--badge-bg)] px-1.5 py-1 text-[11px] font-semibold text-[var(--badge-text)] sm:px-2 sm:text-xs"
                     >
                       {badge in dictionary.badges
                         ? dictionary.badges[badge as keyof typeof dictionary.badges]
@@ -594,10 +594,10 @@ function ProductDetailModal({
                   ))}
                 </div>
 
-                <h3 className="mt-2 line-clamp-2 text-lg font-semibold text-stone-950 sm:text-xl md:mt-4 md:text-2xl">
+                <h3 className="mt-2 line-clamp-2 text-lg font-semibold text-[var(--foreground)] sm:text-xl md:mt-4 md:text-2xl">
                   {product.name}
                 </h3>
-                <p className="mt-1 truncate text-xs font-semibold text-stone-500 sm:mt-2 sm:text-sm">
+                <p className="mt-1 truncate text-xs font-semibold text-[var(--muted)] sm:mt-2 sm:text-sm">
                   {product.brand} / {categoryLabel}
                 </p>
               </div>
@@ -606,32 +606,32 @@ function ProductDetailModal({
                 type="button"
                 aria-label="Dong"
                 onClick={onClose}
-                className="grid h-9 w-9 shrink-0 place-items-center rounded-md border border-amber-900/15 text-stone-700 transition hover:bg-amber-100 sm:h-10 sm:w-10"
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-md border border-[var(--border)] text-[var(--muted)] transition hover:bg-[var(--surface-soft)] sm:h-10 sm:w-10"
               >
                 <X className="h-4 w-4" aria-hidden="true" />
               </button>
             </div>
           </div>
 
-          <div className="min-h-0 overflow-y-auto px-3 py-3 [scrollbar-color:#06B6D4_#E0F7FF] [scrollbar-width:thin] sm:px-4 sm:py-4 md:px-8 md:py-5 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-cyan-500/75 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-cyan-100/80">
+          <div className="min-h-0 overflow-y-auto px-3 py-3 sm:px-4 sm:py-4 md:px-8 md:py-5">
             <div className="flex flex-wrap items-baseline gap-3">
-              <p className="text-xl font-semibold text-stone-950 sm:text-2xl md:text-3xl">
+              <p className="text-xl font-semibold text-[var(--foreground)] sm:text-2xl md:text-3xl">
                 {formatCurrency(displayPrice)}
               </p>
               {displayCompareAtPrice ? (
-                <p className="text-sm text-stone-400 line-through sm:text-base">
+                <p className="text-sm text-[var(--muted)] line-through sm:text-base">
                   {formatCurrency(displayCompareAtPrice)}
                 </p>
               ) : null}
             </div>
-            <div className="mt-3 grid gap-2 text-xs font-semibold text-stone-700 sm:mt-4 sm:grid-cols-2 sm:gap-3 sm:text-sm">
-              <p className="rounded-md bg-white/70 px-3 py-2">
-                {product.rating.toFixed(1)} {dictionary.common.rating}
+            <div className="mt-3 grid gap-2 text-xs font-semibold text-[var(--foreground)] sm:mt-4 sm:grid-cols-2 sm:gap-3 sm:text-sm">
+              <p className="rounded-md bg-[var(--surface-soft)] px-3 py-2">
+                <span className="text-[var(--primary)]">★</span> {product.rating.toFixed(1)} {dictionary.common.rating}
               </p>
-                <p className="rounded-md bg-white/70 px-3 py-2">{stockStatus}</p>
+                <p className="rounded-md bg-[var(--surface-soft)] px-3 py-2">{stockStatus}</p>
             </div>
 
-            <div className="mt-4 text-xs text-stone-700 sm:mt-6 sm:text-sm">
+            <div className="mt-4 text-xs text-[var(--foreground)] sm:mt-6 sm:text-sm">
               <div
                 className={`grid gap-3 ${
                   isDescriptionExpanded ? "" : "line-clamp-3"
@@ -650,7 +650,7 @@ function ProductDetailModal({
                 onClick={() =>
                   setIsDescriptionExpanded((current) => !current)
                 }
-                className="mt-2 text-xs font-semibold text-amber-800 hover:text-amber-900 sm:text-sm"
+                className="mt-2 text-xs font-semibold text-[var(--primary)] hover:opacity-80 sm:text-sm"
               >
                 {isDescriptionExpanded
                   ? dictionary.ui.product.collapse
@@ -660,7 +660,7 @@ function ProductDetailModal({
 
             {product.variants.length > 0 ? (
               <div className="mt-4 sm:mt-6">
-                <p className="text-sm font-semibold text-stone-950">
+                <p className="text-sm font-semibold text-[var(--foreground)]">
                   {dictionary.ui.product.variants}
                 </p>
                 <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 md:gap-3">
@@ -674,11 +674,11 @@ function ProductDetailModal({
                         onClick={() => setSelectedVariantId(variant.id)}
                         className={`grid h-[7.25rem] gap-1.5 rounded-lg border p-1.5 text-left transition sm:h-[8.5rem] sm:gap-2 sm:p-2 ${
                           isSelected
-                            ? "border-amber-700 bg-amber-100/80 shadow-sm"
-                            : "border-amber-900/10 bg-white/70 hover:border-amber-700/60 hover:bg-amber-50"
+                            ? "border-[var(--primary)] bg-[var(--badge-bg)] shadow-sm"
+                            : "border-[var(--border)] bg-[var(--surface)] hover:border-[var(--primary)]/50 hover:bg-[var(--surface-soft)]"
                         }`}
                       >
-                        <span className="grid h-[3.75rem] place-items-center overflow-hidden rounded-md bg-gradient-to-br from-amber-100 via-orange-50 to-stone-100 p-1 sm:h-[4.5rem]">
+                        <span className="grid h-[3.75rem] place-items-center overflow-hidden rounded-md bg-[var(--image-bg)] p-1 sm:h-[4.5rem]">
                           {variant.images[0]?.imageUrl ? (
                             <img
                               src={variant.images[0].imageUrl}
@@ -686,12 +686,12 @@ function ProductDetailModal({
                               className="h-full w-full object-contain"
                             />
                           ) : (
-                            <span className="text-xs font-bold uppercase tracking-[0.12em] text-amber-900">
+                            <span className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--primary)]">
                               {product.brand.slice(0, 3)}
                             </span>
                           )}
                         </span>
-                        <span className="line-clamp-2 text-[11px] font-semibold leading-4 text-stone-900 sm:text-xs sm:leading-5">
+                        <span className="line-clamp-2 text-[11px] font-semibold leading-4 text-[var(--foreground)] sm:text-xs sm:leading-5">
                           {variant.name}
                         </span>
                       </button>
@@ -701,20 +701,20 @@ function ProductDetailModal({
               </div>
             ) : null}
 
-            <div className="mt-4 rounded-lg border border-amber-900/10 bg-white/70 p-3 sm:mt-6 sm:p-4">
+            <div className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--surface-soft)] p-3 sm:mt-6 sm:p-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="text-sm font-semibold text-stone-950">
+                  <p className="text-sm font-semibold text-[var(--foreground)]">
                     {dictionary.ui.product.reviews}
                   </p>
-                  <p className="mt-1 text-xs font-semibold text-stone-500">
+                  <p className="mt-1 text-xs font-semibold text-[var(--muted)]">
                     {dictionary.ui.product.reviewCount.replace(
                       "{count}",
                       String(product.reviews?.length ?? 0),
                     )}
                   </p>
                 </div>
-                <div className="flex items-center gap-1 text-amber-700">
+                <div className="flex items-center gap-1 text-[var(--primary)]">
                   {Array.from({ length: 5 }).map((_, index) => (
                     <Star
                       key={index}
@@ -729,57 +729,57 @@ function ProductDetailModal({
                 </div>
               </div>
 
-              {product.reviews?.length ? (
+                  {product.reviews?.length ? (
                 <div className="mt-3 grid gap-3">
                   {product.reviews.slice(0, 3).map((review) => (
                     <article
                       key={review.id}
-                      className="rounded-md border border-amber-900/10 bg-[#fffdf7] p-3"
+                      className="rounded-md border border-[var(--border)] bg-[var(--surface)] p-3"
                     >
                       <div className="flex flex-wrap items-start justify-between gap-2">
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-semibold text-stone-950">
+                          <p className="truncate text-sm font-semibold text-[var(--foreground)]">
                             {review.authorName}
                           </p>
-                          <p className="mt-1 text-xs font-semibold text-emerald-700">
+                          <p className="mt-1 text-xs font-semibold text-emerald-600">
                             {dictionary.ui.product.verifiedPurchase}
                           </p>
                         </div>
-                        <div className="flex items-center gap-1 text-xs font-semibold text-amber-800">
-                          <Star className="h-3.5 w-3.5 fill-amber-500" aria-hidden="true" />
+                        <div className="flex items-center gap-1 text-xs font-semibold text-[var(--primary)]">
+                          <Star className="h-3.5 w-3.5 fill-[var(--primary)]" aria-hidden="true" />
                           {review.rating}/5
                         </div>
                       </div>
                       {review.title ? (
-                        <h4 className="mt-3 text-sm font-semibold text-stone-900">
+                        <h4 className="mt-3 text-sm font-semibold text-[var(--foreground)]">
                           {review.title}
                         </h4>
                       ) : null}
                       {review.content ? (
-                        <p className="mt-2 text-sm leading-6 text-stone-600">
+                        <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
                           {review.content}
                         </p>
                       ) : null}
-                      <p className="mt-2 text-xs font-semibold text-stone-400">
+                      <p className="mt-2 text-xs font-semibold text-[var(--muted)]">
                         {formatReviewDate(review.createdAt)}
                       </p>
                     </article>
                   ))}
                 </div>
               ) : (
-                <p className="mt-3 rounded-md bg-amber-50 px-3 py-3 text-sm font-semibold text-stone-500">
+                <p className="mt-3 rounded-md bg-[var(--badge-bg)] px-3 py-3 text-sm font-semibold text-[var(--muted)]">
                   {dictionary.ui.product.noReviews}
                 </p>
               )}
             </div>
           </div>
 
-          <div className="flex shrink-0 flex-wrap gap-2 border-t border-amber-900/10 bg-[#fffaf2] p-3 sm:gap-3 sm:p-4 md:p-6 md:px-8">
+          <div className="flex shrink-0 flex-wrap gap-2 border-t border-[var(--border)] bg-[var(--surface)] p-3 sm:gap-3 sm:p-4 md:p-6 md:px-8">
             <button
               type="button"
               disabled={!canAddToCart || isAddingToCart}
               onClick={handleAddToCart}
-              className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-md bg-amber-700 px-4 text-sm font-semibold text-white transition hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-60 sm:h-11 sm:flex-none sm:px-5"
+              className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-md bg-[var(--primary)] px-4 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 sm:h-11 sm:flex-none sm:px-5"
             >
               <ShoppingCart className="h-4 w-4" aria-hidden="true" />
               {isAddingToCart
@@ -789,13 +789,13 @@ function ProductDetailModal({
             {onWishlistToggle ? (
               <button
                 type="button"
-                aria-label={isWishlisted ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
+                aria-label={isWishlisted ? "Xóa khởi yêu thích" : "Thêm vào yêu thích"}
                 title={isWishlisted ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
                 onClick={() => onWishlistToggle(product)}
                 className={`inline-flex h-10 w-10 items-center justify-center rounded-md border transition sm:h-11 ${
                   isWishlisted
                     ? "border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
-                    : "border-amber-900/15 bg-white text-stone-700 hover:border-amber-700 hover:text-amber-800"
+                    : "border-[var(--border)] bg-[var(--surface)] text-[var(--muted)] hover:border-[var(--primary)] hover:text-[var(--primary)]"
                 }`}
               >
                 <Heart className={`h-4 w-4 ${isWishlisted ? "fill-red-500 text-red-500" : ""}`} aria-hidden="true" />
@@ -804,12 +804,12 @@ function ProductDetailModal({
             <button
               type="button"
               onClick={onClose}
-              className="h-10 flex-1 rounded-md border border-amber-900/15 px-4 text-sm font-semibold text-stone-700 transition hover:border-amber-700 hover:text-amber-800 sm:h-11 sm:flex-none sm:px-5"
+              className="h-10 flex-1 rounded-md border border-[var(--border)] px-4 text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--primary)] hover:text-[var(--primary)] sm:h-11 sm:flex-none sm:px-5"
             >
               {dictionary.ui.product.continueViewing}
             </button>
             {cartMessage ? (
-              <p className="basis-full text-sm font-semibold text-stone-700">
+              <p className="basis-full text-sm font-semibold text-[var(--muted)]">
                 {cartMessage}
               </p>
             ) : null}

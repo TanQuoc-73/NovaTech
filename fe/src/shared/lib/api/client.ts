@@ -37,6 +37,35 @@ export async function apiFetch<T>(
     );
   }
 
+  if (response.status === 401 && authenticated) {
+    const supabase = getSupabaseClient();
+    const { data } = await supabase.auth.refreshSession();
+
+    if (data.session?.access_token) {
+      requestHeaders.set("Authorization", `Bearer ${data.session.access_token}`);
+
+      try {
+        response = await fetch(`${apiBaseUrl}${path}`, {
+          ...options,
+          headers: requestHeaders,
+        });
+      } catch {
+        throw new Error(
+          `Cannot connect to API at ${apiBaseUrl}. Make sure the NestJS backend is running and NEXT_PUBLIC_API_BASE_URL is correct.`,
+        );
+      }
+
+      if (response.ok) {
+        const text = await response.text();
+        return text ? (JSON.parse(text) as T) : ({} as T);
+      }
+    }
+
+    // Session can't be refreshed — clear stale session silently
+    await supabase.auth.signOut();
+    throw new Error("Session expired.");
+  }
+
   if (!response.ok) {
     let errorMessage = `API request failed with status ${response.status}`;
 

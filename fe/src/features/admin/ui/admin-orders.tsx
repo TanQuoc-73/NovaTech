@@ -221,7 +221,7 @@ export function AdminOrders() {
       <div className="mt-6 grid gap-3 rounded-lg border border-cyan-950/10 bg-white p-4 shadow-sm lg:grid-cols-[1fr_180px_180px]">
         <label className="relative block">
           <Search
-            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400"
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
             aria-hidden="true"
           />
           <input
@@ -287,7 +287,7 @@ export function AdminOrders() {
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-4 py-10 text-center text-sm font-semibold text-stone-500"
+                    className="px-4 py-10 text-center text-sm font-semibold text-slate-500"
                   >
                     Không có đơn hàng phù hợp bộ lọc.
                   </td>
@@ -401,18 +401,18 @@ function OrderTableRow({
       className="cursor-pointer border-t border-cyan-950/10 transition hover:bg-cyan-50/70"
     >
       <td className="px-4 py-4">
-        <p className="font-semibold text-stone-950">{order.orderNumber}</p>
+        <p className="font-semibold text-slate-950">{order.orderNumber}</p>
         <p className="mt-1 text-xs font-semibold uppercase text-cyan-700">
           {order.paymentMethod}
         </p>
       </td>
       <td className="px-4 py-4">
         <p className="font-semibold">{order.customerName}</p>
-        <p className="mt-1 text-xs font-medium text-stone-500">
+        <p className="mt-1 text-xs font-medium text-slate-500">
           {order.customerPhone}
         </p>
       </td>
-      <td className="px-4 py-4 text-stone-600">{formatDate(order.createdAt)}</td>
+      <td className="px-4 py-4 text-slate-600">{formatDate(order.createdAt)}</td>
       <td className="px-4 py-4">
         <StatusBadge status={order.status} />
       </td>
@@ -443,7 +443,7 @@ function OrderDetailModal({
   ) => Promise<void>;
 }) {
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-stone-950/70 px-4 py-6 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/70 px-4 py-6 backdrop-blur-sm">
       <button
         type="button"
         aria-label="Đóng chi tiết đơn hàng"
@@ -509,11 +509,11 @@ function OrderDetailModal({
                         <p className="truncate font-semibold">
                           {item.productName}
                         </p>
-                        <p className="mt-1 truncate text-xs font-medium text-stone-500">
+                        <p className="mt-1 truncate text-xs font-medium text-slate-500">
                           {item.variantName} / {item.sku}
                         </p>
                       </div>
-                      <p className="font-semibold text-stone-600">
+                      <p className="font-semibold text-slate-600">
                         {formatCurrency(item.unitPrice)} x {item.quantity}
                       </p>
                       <p className="font-semibold sm:text-right">
@@ -529,7 +529,7 @@ function OrderDetailModal({
               <section className="rounded-lg border border-cyan-950/10 bg-white p-4 shadow-sm">
                 <h3 className="font-semibold">Xử lý đơn</h3>
                 <label className="mt-4 block">
-                  <span className="text-xs font-semibold uppercase text-stone-500">
+                  <span className="text-xs font-semibold uppercase text-slate-500">
                     Trạng thái đơn
                   </span>
                   <select
@@ -552,7 +552,7 @@ function OrderDetailModal({
                 </label>
 
                 <label className="mt-4 block">
-                  <span className="text-xs font-semibold uppercase text-stone-500">
+                  <span className="text-xs font-semibold uppercase text-slate-500">
                     Thanh toán
                   </span>
                   <select
@@ -608,8 +608,8 @@ function InfoLine({
 }) {
   return (
     <div className={className}>
-      <p className="text-xs font-semibold uppercase text-stone-500">{label}</p>
-      <p className="mt-1 break-words text-sm font-semibold text-stone-800">
+      <p className="text-xs font-semibold uppercase text-slate-500">{label}</p>
+      <p className="mt-1 break-words text-sm font-semibold text-slate-800">
         {value}
       </p>
     </div>
@@ -619,7 +619,7 @@ function InfoLine({
 function SummaryLine({ label, value }: { label: string; value: number }) {
   return (
     <div className="flex items-center justify-between gap-4 border-b border-cyan-950/10 pb-2 text-sm last:border-b-0">
-      <span className="font-medium text-stone-500">{label}</span>
+      <span className="font-medium text-slate-500">{label}</span>
       <span className="font-semibold">{formatCurrency(value)}</span>
     </div>
   );
@@ -646,7 +646,7 @@ function PaymentBadge({ status }: { status: AdminPaymentStatus }) {
       ? "bg-emerald-50 text-emerald-700"
       : status === "failed" || status === "refunded"
         ? "bg-red-50 text-red-700"
-        : "bg-stone-100 text-stone-600";
+        : "bg-slate-100 text-slate-600";
 
   return (
     <span className={`rounded-md px-2.5 py-1 text-xs font-semibold ${tone}`}>

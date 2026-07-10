@@ -13,6 +13,7 @@ import {
   PackageSearch,
   Printer,
   ReceiptText,
+  RefreshCw,
   ShoppingBag,
   Target,
   TrendingUp,
@@ -119,13 +120,28 @@ export function AdminOverview() {
   }
 
   return (
-    <section id="admin-report">
-      <PrintableBusinessReport report={report} analytics={analytics} />
+      <section id="admin-report">
+        <PrintableBusinessReport report={report} analytics={analytics} />
 
-      <div className="flex flex-wrap items-center justify-end gap-2 print:hidden">
-          <div className="rounded-lg border border-cyan-950/10 bg-white px-4 py-3 text-sm font-semibold text-slate-600 shadow-sm">
-            Cập nhật theo dữ liệu mới nhất từ hệ thống
-          </div>
+        <div className="flex flex-wrap items-center justify-end gap-2 print:hidden">
+            <button
+              type="button"
+              onClick={() => {
+                setIsLoading(true);
+                getAdminDashboard()
+                  .then(setDashboard)
+                  .catch(() => setMessage("Không thể tải thống kê admin."))
+                  .finally(() => setIsLoading(false));
+              }}
+              className="inline-flex h-11 items-center gap-2 rounded-lg border border-cyan-950/10 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-cyan-500 hover:text-cyan-700"
+              title="Làm mới dữ liệu"
+            >
+              <RefreshCw className="h-4 w-4" aria-hidden="true" />
+              Làm mới
+            </button>
+            <div className="rounded-lg border border-cyan-950/10 bg-white px-4 py-3 text-sm font-semibold text-slate-600 shadow-sm">
+              Cập nhật theo dữ liệu mới nhất từ hệ thống
+            </div>
           <select
             value={reportScope}
             onChange={(event) => setReportScope(event.target.value)}

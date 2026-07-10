@@ -119,7 +119,7 @@ export function AdminPayments() {
           <div className="mt-5 grid gap-4">
             <AdminPaymentField name="title" label="Tên QR" required />
             <label className="block">
-              <span className="text-xs font-semibold uppercase text-stone-600">
+              <span className="text-xs font-semibold uppercase text-slate-600">
                 Loại thanh toán
               </span>
               <select
@@ -139,7 +139,7 @@ export function AdminPayments() {
             <AdminPaymentField name="sortOrder" label="Thứ tự" type="number" />
 
             <label className="block">
-              <span className="text-xs font-semibold uppercase text-stone-600">
+              <span className="text-xs font-semibold uppercase text-slate-600">
                 Ảnh QR
               </span>
               <input
@@ -161,7 +161,7 @@ export function AdminPayments() {
             ) : null}
 
             <label className="block">
-              <span className="text-xs font-semibold uppercase text-stone-600">
+              <span className="text-xs font-semibold uppercase text-slate-600">
                 Hướng dẫn
               </span>
               <textarea
@@ -171,12 +171,12 @@ export function AdminPayments() {
               />
             </label>
 
-            <label className="inline-flex items-center gap-2 text-sm font-semibold text-stone-700">
+            <label className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700">
               <input
                 name="isActive"
                 type="checkbox"
                 defaultChecked
-                className="h-4 w-4 accent-amber-700"
+                className="h-4 w-4 accent-cyan-500"
               />
               Đang bật
             </label>
@@ -261,7 +261,7 @@ function PaymentQrCard({
             required
           />
           <label className="block">
-            <span className="text-xs font-semibold uppercase text-stone-600">
+            <span className="text-xs font-semibold uppercase text-slate-600">
               Loại
             </span>
             <select
@@ -298,7 +298,7 @@ function PaymentQrCard({
             defaultValue={String(setting.sortOrder)}
           />
           <label className="block md:col-span-2">
-            <span className="text-xs font-semibold uppercase text-stone-600">
+            <span className="text-xs font-semibold uppercase text-slate-600">
               URL ảnh QR
             </span>
             <input
@@ -309,7 +309,7 @@ function PaymentQrCard({
             />
           </label>
           <label className="block md:col-span-2">
-            <span className="text-xs font-semibold uppercase text-stone-600">
+            <span className="text-xs font-semibold uppercase text-slate-600">
               Hướng dẫn
             </span>
             <textarea
@@ -319,7 +319,7 @@ function PaymentQrCard({
               className="mt-2 w-full rounded-md border border-cyan-950/15 px-3 py-2 text-sm font-semibold outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
             />
           </label>
-          <label className="inline-flex items-center gap-2 text-sm font-semibold text-stone-700">
+          <label className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700">
             <input
               name="isActive"
               type="checkbox"
@@ -340,9 +340,11 @@ function PaymentQrCard({
           <button
             type="button"
             disabled={disabled}
-            onClick={() =>
-              void runAction(() => deleteAdminPaymentQrSetting(setting.id))
-            }
+            onClick={() => {
+              if (window.confirm("Xác nhận xóa QR này?")) {
+                void runAction(() => deleteAdminPaymentQrSetting(setting.id));
+              }
+            }}
             className="grid h-10 w-10 place-items-center rounded-md border border-red-200 text-red-700 transition hover:bg-red-50 disabled:opacity-60"
             aria-label="Xóa QR"
             title="Xóa QR"
@@ -370,7 +372,7 @@ function AdminPaymentField({
 }) {
   return (
     <label className="block">
-      <span className="text-xs font-semibold uppercase text-stone-600">
+      <span className="text-xs font-semibold uppercase text-slate-600">
         {label}
       </span>
       <input

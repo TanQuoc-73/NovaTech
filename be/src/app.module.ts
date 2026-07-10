@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { CartModule } from './cart/cart.module';
+import { ChatModule } from './chat/chat.module';
 import { CatalogModule } from './catalog/catalog.module';
 import { CheckoutModule } from './checkout/checkout.module';
 import { validateEnv } from './config/env.validation';
@@ -28,6 +29,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
     AuthModule,
     CartModule,
     CatalogModule,
+    ChatModule,
     CheckoutModule,
     OrdersModule,
     PaymentsModule,

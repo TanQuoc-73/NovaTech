@@ -82,7 +82,7 @@ export function AdminDashboard({ initialTab = "products" }: { initialTab?: Admin
 
   if (!dashboard) {
     return (
-      <section className="grid min-h-[360px] place-items-center text-stone-700">
+      <section className="grid min-h-[360px] place-items-center text-slate-700">
         <p className="text-sm font-semibold">{message}</p>
       </section>
     );
@@ -210,7 +210,7 @@ function AdminProductImagePreview({
 
   return (
     <div
-      className={`grid shrink-0 place-items-center overflow-hidden rounded-md bg-amber-100 text-xs font-bold text-amber-900 ${sizeClassName}`}
+      className={`grid shrink-0 place-items-center overflow-hidden rounded-md bg-cyan-100 text-xs font-bold text-cyan-800 ${sizeClassName}`}
     >
       {imageUrl ? (
         <img
@@ -342,7 +342,7 @@ function ProductsPanel({
     <div className="grid gap-6 xl:grid-cols-[360px_1fr]">
       <form
         onSubmit={handleCreateProduct}
-        className="h-fit rounded-lg border border-amber-900/10 bg-white p-5 shadow-sm"
+        className="h-fit rounded-lg border border-cyan-950/10 bg-white p-5 shadow-sm"
       >
         <PanelTitle title="Thêm sản phẩm" />
         <AdminInput name="name" label="Tên sản phẩm" required />
@@ -370,14 +370,14 @@ function ProductsPanel({
         <SubmitButton disabled={isSubmitting}>Thêm sản phẩm</SubmitButton>
       </form>
 
-      <div className="overflow-hidden rounded-lg border border-amber-900/10 bg-white shadow-sm">
-        <div className="grid gap-3 border-b border-amber-900/10 bg-amber-50/40 p-4">
+      <div className="overflow-hidden rounded-lg border border-cyan-950/10 bg-white shadow-sm">
+        <div className="grid gap-3 border-b border-cyan-950/10 bg-cyan-50/40 p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-sm font-semibold text-stone-950">
-              <SlidersHorizontal className="h-4 w-4 text-amber-800" aria-hidden="true" />
+            <div className="flex items-center gap-2 text-sm font-semibold text-slate-950">
+              <SlidersHorizontal className="h-4 w-4 text-cyan-700" aria-hidden="true" />
               Bộ lọc sản phẩm
             </div>
-            <p className="text-xs font-semibold text-stone-500">
+            <p className="text-xs font-semibold text-slate-500">
               {resultStart}-{resultEnd} / {filteredProducts.length} sản phẩm
             </p>
           </div>
@@ -385,7 +385,7 @@ function ProductsPanel({
           <div className="grid gap-2 md:grid-cols-[minmax(180px,1.4fr)_repeat(4,minmax(130px,1fr))]">
             <label className="relative block">
               <Search
-                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400"
+                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
                 aria-hidden="true"
               />
               <input
@@ -395,7 +395,7 @@ function ProductsPanel({
                   setCurrentPage(1);
                 }}
                 placeholder="Tìm tên, slug, SKU..."
-                className="h-10 w-full rounded-md border border-amber-900/15 bg-white pl-9 pr-3 text-sm font-semibold text-stone-800 outline-none transition placeholder:text-stone-400 focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
+                className="h-10 w-full rounded-md border border-cyan-950/15 bg-white pl-9 pr-3 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-cyan-600 focus:ring-4 focus:ring-cyan-200/70"
               />
             </label>
 
@@ -406,7 +406,7 @@ function ProductsPanel({
                 setCurrentPage(1);
               }}
               aria-label="Lọc thương hiệu"
-              className="h-10 rounded-md border border-amber-900/15 bg-white px-3 text-sm font-semibold text-stone-800 outline-none transition focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
+              className="h-10 rounded-md border border-cyan-950/15 bg-white px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-cyan-600 focus:ring-4 focus:ring-cyan-200/70"
             >
               <option value="">Tất cả thương hiệu</option>
               {dashboard.brands.map((brand) => (
@@ -423,7 +423,7 @@ function ProductsPanel({
                 setCurrentPage(1);
               }}
               aria-label="Lọc danh mục"
-              className="h-10 rounded-md border border-amber-900/15 bg-white px-3 text-sm font-semibold text-stone-800 outline-none transition focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
+              className="h-10 rounded-md border border-cyan-950/15 bg-white px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-cyan-600 focus:ring-4 focus:ring-cyan-200/70"
             >
               <option value="">Tất cả danh mục</option>
               {dashboard.categories.map((category) => (
@@ -440,7 +440,7 @@ function ProductsPanel({
                 setCurrentPage(1);
               }}
               aria-label="Lọc trạng thái"
-              className="h-10 rounded-md border border-amber-900/15 bg-white px-3 text-sm font-semibold text-stone-800 outline-none transition focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
+              className="h-10 rounded-md border border-cyan-950/15 bg-white px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-cyan-600 focus:ring-4 focus:ring-cyan-200/70"
             >
               <option value="all">Tất cả trạng thái</option>
               <option value="active">Đang bán</option>
@@ -455,7 +455,7 @@ function ProductsPanel({
                 setCurrentPage(1);
               }}
               aria-label="Lọc tồn kho"
-              className="h-10 rounded-md border border-amber-900/15 bg-white px-3 text-sm font-semibold text-stone-800 outline-none transition focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
+              className="h-10 rounded-md border border-cyan-950/15 bg-white px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-cyan-600 focus:ring-4 focus:ring-cyan-200/70"
             >
               <option value="all">Tất cả tồn kho</option>
               <option value="in_stock">Còn hàng</option>
@@ -465,7 +465,7 @@ function ProductsPanel({
           </div>
         </div>
 
-        <div className="grid grid-cols-[64px_1fr_120px_100px_120px_120px] border-b border-amber-900/10 px-4 py-3 text-xs font-semibold uppercase text-stone-500">
+        <div className="grid grid-cols-[64px_1fr_120px_100px_120px_120px] border-b border-cyan-950/10 px-4 py-3 text-xs font-semibold uppercase text-slate-500">
           <span>Ảnh</span>
           <span>Sản phẩm</span>
           <span>Giá</span>
@@ -485,12 +485,12 @@ function ProductsPanel({
                   setSelectedProductId(product.id);
                 }
               }}
-              className="grid cursor-pointer grid-cols-[64px_1fr_120px_100px_120px_120px] items-center gap-3 border-b border-amber-900/10 px-4 py-3 text-sm transition last:border-b-0 hover:bg-amber-50/60"
+              className="grid cursor-pointer grid-cols-[64px_1fr_120px_100px_120px_120px] items-center gap-3 border-b border-cyan-950/10 px-4 py-3 text-sm transition last:border-b-0 hover:bg-cyan-50/60"
             >
               <AdminProductImagePreview product={product} sizeClassName="h-12 w-12" />
               <div className="min-w-0">
-                <p className="truncate font-semibold text-stone-950">{product.name}</p>
-                <p className="mt-1 truncate text-xs font-semibold text-stone-500">
+                <p className="truncate font-semibold text-slate-950">{product.name}</p>
+                <p className="mt-1 truncate text-xs font-semibold text-slate-500">
                   {product.brand} / {product.category}
                 </p>
               </div>
@@ -511,25 +511,26 @@ function ProductsPanel({
                 className={`h-9 rounded-md px-3 text-xs font-semibold ${
                   product.isActive
                     ? "bg-green-50 text-green-700"
-                    : "bg-stone-100 text-stone-600"
+                    : "bg-slate-100 text-slate-600"
                 }`}
               >
                 {product.isActive ? "Đang bán" : "Ẩn"}
               </button>
               <IconDeleteButton
                 disabled={isSubmitting}
+                confirmMessage="Xác nhận xóa sản phẩm này?"
                 onClick={() => void runAction(() => deleteAdminProduct(product.id))}
               />
             </div>
           ))
         ) : (
-          <div className="px-4 py-8 text-center text-sm font-semibold text-stone-500">
+          <div className="px-4 py-8 text-center text-sm font-semibold text-slate-500">
             Không có sản phẩm nào khớp với bộ lọc.
           </div>
         )}
 
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-amber-900/10 bg-[#fffdf7] px-4 py-3">
-          <p className="text-xs font-semibold text-stone-500">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-cyan-950/10 bg-[#fffdf7] px-4 py-3">
+          <p className="text-xs font-semibold text-slate-500">
             Trang {safeCurrentPage} / {totalPages}
           </p>
           <div className="flex flex-wrap items-center gap-1">
@@ -537,7 +538,7 @@ function ProductsPanel({
               type="button"
               disabled={safeCurrentPage <= 1}
               onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-              className="grid h-9 w-9 place-items-center rounded-md border border-amber-900/15 text-stone-700 transition hover:border-amber-700 hover:text-amber-800 disabled:cursor-not-allowed disabled:opacity-40"
+              className="grid h-9 w-9 place-items-center rounded-md border border-cyan-950/15 text-slate-700 transition hover:border-cyan-500 hover:text-cyan-700 disabled:cursor-not-allowed disabled:opacity-40"
               aria-label="Trang trước"
             >
               <ChevronLeft className="h-4 w-4" aria-hidden="true" />
@@ -662,7 +663,7 @@ function ProductDetailModal({
                 className={`rounded-sm px-2 py-1 ${
                   product.isActive
                     ? "bg-green-100 text-green-700"
-                    : "bg-stone-100 text-stone-600"
+                    : "bg-slate-100 text-slate-600"
                 }`}
               >
                 {productStatusLabel}
@@ -693,7 +694,7 @@ function ProductDetailModal({
                     className="h-full w-full object-contain p-3"
                   />
                 ) : (
-                  <div className="grid place-items-center gap-2 text-stone-500">
+                  <div className="grid place-items-center gap-2 text-slate-500">
                     <ImageIcon className="h-8 w-8" aria-hidden="true" />
                     <span className="text-sm font-semibold">
                       Chưa có ảnh sản phẩm
@@ -825,9 +826,11 @@ function ProductDetailModal({
               <button
                 type="button"
                 disabled={isSubmitting}
-                onClick={() =>
-                  void runAction(() => deleteAdminProduct(product.id)).then(onClose)
-                }
+                onClick={() => {
+                  if (window.confirm("Xác nhận xóa sản phẩm này?")) {
+                    void runAction(() => deleteAdminProduct(product.id)).then(onClose);
+                  }
+                }}
                 className="mt-2 inline-flex h-10 items-center rounded-md border border-red-200 px-4 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Xóa sản phẩm
@@ -864,7 +867,7 @@ function ProductDetailModal({
               <section className="rounded-lg border border-cyan-950/10 bg-white p-4">
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                   <PanelTitle title="Danh sách variant" />
-                  <span className="text-sm font-semibold text-stone-500">
+                  <span className="text-sm font-semibold text-slate-500">
                     Quản lý giá, tồn kho và ảnh riêng theo từng cấu hình
                   </span>
                 </div>
@@ -974,27 +977,27 @@ function VariantEditor({
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="truncate font-semibold text-stone-950">{variant.name}</p>
+              <p className="truncate font-semibold text-slate-950">{variant.name}</p>
               <span
                 className={`rounded-sm px-2 py-1 text-xs font-semibold ${
                   variant.isActive
                     ? "bg-green-100 text-green-700"
-                    : "bg-stone-100 text-stone-600"
+                    : "bg-slate-100 text-slate-600"
                 }`}
               >
                 {variant.isActive ? "Đang hiển thị" : "Đang ẩn"}
               </span>
             </div>
-            <p className="mt-1 truncate text-xs font-semibold text-stone-500">
+            <p className="mt-1 truncate text-xs font-semibold text-slate-500">
               SKU: {variant.sku}
             </p>
           </div>
           <div className="text-right">
-            <p className="text-lg font-semibold text-stone-950">
+            <p className="text-lg font-semibold text-slate-950">
               {formatCurrency(variant.price)}
             </p>
             {variant.compareAtPrice ? (
-              <p className="text-xs font-semibold text-stone-400 line-through">
+              <p className="text-xs font-semibold text-slate-400 line-through">
                 {formatCurrency(variant.compareAtPrice)}
               </p>
             ) : null}
@@ -1012,7 +1015,7 @@ function VariantEditor({
       <div className="p-4">
       <form onSubmit={handleUpdate}>
         <div className="mb-3 flex items-center justify-between gap-3 rounded-md bg-white p-3">
-          <p className="text-sm font-semibold text-stone-950">
+          <p className="text-sm font-semibold text-slate-950">
             Chỉnh sửa thông tin variant
           </p>
           <AdminCheckbox
@@ -1069,9 +1072,11 @@ function VariantEditor({
           <button
             type="button"
             disabled={isSubmitting}
-            onClick={() =>
-              void runAction(() => deleteAdminProductVariant(productId, variant.id))
-            }
+            onClick={() => {
+              if (window.confirm("Xác nhận xóa variant này?")) {
+                void runAction(() => deleteAdminProductVariant(productId, variant.id));
+              }
+            }}
             className="mt-2 inline-flex h-10 items-center rounded-md border border-red-200 px-4 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Xóa variant
@@ -1081,8 +1086,8 @@ function VariantEditor({
 
       <div className="mt-4 border-t border-cyan-950/10 pt-4">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <p className="text-sm font-semibold text-stone-950">Ảnh variant</p>
-          <span className="text-xs font-semibold text-stone-500">
+          <p className="text-sm font-semibold text-slate-950">Ảnh variant</p>
+          <span className="text-xs font-semibold text-slate-500">
             {(variant.images ?? []).length} ảnh
           </span>
         </div>
@@ -1114,7 +1119,7 @@ function VariantEditor({
             />
           ))}
           {!(variant.images ?? []).length ? (
-            <p className="rounded-md border border-dashed border-amber-900/15 p-3 text-sm font-semibold text-stone-500">
+            <p className="rounded-md border border-dashed border-cyan-950/15 p-3 text-sm font-semibold text-slate-500">
               Chưa có ảnh riêng cho variant này.
             </p>
           ) : null}
@@ -1166,7 +1171,7 @@ function VariantImageEditor({
       onSubmit={handleUpdate}
       className="grid gap-3 rounded-md border border-cyan-950/10 p-3 md:grid-cols-[80px_1fr_1fr_84px_auto_auto]"
     >
-      <div className="h-16 overflow-hidden rounded-md bg-stone-100">
+      <div className="h-16 overflow-hidden rounded-md bg-slate-100">
         <img
           src={image.imageUrl}
           alt={image.altText ?? ""}
@@ -1200,11 +1205,13 @@ function VariantImageEditor({
       <button
         type="button"
         disabled={isSubmitting}
-        onClick={() =>
-          void runAction(() =>
-            deleteAdminProductVariantImage(productId, variantId, image.id),
-          )
-        }
+        onClick={() => {
+          if (window.confirm("Xác nhận xóa ảnh này?")) {
+            void runAction(() =>
+              deleteAdminProductVariantImage(productId, variantId, image.id),
+            )
+          }
+        }}
         className="mt-5 h-10 rounded-md border border-red-200 px-3 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
       >
         Xóa
@@ -1360,8 +1367,8 @@ function CrudPanel({
             className="grid grid-cols-[1fr_120px_44px] items-center gap-3 border-b border-cyan-950/10 px-4 py-3 text-sm last:border-b-0"
           >
             <div className="min-w-0">
-              <p className="truncate font-semibold text-stone-950">{row.title}</p>
-              <p className="mt-1 truncate text-xs font-semibold text-stone-500">
+              <p className="truncate font-semibold text-slate-950">{row.title}</p>
+              <p className="mt-1 truncate text-xs font-semibold text-slate-500">
                 {row.subtitle}
               </p>
             </div>
@@ -1373,7 +1380,7 @@ function CrudPanel({
             >
               {row.meta}
             </button>
-            <IconDeleteButton disabled={isSubmitting} onClick={row.onDelete} />
+            <IconDeleteButton disabled={isSubmitting} confirmMessage="Xác nhận xóa mục này?" onClick={row.onDelete} />
           </div>
         ))}
       </div>
@@ -1400,13 +1407,13 @@ function AdminInput({
 }) {
   return (
     <label className="mb-3 block">
-      <span className="text-xs font-semibold text-stone-600">{label}</span>
+      <span className="text-xs font-semibold text-slate-600">{label}</span>
       <input
         name={name}
         type={type}
         required={required}
         defaultValue={defaultValue}
-        className="mt-1 h-10 w-full rounded-md border border-amber-900/15 px-3 text-sm font-semibold outline-none focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
+        className="mt-1 h-10 w-full rounded-md border border-cyan-950/15 px-3 text-sm font-semibold outline-none focus:border-cyan-600 focus:ring-4 focus:ring-cyan-200/70"
       />
     </label>
   );
@@ -1423,12 +1430,12 @@ function AdminTextarea({
 }) {
   return (
     <label className="mb-3 block">
-      <span className="text-xs font-semibold text-stone-600">{label}</span>
+      <span className="text-xs font-semibold text-slate-600">{label}</span>
       <textarea
         name={name}
         defaultValue={defaultValue}
         rows={4}
-        className="mt-1 w-full rounded-md border border-amber-900/15 px-3 py-2 text-sm font-semibold outline-none focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
+        className="mt-1 w-full rounded-md border border-cyan-950/15 px-3 py-2 text-sm font-semibold outline-none focus:border-cyan-600 focus:ring-4 focus:ring-cyan-200/70"
       />
     </label>
   );
@@ -1483,16 +1490,16 @@ function AdminImageInput({
 
   return (
     <label className="mb-3 block">
-      <span className="text-xs font-semibold text-stone-600">{label}</span>
+      <span className="text-xs font-semibold text-slate-600">{label}</span>
       <div className="mt-1 flex gap-2">
         <input
           ref={inputRef}
           name={name}
           required={required}
           defaultValue={defaultValue}
-          className="h-10 min-w-0 flex-1 rounded-md border border-amber-900/15 px-3 text-sm font-semibold outline-none focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
+          className="h-10 min-w-0 flex-1 rounded-md border border-cyan-950/15 px-3 text-sm font-semibold outline-none focus:border-cyan-600 focus:ring-4 focus:ring-cyan-200/70"
         />
-        <span className="relative inline-flex h-10 shrink-0 items-center rounded-md border border-amber-900/15 px-3 text-sm font-semibold text-stone-700 transition hover:border-amber-700 hover:text-amber-800">
+        <span className="relative inline-flex h-10 shrink-0 items-center rounded-md border border-cyan-950/15 px-3 text-sm font-semibold text-slate-700 transition hover:border-cyan-500 hover:text-cyan-700">
           {isUploading ? "Đang tải..." : "Chọn ảnh"}
           <input
             type="file"
@@ -1504,7 +1511,7 @@ function AdminImageInput({
         </span>
       </div>
       {message ? (
-        <span className="mt-1 block text-xs font-semibold text-stone-500">
+        <span className="mt-1 block text-xs font-semibold text-slate-500">
           {message}
         </span>
       ) : null}
@@ -1522,12 +1529,12 @@ function AdminCheckbox({
   defaultChecked: boolean;
 }) {
   return (
-    <label className="flex items-center gap-2 text-sm font-semibold text-stone-700">
+    <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
       <input
         name={name}
         type="checkbox"
         defaultChecked={defaultChecked}
-        className="h-4 w-4 accent-amber-700"
+        className="h-4 w-4 accent-cyan-500"
       />
       {label}
     </label>
@@ -1549,12 +1556,12 @@ function AdminSelect({
 }) {
   return (
     <label className="mb-3 block">
-      <span className="text-xs font-semibold text-stone-600">{label}</span>
+      <span className="text-xs font-semibold text-slate-600">{label}</span>
       <select
         name={name}
         required={required}
         defaultValue={defaultValue}
-        className="mt-1 h-10 w-full rounded-md border border-amber-900/15 px-3 text-sm font-semibold outline-none focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
+        className="mt-1 h-10 w-full rounded-md border border-cyan-950/15 px-3 text-sm font-semibold outline-none focus:border-cyan-600 focus:ring-4 focus:ring-cyan-200/70"
       >
         {children}
       </select>
@@ -1573,7 +1580,7 @@ function SubmitButton({
     <button
       type="submit"
       disabled={disabled}
-      className="mt-2 inline-flex h-10 items-center gap-2 rounded-md bg-amber-700 px-4 text-sm font-semibold text-white transition hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-60"
+      className="mt-2 inline-flex h-10 items-center gap-2 rounded-md bg-cyan-500 px-4 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-60"
     >
       <Plus className="h-4 w-4" aria-hidden="true" />
       {children}
@@ -1584,9 +1591,11 @@ function SubmitButton({
 function IconDeleteButton({
   disabled,
   onClick,
+  confirmMessage,
 }: {
   disabled: boolean;
   onClick: () => void;
+  confirmMessage?: string;
 }) {
   return (
     <button
@@ -1594,7 +1603,9 @@ function IconDeleteButton({
       disabled={disabled}
       onClick={(event) => {
         event.stopPropagation();
-        onClick();
+        if (!confirmMessage || window.confirm(confirmMessage)) {
+          onClick();
+        }
       }}
       className="grid h-10 w-10 place-items-center rounded-md border border-red-200 text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
     >

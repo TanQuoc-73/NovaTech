@@ -12,8 +12,8 @@ export function useWishlist() {
     try {
       const items = await getWishlist();
       setWishlistItems(items);
-    } catch (err) {
-      console.error("Failed to fetch wishlist:", err);
+    } catch {
+      // Session expired — auth state change will handle refresh
     } finally {
       setIsLoading(false);
     }

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { BarChart3, Boxes, CreditCard, Home, Megaphone, ReceiptText, Users } from "lucide-react";
+import { BarChart3, Boxes, Contact, CreditCard, Home, MessageCircle, Megaphone, ReceiptText, Users } from "lucide-react";
 
 import { LogoutButton } from "@/features/auth";
 
@@ -39,10 +39,22 @@ const adminNavItems = [
     icon: Megaphone,
   },
   {
+    href: "/admin/customers",
+    label: "Khách hàng",
+    description: "Quản lý khách hàng",
+    icon: Contact,
+  },
+  {
     href: "/admin/users",
     label: "Người dùng",
     description: "Quản lý người dùng",
     icon: Users,
+  },
+  {
+    href: "/admin/chat",
+    label: "Hỗ trợ",
+    description: "Chat với khách hàng",
+    icon: MessageCircle,
   },
 ];
 

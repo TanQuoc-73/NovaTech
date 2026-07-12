@@ -643,7 +643,7 @@ export function SiteHeader({ dictionary, locale, searchQuery }: SiteHeaderProps)
                     </Link>
 
                     <Link
-                      href="/account#wishlist"
+                      href="/account/wishlist"
                       onClick={() => setIsAccountMenuOpen(false)}
                       className="flex items-center gap-3 px-4 py-3 text-sm font-semibold transition hover:bg-amber-100/70"
                     >

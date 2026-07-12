@@ -46,7 +46,7 @@ export function ProductCard({
           onSelect(product);
         }
       }}
-      className={`group relative grid min-h-[300px] cursor-pointer rounded-xl border bg-[var(--surface)] p-2.5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md sm:min-h-[360px] sm:p-4 ${
+      className={`group relative grid h-full min-h-[300px] cursor-pointer rounded-xl border bg-[var(--surface)] p-2.5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md sm:min-h-[360px] sm:p-4 ${
         isCompareSelected
           ? "border-[var(--primary)] ring-2 ring-[var(--primary)]/40"
           : compareState === "compatible"

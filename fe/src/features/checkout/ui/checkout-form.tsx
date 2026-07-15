@@ -252,7 +252,7 @@ export function CheckoutForm({ dictionary }: { dictionary: Dictionary }) {
           </div>
 
           <div className="mt-6 rounded-lg border border-amber-900/10 bg-white p-4">
-            <h2 className="font-semibold">Voucher</h2>
+            <h2 className="font-semibold">{dictionary.ui.voucher.title}</h2>
             {vouchers.length ? (
               <div className="mt-3 flex flex-wrap gap-2">
                 {vouchers.slice(0, 4).map((voucher) => (
@@ -277,7 +277,7 @@ export function CheckoutForm({ dictionary }: { dictionary: Dictionary }) {
                   setVoucherCode(event.target.value.toUpperCase());
                   setVoucherValidation(null);
                 }}
-                placeholder="Nhap ma voucher"
+                placeholder={dictionary.ui.voucher.placeholder}
                 className="h-10 min-w-0 flex-1 rounded-md border border-amber-900/15 px-3 text-sm font-semibold outline-none focus:border-amber-700 focus:ring-4 focus:ring-amber-200/70"
               />
               <button
@@ -286,7 +286,7 @@ export function CheckoutForm({ dictionary }: { dictionary: Dictionary }) {
                 onClick={() => void handleApplyVoucher()}
                 className="h-10 rounded-md bg-stone-900 px-4 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {isCheckingVoucher ? "..." : "Ap dung"}
+                {isCheckingVoucher ? "..." : dictionary.ui.voucher.apply}
               </button>
             </div>
             {voucherValidation ? (
@@ -296,7 +296,7 @@ export function CheckoutForm({ dictionary }: { dictionary: Dictionary }) {
                 }`}
               >
                 {voucherValidation.isValid
-                  ? `Giam ${formatCurrency(voucherValidation.discountAmount)}`
+                  ? `${dictionary.ui.voucher.discount} ${formatCurrency(voucherValidation.discountAmount)}`
                   : voucherValidation.message}
               </p>
             ) : null}
@@ -398,12 +398,12 @@ export function CheckoutForm({ dictionary }: { dictionary: Dictionary }) {
             ))}
           </div>
           <div className="mt-4 flex items-center justify-between border-t border-amber-900/10 pt-4 text-sm font-semibold">
-            <span>Tạm tính</span>
+            <span>{dictionary.ui.cart.subtotal}</span>
             <span>{formatCurrency(cart.subtotal)}</span>
           </div>
           {voucherValidation?.isValid ? (
             <div className="mt-3 flex items-center justify-between text-sm font-semibold text-emerald-700">
-              <span>Voucher {voucherValidation.code}</span>
+              <span>{dictionary.ui.voucher.title} {voucherValidation.code}</span>
               <span>-{formatCurrency(voucherValidation.discountAmount)}</span>
             </div>
           ) : null}

@@ -1,7 +1,11 @@
 import { Body, Controller, Get, Post, Query, Redirect } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
+import { ApiTags } from '@nestjs/swagger';
 
 import { PaymentsService } from './payments.service';
 
+@SkipThrottle()
+@ApiTags('Payments')
 @Controller('payments')
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}

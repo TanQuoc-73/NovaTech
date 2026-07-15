@@ -12,6 +12,7 @@ import {
   type CustomerOrder,
   type CustomerOrderStatus,
 } from "@/features/orders/api/orders-api";
+import type { Dictionary } from "@/shared/i18n";
 import { formatCurrency } from "@/shared/lib/format-currency";
 import { ListSkeleton } from "@/shared/ui/loading-skeleton";
 
@@ -23,15 +24,14 @@ type ReviewDraft = {
   content: string;
 };
 
-const tabs: Array<{
+const tabIds: Array<{
   id: CartTab;
-  label: string;
   icon: typeof ShoppingBag;
 }> = [
-  { id: "cart", label: "Gio hang", icon: ShoppingBag },
-  { id: "ordered", label: "San pham da dat", icon: ClipboardList },
-  { id: "shipping", label: "Dang giao", icon: Truck },
-  { id: "received", label: "Da nhan", icon: PackageCheck },
+  { id: "cart", icon: ShoppingBag },
+  { id: "ordered", icon: ClipboardList },
+  { id: "shipping", icon: Truck },
+  { id: "received", icon: PackageCheck },
 ];
 
 const orderStatusGroups: Record<Exclude<CartTab, "cart">, CustomerOrderStatus[]> = {
@@ -43,10 +43,17 @@ const orderStatusGroups: Record<Exclude<CartTab, "cart">, CustomerOrderStatus[]>
 function resolveCartTab(tab?: string | string[]): CartTab {
   const value = Array.isArray(tab) ? tab[0] : tab;
 
-  return tabs.some((item) => item.id === value) ? (value as CartTab) : "cart";
+  return tabIds.some((item) => item.id === value) ? (value as CartTab) : "cart";
 }
 
-export function CartPageTabs({ initialTab }: { initialTab?: string | string[] }) {
+export function CartPageTabs({ dictionary, initialTab }: { dictionary: Dictionary; initialTab?: string | string[] }) {
+  const tt = dictionary.ui.cart.tabs;
+  const tabs: Array<{ id: CartTab; label: string; icon: typeof ShoppingBag }> = [
+    { id: "cart", label: tt.cart, icon: ShoppingBag },
+    { id: "ordered", label: tt.ordered, icon: ClipboardList },
+    { id: "shipping", label: tt.shipping, icon: Truck },
+    { id: "received", label: tt.received, icon: PackageCheck },
+  ];
   const defaultTab = resolveCartTab(initialTab);
   const [activeTab, setActiveTab] = useState<CartTab>(defaultTab);
   const [orders, setOrders] = useState<CustomerOrder[]>([]);
@@ -73,11 +80,11 @@ export function CartPageTabs({ initialTab }: { initialTab?: string | string[] })
       setOrdersMessage(null);
     } catch {
       setOrders([]);
-      setOrdersMessage("Vui long dang nhap de xem don hang.");
+      setOrdersMessage(tt.signIn);
     } finally {
       setIsOrdersLoading(false);
     }
-  }, []);
+  }, [tt.signIn]);
 
   useEffect(() => {
     getCart()
@@ -184,9 +191,10 @@ export function CartPageTabs({ initialTab }: { initialTab?: string | string[] })
       </div>
 
       {activeTab === "cart" ? (
-        <CartDetail onCartChange={handleCartChange} />
+        <CartDetail dictionary={dictionary} onCartChange={handleCartChange} />
       ) : (
         <OrderList
+          tt={tt}
           orders={visibleOrders}
           isLoading={isOrdersLoading}
           message={ordersMessage}
@@ -209,7 +217,7 @@ export function CartPageTabs({ initialTab }: { initialTab?: string | string[] })
               setOrdersMessage(
                 error instanceof Error
                   ? error.message
-                  : "Khong the huy don hang.",
+                  : tt.cancelFailed,
               );
             } finally {
               setPendingOrderId(null);
@@ -232,7 +240,7 @@ export function CartPageTabs({ initialTab }: { initialTab?: string | string[] })
               setOrdersMessage(
                 error instanceof Error
                   ? error.message
-                  : "Khong the gui danh gia.",
+                  : tt.reviewFailed,
               );
             } finally {
               setPendingReviewItemId(null);
@@ -254,6 +262,7 @@ function OrderList({
   onChangeReviewDraft,
   onCancelOrder,
   onSubmitReview,
+  tt,
 }: {
   orders: CustomerOrder[];
   isLoading: boolean;
@@ -267,6 +276,7 @@ function OrderList({
   ) => void;
   onCancelOrder: (orderId: string) => Promise<void>;
   onSubmitReview: (itemId: string, draft: ReviewDraft) => Promise<void>;
+  tt: Dictionary["ui"]["cart"]["tabs"];
 }) {
   if (isLoading) {
     return (
@@ -290,7 +300,7 @@ function OrderList({
     return (
       <section className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
         <div className="rounded-lg border border-dashed border-amber-900/20 bg-[#fffdf7] p-8 text-center text-sm font-semibold text-stone-500">
-          Chua co don hang trong muc nay.
+          {tt.emptySection}
         </div>
       </section>
     );
@@ -315,7 +325,7 @@ function OrderList({
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-xs font-semibold text-stone-500">Tong tien</p>
+                <p className="text-xs font-semibold text-stone-500">{tt.total}</p>
                 <p className="mt-1 text-base font-semibold">
                   {formatCurrency(order.totalAmount)}
                 </p>
@@ -326,7 +336,7 @@ function OrderList({
                     onClick={() => void onCancelOrder(order.id)}
                     className="mt-3 h-9 rounded-md border border-red-200 px-3 text-xs font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {pendingOrderId === order.id ? "Dang huy..." : "Huy don"}
+                    {pendingOrderId === order.id ? tt.cancelling : tt.cancel}
                   </button>
                 ) : null}
               </div>
@@ -350,6 +360,7 @@ function OrderList({
 
                   {order.status === "delivered" ? (
                     <ReviewPanel
+                      tt={tt}
                       item={item}
                       draft={getReviewDraft(reviewDrafts, item.id)}
                       isSubmitting={pendingReviewItemId === item.id}
@@ -380,6 +391,7 @@ function ReviewPanel({
   isDisabled,
   onChange,
   onSubmit,
+  tt,
 }: {
   item: CustomerOrder["items"][number];
   draft: ReviewDraft;
@@ -387,16 +399,17 @@ function ReviewPanel({
   isDisabled: boolean;
   onChange: (draft: Partial<ReviewDraft>) => void;
   onSubmit: () => void;
+  tt: Dictionary["ui"]["cart"]["tabs"];
 }) {
   if (item.review) {
     return (
       <div className="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-sm font-semibold text-emerald-950">
-            Da gui danh gia {item.review.rating}/5 sao
+            {tt.reviewSubmitted} {item.review.rating}/5 {tt.reviewRated}
           </p>
           <span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-emerald-800">
-            Da hien thi
+            {tt.reviewDisplayed}
           </span>
         </div>
         {item.review.title || item.review.content ? (
@@ -414,7 +427,7 @@ function ReviewPanel({
     <div className="rounded-md border border-amber-900/10 bg-amber-50/70 p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm font-semibold text-stone-900">
-          Danh gia san pham sau khi nhan hang
+          {tt.reviewTitle}
         </p>
         <div className="flex items-center gap-1">
           {[1, 2, 3, 4, 5].map((rating) => (
@@ -422,7 +435,7 @@ function ReviewPanel({
               key={rating}
               type="button"
               disabled={isDisabled}
-              aria-label={`${rating} sao`}
+              aria-label={`${rating} ${tt.ariaRate}`}
               onClick={() => onChange({ rating })}
               className="grid h-8 w-8 place-items-center rounded-full text-amber-700 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
             >
@@ -442,14 +455,14 @@ function ReviewPanel({
           value={draft.title}
           disabled={isDisabled}
           onChange={(event) => onChange({ title: event.target.value })}
-          placeholder="Tieu de ngan"
+          placeholder={tt.reviewPlaceholderTitle}
           className="h-10 rounded-md border border-amber-900/10 bg-white px-3 text-sm font-medium outline-none transition focus:border-amber-700 disabled:cursor-not-allowed disabled:opacity-60"
         />
         <textarea
           value={draft.content}
           disabled={isDisabled}
           onChange={(event) => onChange({ content: event.target.value })}
-          placeholder="Chia se trai nghiem thuc te ve san pham"
+          placeholder={tt.reviewPlaceholderContent}
           rows={2}
           className="min-h-10 rounded-md border border-amber-900/10 bg-white px-3 py-2 text-sm font-medium outline-none transition focus:border-amber-700 disabled:cursor-not-allowed disabled:opacity-60"
         />
@@ -462,7 +475,7 @@ function ReviewPanel({
           onClick={onSubmit}
           className="h-9 rounded-md bg-amber-700 px-4 text-xs font-semibold text-white transition hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {isSubmitting ? "Dang gui..." : "Gui danh gia"}
+          {isSubmitting ? tt.reviewSending : tt.reviewSend}
         </button>
       </div>
     </div>

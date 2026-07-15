@@ -2,9 +2,11 @@ import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/c
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { SupabaseAuthGuard } from '../auth/guards/supabase-auth.guard';
 import type { AuthenticatedUser } from '../auth/auth.types';
+import { ApiTags } from '@nestjs/swagger';
 import { WishlistService } from './wishlist.service';
 import type { AddToWishlistPayload } from './wishlist.types';
 
+@ApiTags('Wishlist')
 @Controller('wishlist')
 @UseGuards(SupabaseAuthGuard)
 export class WishlistController {

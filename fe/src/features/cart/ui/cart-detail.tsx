@@ -11,9 +11,11 @@ import {
   updateCartItem,
   type Cart,
 } from "@/features/cart/api/cart-api";
+import type { Dictionary } from "@/shared/i18n";
 import { formatCurrency } from "@/shared/lib/format-currency";
 
-export function CartDetail({ onCartChange }: { onCartChange?: (cart: Cart) => void }) {
+export function CartDetail({ dictionary, onCartChange }: { dictionary: Dictionary; onCartChange?: (cart: Cart) => void }) {
+  const t = dictionary.ui.cart;
   const [cart, setCart] = useState<Cart | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
@@ -28,10 +30,10 @@ export function CartDetail({ onCartChange }: { onCartChange?: (cart: Cart) => vo
       })
       .catch(() => {
         setCart(null);
-        setMessage("Vui long dang nhap de xem chi tiet gio hang.");
+        setMessage(t.signInRequired);
       })
       .finally(() => setIsLoading(false));
-  }, [onCartChange]);
+  }, [onCartChange, t.signInRequired]);
 
   async function runCartAction(actionKey: string, action: () => Promise<Cart>) {
     setPendingAction(actionKey);
@@ -42,7 +44,7 @@ export function CartDetail({ onCartChange }: { onCartChange?: (cart: Cart) => vo
       setCart(nextCart);
       onCartChange?.(nextCart);
     } catch {
-      setMessage("Khong the cap nhat gio hang. Vui long thu lai.");
+      setMessage(t.updateFailed);
     } finally {
       setPendingAction(null);
     }
@@ -75,7 +77,7 @@ export function CartDetail({ onCartChange }: { onCartChange?: (cart: Cart) => vo
             href="/"
             className="mt-5 inline-flex h-10 items-center rounded-md bg-amber-700 px-4 text-sm font-semibold text-white transition hover:bg-amber-800"
           >
-            Ve trang chu
+            {t.backToHome}
           </Link>
         </div>
       </section>
@@ -88,13 +90,13 @@ export function CartDetail({ onCartChange }: { onCartChange?: (cart: Cart) => vo
         <div className="grid place-items-center rounded-lg border border-dashed border-amber-900/20 bg-[#fffdf7] p-10 text-center">
           <ShoppingCart className="h-10 w-10 text-amber-800" aria-hidden="true" />
           <h1 className="mt-4 text-2xl font-semibold text-stone-950">
-            Gio hang dang trong
+            {t.emptyTitle}
           </h1>
           <Link
             href="/#featured-products"
             className="mt-5 inline-flex h-10 items-center rounded-md bg-amber-700 px-4 text-sm font-semibold text-white transition hover:bg-amber-800"
           >
-            Tiep tuc mua sam
+            {t.continueShopping}
           </Link>
         </div>
       </section>
@@ -105,16 +107,16 @@ export function CartDetail({ onCartChange }: { onCartChange?: (cart: Cart) => vo
     <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold text-amber-800">Gio hang</p>
+          <p className="text-sm font-semibold text-amber-800">{t.eyebrow}</p>
           <h1 className="mt-2 text-2xl font-semibold text-stone-950">
-            Chi tiet gio hang
+            {t.pageTitle}
           </h1>
         </div>
         <Link
           href="/#featured-products"
           className="inline-flex h-10 items-center rounded-md border border-amber-900/15 px-4 text-sm font-semibold text-stone-700 transition hover:border-amber-700 hover:text-amber-800"
         >
-          Tiep tuc mua sam
+          {t.continueShopping}
         </Link>
       </div>
 
@@ -158,7 +160,7 @@ export function CartDetail({ onCartChange }: { onCartChange?: (cart: Cart) => vo
               <div className="col-span-2 flex h-10 w-fit items-center rounded-md border border-amber-900/15 bg-white lg:col-span-1">
                 <button
                   type="button"
-                  aria-label="Giam so luong"
+                  aria-label={t.ariaDecrease}
                   disabled={item.quantity <= 1 || pendingAction !== null}
                   onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
                   className="grid h-10 w-10 place-items-center text-stone-700 transition hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-40"
@@ -166,7 +168,7 @@ export function CartDetail({ onCartChange }: { onCartChange?: (cart: Cart) => vo
                   <Minus className="h-4 w-4" aria-hidden="true" />
                 </button>
                 <input
-                  aria-label="So luong"
+                  aria-label={t.ariaQuantity}
                   type="number"
                   min={1}
                   max={item.variant.stock}
@@ -189,7 +191,7 @@ export function CartDetail({ onCartChange }: { onCartChange?: (cart: Cart) => vo
                 />
                 <button
                   type="button"
-                  aria-label="Tang so luong"
+                  aria-label={t.ariaIncrease}
                   disabled={
                     item.quantity >= item.variant.stock || pendingAction !== null
                   }
@@ -201,7 +203,7 @@ export function CartDetail({ onCartChange }: { onCartChange?: (cart: Cart) => vo
               </div>
 
               <div className="col-span-2 text-left lg:col-span-1 lg:text-right">
-                <p className="text-xs font-semibold text-stone-500">Thanh tien</p>
+                <p className="text-xs font-semibold text-stone-500">{t.totalLabel}</p>
                 <p className="mt-1 text-base font-semibold text-stone-950">
                   {formatCurrency(item.variant.price * item.quantity)}
                 </p>
@@ -210,7 +212,7 @@ export function CartDetail({ onCartChange }: { onCartChange?: (cart: Cart) => vo
               <div className="col-span-2 lg:col-span-1">
                 <button
                   type="button"
-                  aria-label="Xoa san pham"
+                  aria-label={t.ariaRemove}
                   disabled={pendingAction !== null}
                   onClick={() =>
                     void runCartAction(`remove:${item.id}`, () =>
@@ -228,15 +230,15 @@ export function CartDetail({ onCartChange }: { onCartChange?: (cart: Cart) => vo
 
         <aside className="h-fit rounded-lg border border-amber-900/10 bg-[#fffdf7] p-5">
           <h2 className="text-base font-semibold text-stone-950">
-            Tom tat don hang
+            {t.orderSummary}
           </h2>
           <div className="mt-5 grid gap-3 text-sm font-semibold text-stone-700">
             <div className="flex items-center justify-between">
-              <span>Tong so luong</span>
+              <span>{t.totalQuantity}</span>
               <span>{cart.totalQuantity}</span>
             </div>
             <div className="flex items-center justify-between border-t border-amber-900/10 pt-3">
-              <span>Tam tinh</span>
+              <span>{t.subtotal}</span>
               <span>{formatCurrency(cart.subtotal)}</span>
             </div>
           </div>
@@ -244,7 +246,7 @@ export function CartDetail({ onCartChange }: { onCartChange?: (cart: Cart) => vo
             href="/checkout"
             className="mt-5 flex h-11 w-full items-center justify-center rounded-md bg-amber-700 text-sm font-semibold text-white transition hover:bg-amber-800"
           >
-            Thanh toan
+            {t.checkout}
           </Link>
           <button
             type="button"
@@ -252,7 +254,7 @@ export function CartDetail({ onCartChange }: { onCartChange?: (cart: Cart) => vo
             onClick={() => void runCartAction("clear", clearCart)}
             className="mt-3 h-11 w-full rounded-md border border-red-200 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Xoa tat ca
+            {t.clearAll}
           </button>
         </aside>
       </div>

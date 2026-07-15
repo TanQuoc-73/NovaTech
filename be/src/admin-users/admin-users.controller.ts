@@ -12,12 +12,14 @@ import {
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { SupabaseAuthGuard } from '../auth/guards/supabase-auth.guard';
+import { ApiTags } from '@nestjs/swagger';
 import { AdminUsersService } from './admin-users.service';
 import type {
   AdminUpdateUserPayload,
   AdminUpdateUserRolePayload,
 } from './admin-users.types';
 
+@ApiTags('Admin Users')
 @Controller('admin/users')
 @UseGuards(SupabaseAuthGuard, RolesGuard)
 @Roles('admin')

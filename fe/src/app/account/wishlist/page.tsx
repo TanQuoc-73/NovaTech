@@ -1,4 +1,4 @@
-import { getDictionary, resolveLocale } from "@/shared/i18n";
+import { getDictionary, resolveLocale, type Dictionary } from "@/shared/i18n";
 import { SiteHeader } from "@/widgets/site-header";
 import { SiteFooter } from "@/widgets/site-footer";
 import { AccountSidebar } from "@/features/account/ui/account-sidebar";
@@ -22,13 +22,13 @@ export default async function AccountWishlistPage({ searchParams }: WishlistPage
         <section className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-amber-800">
-              Tài khoản
+              {dictionary.ui.auth.eyebrow}
             </p>
-            <h1 className="mt-3 text-3xl font-semibold">Sản phẩm yêu thích</h1>
+            <h1 className="mt-3 text-3xl font-semibold">{dictionary.ui.account.wishlist.title}</h1>
           </div>
 
           <div className="mt-8 grid gap-6 lg:grid-cols-[260px_1fr]">
-            <AccountSidebar />
+            <AccountSidebar dictionary={dictionary} />
             <WishlistContent dictionary={dictionary} />
           </div>
         </section>

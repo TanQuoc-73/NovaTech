@@ -648,7 +648,7 @@ export function SiteHeader({ dictionary, locale, searchQuery }: SiteHeaderProps)
                       className="flex items-center gap-3 px-4 py-3 text-sm font-semibold transition hover:bg-amber-100/70"
                     >
                       <Heart className="h-4 w-4 text-amber-800" aria-hidden="true" />
-                      {dictionary.ui.account.wishlist}
+                      {dictionary.ui.account.wishlist.title}
                     </Link>
 
                     <button

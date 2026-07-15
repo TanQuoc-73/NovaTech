@@ -17,6 +17,7 @@ import { FormSkeleton } from "@/shared/ui/loading-skeleton";
 import { AccountSidebar } from "@/features/account/ui/account-sidebar";
 
 export function AccountProfile({ dictionary }: { dictionary: Dictionary }) {
+  const t = dictionary.ui.account.info;
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [profile, setProfile] = useState<AuthProfile | null>(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -74,9 +75,9 @@ export function AccountProfile({ dictionary }: { dictionary: Dictionary }) {
             <div className="grid h-12 w-12 place-items-center rounded-full bg-amber-100 text-amber-900">
               <LogIn className="h-5 w-5" aria-hidden="true" />
             </div>
-            <h1 className="mt-5 text-2xl font-semibold">Tài khoản của tôi</h1>
+            <h1 className="mt-5 text-2xl font-semibold">{t.title}</h1>
             <p className="mt-2 max-w-xl text-sm leading-6 text-stone-600">
-              Đăng nhập để xem thông tin cá nhân, email và trạng thái tài khoản.
+              {t.notSignedIn}
             </p>
             <button
               type="button"
@@ -100,7 +101,7 @@ export function AccountProfile({ dictionary }: { dictionary: Dictionary }) {
     profile?.full_name ??
     getMetadataString(user, "full_name") ??
     getMetadataString(user, "name") ??
-    "Tài khoản NovaTech";
+    t.fallbackName;
   const avatarUrl =
     profile?.avatar_url ??
     getMetadataString(user, "avatar_url") ??
@@ -122,9 +123,9 @@ export function AccountProfile({ dictionary }: { dictionary: Dictionary }) {
       });
 
       setProfile(nextProfile);
-      setMessage("Đã lưu thông tin cá nhân.");
+      setMessage(t.saved);
     } catch {
-      setMessage("Không thể lưu thông tin. Vui lòng thử lại.");
+      setMessage(t.saveFailed);
     } finally {
       setIsSaving(false);
     }
@@ -134,21 +135,21 @@ export function AccountProfile({ dictionary }: { dictionary: Dictionary }) {
     <section className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
       <div>
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-amber-800">
-          Tài khoản
+          {t.eyebrow}
         </p>
-        <h1 className="mt-3 text-3xl font-semibold">Thông tin cá nhân</h1>
+        <h1 className="mt-3 text-3xl font-semibold">{t.pageTitle}</h1>
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[260px_1fr]">
-        <AccountSidebar />
+        <AccountSidebar dictionary={dictionary} />
 
         <div className="space-y-6">
         <div className="rounded-lg border border-amber-900/10 bg-white p-6 shadow-sm">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h2 className="text-base font-semibold">Thông tin liên hệ</h2>
+              <h2 className="text-base font-semibold">{t.contactTitle}</h2>
               <p className="mt-1 text-sm text-stone-500">
-                Các thông tin đang hiển thị trên tài khoản của bạn.
+                {t.contactDesc}
               </p>
             </div>
             {message ? (
@@ -158,10 +159,10 @@ export function AccountProfile({ dictionary }: { dictionary: Dictionary }) {
             ) : null}
           </div>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
-            <InfoItem icon={<UserCircle className="h-4 w-4" />} label="Họ tên" value={displayName} />
-            <InfoItem icon={<Mail className="h-4 w-4" />} label="Email" value={user.email ?? "Chưa có email"} />
-            <InfoItem icon={<Phone className="h-4 w-4" />} label="Số điện thoại" value={profile?.phone ?? "Chưa cập nhật"} />
-            <InfoItem icon={<Shield className="h-4 w-4" />} label="Vai trò" value={roleLabel} />
+            <InfoItem icon={<UserCircle className="h-4 w-4" />} label={t.fullName} value={displayName} />
+            <InfoItem icon={<Mail className="h-4 w-4" />} label={t.email} value={user.email ?? t.noEmail} />
+            <InfoItem icon={<Phone className="h-4 w-4" />} label={t.phone} value={profile?.phone ?? t.noPhone} />
+            <InfoItem icon={<Shield className="h-4 w-4" />} label={t.role} value={roleLabel} />
           </div>
         </div>
 
@@ -169,21 +170,21 @@ export function AccountProfile({ dictionary }: { dictionary: Dictionary }) {
           onSubmit={handleUpdateProfile}
           className="rounded-lg border border-amber-900/10 bg-white p-6 shadow-sm"
         >
-          <h2 className="text-base font-semibold">Chỉnh sửa thông tin</h2>
+          <h2 className="text-base font-semibold">{t.editTitle}</h2>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             <ProfileField
               name="fullName"
-              label="Họ tên"
+              label={t.fullName}
               defaultValue={displayName}
             />
             <ProfileField
               name="phone"
-              label="Số điện thoại"
+              label={t.phone}
               defaultValue={profile?.phone ?? ""}
             />
             <label className="block md:col-span-2">
               <span className="text-xs font-semibold uppercase text-stone-600">
-                Avatar URL
+                {t.avatarUrl}
               </span>
               <input
                 name="avatarUrl"
@@ -199,7 +200,7 @@ export function AccountProfile({ dictionary }: { dictionary: Dictionary }) {
             disabled={isSaving}
             className="mt-5 h-10 rounded-md bg-amber-700 px-4 text-sm font-semibold text-white transition hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSaving ? "Đang lưu..." : "Lưu thông tin"}
+            {isSaving ? t.saving : t.save}
           </button>
         </form>
 

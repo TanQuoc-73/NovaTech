@@ -14,6 +14,7 @@ import {
   type Address,
   type AuthProfile,
 } from "@/features/auth/model/auth-client";
+import { getDictionary, resolveLocale, type Dictionary } from "@/shared/i18n";
 import { getSupabaseClient } from "@/shared/lib/supabase/client";
 import { AccountSidebar } from "@/features/account/ui/account-sidebar";
 
@@ -40,19 +41,31 @@ function ProfileField({
   );
 }
 
-export default function AccountAddressesPage() {
+export default function AccountAddressesPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ lang?: string | string[] }>;
+}) {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [profile, setProfile] = useState<AuthProfile | null>(null);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [addressMessage, setAddressMessage] = useState<string | null>(null);
   const [pendingAddressId, setPendingAddressId] = useState<string | null>(null);
+  const [dictionary, setDictionary] = useState<Dictionary | null>(null);
 
   useEffect(() => {
     let isMounted = true;
-    const supabase = getSupabaseClient();
 
-    supabase.auth.getSession().then(({ data }) => {
+    async function init() {
+      const params = await searchParams;
+      const lang = Array.isArray(params?.lang) ? params?.lang[0] : params?.lang;
+      const loc = resolveLocale(lang);
+      setDictionary(getDictionary(loc));
+
+      const supabase = getSupabaseClient();
+      const { data } = await supabase.auth.getSession();
+
       if (!isMounted) return;
 
       const sessionUser = data.session?.user ?? null;
@@ -64,11 +77,11 @@ export default function AccountAddressesPage() {
       }
 
       setIsLoading(false);
-    });
+    }
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    void init();
+
+    const { data: { subscription } } = getSupabaseClient().auth.onAuthStateChange((_event, session) => {
       if (!isMounted) return;
 
       const sessionUser = session?.user ?? null;
@@ -87,10 +100,11 @@ export default function AccountAddressesPage() {
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [searchParams]);
 
+  const ta = dictionary?.ui.account.addresses;
   const displayName =
-    profile?.full_name ?? user?.user_metadata?.full_name ?? "Tài khoản NovaTech";
+    profile?.full_name ?? user?.user_metadata?.full_name ?? "NovaTech";
 
   async function handleCreateAddress(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -113,9 +127,9 @@ export default function AccountAddressesPage() {
         }),
       );
       form.reset();
-      setAddressMessage("Đã thêm địa chỉ giao hàng.");
+      setAddressMessage(ta!.addSuccess);
     } catch {
-      setAddressMessage("Không thể lưu địa chỉ. Kiểm tra lại thông tin.");
+      setAddressMessage(ta!.addFailed);
     }
   }
 
@@ -125,9 +139,9 @@ export default function AccountAddressesPage() {
 
     try {
       setAddresses(await updateAddress(addressId, { isDefault: true }));
-      setAddressMessage("Đã đặt địa chỉ mặc định.");
+      setAddressMessage(ta!.setDefaultSuccess);
     } catch {
-      setAddressMessage("Không thể cập nhật địa chỉ.");
+      setAddressMessage(ta!.setDefaultFailed);
     } finally {
       setPendingAddressId(null);
     }
@@ -139,9 +153,9 @@ export default function AccountAddressesPage() {
 
     try {
       setAddresses(await deleteAddress(addressId));
-      setAddressMessage("Đã xóa địa chỉ.");
+      setAddressMessage(ta!.deleteSuccess);
     } catch {
-      setAddressMessage("Không thể xóa địa chỉ.");
+      setAddressMessage(ta!.deleteFailed);
     } finally {
       setPendingAddressId(null);
     }
@@ -165,7 +179,7 @@ export default function AccountAddressesPage() {
     return (
       <section className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
         <div className="rounded-lg border border-amber-900/10 bg-white p-6 shadow-sm">
-          <p className="text-sm text-stone-500">Vui lòng đăng nhập để quản lý địa chỉ.</p>
+          <p className="text-sm text-stone-500">{ta!.notSignedIn}</p>
         </div>
       </section>
     );
@@ -175,20 +189,20 @@ export default function AccountAddressesPage() {
     <section className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
       <div>
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-amber-800">
-          Tài khoản
+          {ta!.title}
         </p>
-        <h1 className="mt-3 text-3xl font-semibold">Địa chỉ giao hàng</h1>
+        <h1 className="mt-3 text-3xl font-semibold">{ta!.pageTitle}</h1>
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[260px_1fr]">
-        <AccountSidebar />
+        <AccountSidebar dictionary={dictionary!} />
 
         <div className="rounded-lg border border-amber-900/10 bg-white p-6 shadow-sm">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h2 className="text-base font-semibold">Quản lý địa chỉ</h2>
+              <h2 className="text-base font-semibold">{ta!.manageTitle}</h2>
               <p className="mt-1 text-sm text-stone-500">
-                Thêm và chỉnh sửa địa chỉ để dùng nhanh khi thanh toán.
+                {ta!.manageDesc}
               </p>
             </div>
             {addressMessage ? (
@@ -204,21 +218,21 @@ export default function AccountAddressesPage() {
           >
             <ProfileField
               name="recipientName"
-              label="Người nhận"
+              label={ta!.recipientName}
               defaultValue={displayName}
             />
             <ProfileField
               name="addressPhone"
-              label="Số điện thoại"
+              label={ta!.phone}
               defaultValue={profile?.phone ?? ""}
             />
-            <ProfileField name="province" label="Tỉnh/Thành phố" defaultValue="" />
-            <ProfileField name="district" label="Quận/Huyện" defaultValue="" />
-            <ProfileField name="ward" label="Phường/Xã" defaultValue="" />
-            <ProfileField name="line1" label="Địa chỉ chi tiết" defaultValue="" />
+            <ProfileField name="province" label={ta!.province} defaultValue="" />
+            <ProfileField name="district" label={ta!.district} defaultValue="" />
+            <ProfileField name="ward" label={ta!.ward} defaultValue="" />
+            <ProfileField name="line1" label={ta!.line1} defaultValue="" />
             <label className="block md:col-span-2">
               <span className="text-xs font-semibold uppercase text-stone-600">
-                Ghi chú địa chỉ
+                {ta!.line2}
               </span>
               <input
                 name="line2"
@@ -227,14 +241,14 @@ export default function AccountAddressesPage() {
             </label>
             <label className="flex items-center gap-2 text-sm font-semibold text-stone-700">
               <input name="isDefault" type="checkbox" className="h-4 w-4 accent-amber-700" />
-              Đặt làm địa chỉ mặc định
+              {ta!.setDefault}
             </label>
             <div className="md:text-right">
               <button
                 type="submit"
                 className="h-10 rounded-md bg-amber-700 px-4 text-sm font-semibold text-white transition hover:bg-amber-800"
               >
-                Thêm địa chỉ
+                {ta!.addButton}
               </button>
             </div>
           </form>
@@ -252,7 +266,7 @@ export default function AccountAddressesPage() {
                         <p className="font-semibold">{address.recipientName}</p>
                         {address.isDefault ? (
                           <span className="rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-700">
-                            Mặc định
+                            {ta!.default}
                           </span>
                         ) : null}
                       </div>
@@ -272,7 +286,7 @@ export default function AccountAddressesPage() {
                           disabled={pendingAddressId !== null}
                           onClick={() => void handleSetDefaultAddress(address.id)}
                           className="grid h-10 w-10 place-items-center rounded-full border border-amber-900/15 text-amber-800 transition hover:bg-amber-100 disabled:opacity-50"
-                          aria-label="Đặt địa chỉ mặc định"
+                          aria-label={ta!.ariaSetDefault}
                         >
                           <Home className="h-4 w-4" aria-hidden="true" />
                         </button>
@@ -282,7 +296,7 @@ export default function AccountAddressesPage() {
                         disabled={pendingAddressId !== null}
                         onClick={() => void handleDeleteAddress(address.id)}
                         className="grid h-10 w-10 place-items-center rounded-full border border-red-200 text-red-700 transition hover:bg-red-50 disabled:opacity-50"
-                        aria-label="Xóa địa chỉ"
+                        aria-label={ta!.ariaDelete}
                       >
                         <Trash2 className="h-4 w-4" aria-hidden="true" />
                       </button>
@@ -292,7 +306,7 @@ export default function AccountAddressesPage() {
               ))
             ) : (
               <div className="rounded-lg border border-dashed border-amber-900/20 bg-[#fffdf7] p-5 text-sm font-medium text-stone-500">
-                Chưa có địa chỉ giao hàng.
+                {ta!.none}
               </div>
             )}
           </div>

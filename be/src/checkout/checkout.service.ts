@@ -4,7 +4,8 @@ import type { AuthenticatedUser } from '../auth/auth.types';
 import { SupabaseService } from '../infrastructure/supabase/supabase.service';
 import { MailService } from '../mail/mail.service';
 import { PaymentsService } from '../payments/payments.service';
-import type { CheckoutPayload, CheckoutResultDto } from './checkout.types';
+import type { CheckoutDto } from './dto/checkout.dto';
+import type { CheckoutResultDto } from './checkout.types';
 
 type OrderSummaryRow = {
   id: string;
@@ -35,7 +36,7 @@ export class CheckoutService {
 
   async checkout(
     user: AuthenticatedUser,
-    payload: CheckoutPayload,
+    payload: CheckoutDto,
   ): Promise<CheckoutResultDto> {
     const paymentMethod = this.readPaymentMethod(payload.paymentMethod);
     const checkoutResponse = await this.supabaseService.client.rpc(
@@ -234,10 +235,14 @@ export class CheckoutService {
       throw new BadRequestException(orderResponse.error.message);
     }
 
-    await this.supabaseService.client
-      .from('vouchers')
-      .update({ used_count: voucher.used_count + 1 })
-      .eq('id', voucher.id);
+    const incrementResult = await this.supabaseService.client.rpc(
+      'increment_voucher_used_count',
+      { p_voucher_id: voucher.id },
+    );
+
+    if (incrementResult.error || incrementResult.data === false) {
+      throw new BadRequestException('Voucher khong hop le hoac da het han.');
+    }
 
     return this.readOrderSummary(orderResponse.data);
   }
@@ -260,10 +265,7 @@ export class CheckoutService {
 
     const voucher = data as unknown as VoucherRow | null;
 
-    if (
-      !voucher ||
-      (voucher.usage_limit !== null && voucher.used_count >= voucher.usage_limit)
-    ) {
+    if (!voucher) {
       return null;
     }
 

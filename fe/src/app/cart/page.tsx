@@ -19,7 +19,7 @@ export default async function CartPage({ searchParams }: CartPageProps) {
     <main className="min-h-screen bg-[#fff8ed] text-stone-950 flex flex-col justify-between">
       <div>
         <SiteHeader dictionary={dictionary} locale={locale} />
-        <CartPageTabs initialTab={params?.tab} />
+        <CartPageTabs dictionary={dictionary} initialTab={params?.tab} />
       </div>
       <SiteFooter dictionary={dictionary} locale={locale} />
     </main>

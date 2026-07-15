@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import { getSupabaseClient } from "@/shared/lib/supabase/client";
+import type { Dictionary } from "@/shared/i18n";
 
 import {
   createConversation,
@@ -27,7 +28,8 @@ type ViewState =
   | { screen: "messages"; conversationId: string }
   | { screen: "new" };
 
-export function ChatWidget() {
+export function ChatWidget({ dictionary }: { dictionary: Dictionary }) {
+  const t = dictionary.ui.chat;
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState<{ id: string } | null>(null);
   const [view, setView] = useState<ViewState>({ screen: "list" });
@@ -168,12 +170,12 @@ export function ChatWidget() {
               ) : null}
               <span className="text-sm font-semibold text-white">
                 {!user
-                  ? "Hỗ trợ trực tuyến"
+                  ? t.title
                   : view.screen === "new"
-                    ? "Tạo hội thoại mới"
+                    ? t.newConversation
                     : view.screen === "messages"
-                      ? activeConvo?.subject || "Hỗ trợ"
-                      : "Hỗ trợ trực tuyến"}
+                      ? activeConvo?.subject || t.title
+                      : t.title}
               </span>
             </div>
             <button
@@ -190,6 +192,7 @@ export function ChatWidget() {
             {user ? (
               view.screen === "list" ? (
                 <ConversationList
+                  t={t}
                   conversations={conversations}
                   loading={loading}
                   onSelect={openConversation}
@@ -197,6 +200,7 @@ export function ChatWidget() {
                 />
               ) : view.screen === "new" ? (
                 <NewConversationForm
+                  t={t}
                   subject={subject}
                   initialMsg={initialMsg}
                   loading={loading}
@@ -207,6 +211,7 @@ export function ChatWidget() {
                 />
               ) : (
                 <MessageList
+                  t={t}
                   messages={messages}
                   loading={loading}
                   conversation={activeConvo}
@@ -218,14 +223,15 @@ export function ChatWidget() {
               <div className="flex h-full flex-col items-center justify-center p-6 text-center">
                 <MessageCircle className="mb-4 h-12 w-12 text-cyan-500" />
                 <h3 className="mb-1 text-lg font-semibold text-slate-900">
-                  Cảm ơn bạn!
+                  {t.guestThankYou}
                 </h3>
                 <p className="text-sm text-slate-500">
-                  Chúng tôi sẽ liên hệ với bạn qua email trong thời gian sớm nhất.
+                  {t.guestThankYouDesc}
                 </p>
               </div>
             ) : (
               <GuestContactForm
+                t={t}
                 name={guestName}
                 email={guestEmail}
                 message={guestMsg}
@@ -257,7 +263,7 @@ export function ChatWidget() {
                     handleSend(view.conversationId);
                   }
                 }}
-                placeholder="Nhập tin nhắn..."
+                placeholder={t.inputPlaceholder}
                 className="h-10 flex-1 rounded-lg border border-cyan-950/10 bg-white px-3 text-sm font-medium text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
               />
               <button
@@ -276,7 +282,7 @@ export function ChatWidget() {
           type="button"
           onClick={handleOpen}
           className="grid h-14 w-14 place-items-center rounded-full bg-cyan-500 text-white shadow-lg transition hover:bg-cyan-600 hover:shadow-xl active:scale-95"
-          aria-label="Mở chat hỗ trợ"
+          aria-label={t.ariaOpen}
         >
           <MessageCircle className="h-6 w-6" />
         </button>
@@ -290,11 +296,13 @@ function ConversationList({
   loading,
   onSelect,
   onNew,
+  t,
 }: {
   conversations: ChatConversation[];
   loading: boolean;
   onSelect: (convo: ChatConversation) => void;
   onNew: () => void;
+  t: Dictionary["ui"]["chat"];
 }) {
   return (
     <div className="divide-y divide-cyan-950/10">
@@ -304,18 +312,18 @@ function ConversationList({
         className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-cyan-600 transition hover:bg-cyan-50"
       >
         <Plus className="h-4 w-4" />
-        Tạo hội thoại mới
+        {t.newConversation}
       </button>
 
       {loading ? (
         <div className="px-4 py-8 text-center text-sm text-slate-500">
-          Đang tải...
+          {t.loading}
         </div>
       ) : conversations.length === 0 ? (
         <div className="px-4 py-8 text-center text-sm text-slate-500">
-          Chưa có hội thoại nào.
+          {t.noConversations}
           <br />
-          Nhấn "Tạo hội thoại mới" để bắt đầu.
+          {t.startNew}
         </div>
       ) : (
         conversations.map((convo) => (
@@ -331,7 +339,7 @@ function ConversationList({
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <span className="truncate text-sm font-semibold text-slate-900">
-                  {convo.subject || "Hỗ trợ"}
+                  {convo.subject || t.title}
                 </span>
                 <span
                   className={`inline-flex h-5 shrink-0 items-center rounded px-1.5 text-[10px] font-semibold ${
@@ -340,7 +348,7 @@ function ConversationList({
                       : "bg-slate-100 text-slate-500"
                   }`}
                 >
-                  {convo.status === "open" ? "Mở" : "Đã đóng"}
+                  {convo.status === "open" ? t.statusOpen : t.statusClosed}
                 </span>
               </div>
               {convo.lastMessage ? (
@@ -365,6 +373,7 @@ function NewConversationForm({
   onMessageChange,
   onSubmit,
   onBack,
+  t,
 }: {
   subject: string;
   initialMsg: string;
@@ -373,28 +382,29 @@ function NewConversationForm({
   onMessageChange: (v: string) => void;
   onSubmit: () => void;
   onBack: () => void;
+  t: Dictionary["ui"]["chat"];
 }) {
   return (
     <div className="space-y-4 p-4">
       <div>
         <label className="block text-sm font-semibold text-slate-700">
-          Chủ đề
+          {t.subject}
         </label>
         <input
           value={subject}
           onChange={(e) => onSubjectChange(e.target.value)}
-          placeholder="VD: Hỏi về sản phẩm, đơn hàng..."
+          placeholder={t.subjectPlaceholder}
           className="mt-1.5 h-10 w-full rounded-lg border border-cyan-950/10 bg-white px-3 text-sm font-medium text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
         />
       </div>
       <div>
         <label className="block text-sm font-semibold text-slate-700">
-          Nội dung
+          {t.content}
         </label>
         <textarea
           value={initialMsg}
           onChange={(e) => onMessageChange(e.target.value)}
-          placeholder="Nhập nội dung cần hỗ trợ..."
+          placeholder={t.contentPlaceholder}
           rows={4}
           className="mt-1.5 w-full resize-none rounded-lg border border-cyan-950/10 bg-white px-3 py-2.5 text-sm font-medium text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
         />
@@ -405,7 +415,7 @@ function NewConversationForm({
           onClick={onBack}
           className="inline-flex h-10 flex-1 items-center justify-center rounded-lg border border-cyan-950/10 text-sm font-semibold text-slate-700 transition hover:bg-cyan-50"
         >
-          Quay lại
+          {t.back}
         </button>
         <button
           type="button"
@@ -413,7 +423,7 @@ function NewConversationForm({
           onClick={onSubmit}
           className="inline-flex h-10 flex-1 items-center justify-center rounded-lg bg-cyan-500 text-sm font-semibold text-white shadow-sm transition hover:bg-cyan-600 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {loading ? "Đang gửi..." : "Gửi"}
+          {loading ? t.sending : t.send}
         </button>
       </div>
     </div>
@@ -426,23 +436,25 @@ function MessageList({
   conversation,
   onReopen,
   messagesEndRef,
+  t,
 }: {
   messages: ChatMessage[];
   loading: boolean;
   conversation: ChatConversation | null;
   onReopen: (conversationId: string) => void;
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
+  t: Dictionary["ui"]["chat"];
 }) {
   return (
     <div className="flex h-full flex-col">
       <div className="flex-1 space-y-3 overflow-y-auto p-4">
         {loading ? (
           <div className="py-8 text-center text-sm text-slate-500">
-            Đang tải...
+            {t.loading}
           </div>
         ) : messages.length === 0 ? (
           <div className="py-8 text-center text-sm text-slate-500">
-            Chưa có tin nhắn nào.
+            {t.noMessages}
           </div>
         ) : (
           messages.map((msg) => (
@@ -477,14 +489,14 @@ function MessageList({
       {conversation?.status === "closed" ? (
         <div className="border-t border-cyan-950/10 px-4 py-3 text-center">
           <p className="text-xs font-medium text-slate-500">
-            Hội thoại đã kết thúc.
+            {t.closed}
           </p>
           <button
             type="button"
             onClick={() => onReopen(conversation.id)}
             className="mt-1 text-xs font-semibold text-cyan-600 hover:underline"
           >
-            Mở lại hội thoại
+            {t.reopen}
           </button>
         </div>
       ) : null}
@@ -501,6 +513,7 @@ function GuestContactForm({
   onEmailChange,
   onMessageChange,
   onSubmit,
+  t,
 }: {
   name: string;
   email: string;
@@ -510,39 +523,40 @@ function GuestContactForm({
   onEmailChange: (v: string) => void;
   onMessageChange: (v: string) => void;
   onSubmit: () => void;
+  t: Dictionary["ui"]["chat"];
 }) {
   const valid = name.trim() && email.trim() && message.trim();
 
   return (
     <div className="space-y-4 p-4">
       <p className="text-xs text-slate-500">
-        Vui lòng để lại thông tin, chúng tôi sẽ liên hệ bạn sớm nhất.
+        {t.guestTitle}
       </p>
       <div>
-        <label className="block text-sm font-semibold text-slate-700">Họ tên</label>
+        <label className="block text-sm font-semibold text-slate-700">{t.guestName}</label>
         <input
           value={name}
           onChange={(e) => onNameChange(e.target.value)}
-          placeholder="Nhập họ tên của bạn..."
+          placeholder={t.guestNamePlaceholder}
           className="mt-1.5 h-10 w-full rounded-lg border border-cyan-950/10 bg-white px-3 text-sm font-medium text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
         />
       </div>
       <div>
-        <label className="block text-sm font-semibold text-slate-700">Email</label>
+        <label className="block text-sm font-semibold text-slate-700">{t.guestEmail}</label>
         <input
           value={email}
           onChange={(e) => onEmailChange(e.target.value)}
-          placeholder="Nhập email của bạn..."
+          placeholder={t.guestEmailPlaceholder}
           type="email"
           className="mt-1.5 h-10 w-full rounded-lg border border-cyan-950/10 bg-white px-3 text-sm font-medium text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
         />
       </div>
       <div>
-        <label className="block text-sm font-semibold text-slate-700">Nội dung</label>
+        <label className="block text-sm font-semibold text-slate-700">{t.guestContent}</label>
         <textarea
           value={message}
           onChange={(e) => onMessageChange(e.target.value)}
-          placeholder="Nhập nội dung cần hỗ trợ..."
+          placeholder={t.guestContentPlaceholder}
           rows={4}
           className="mt-1.5 w-full resize-none rounded-lg border border-cyan-950/10 bg-white px-3 py-2.5 text-sm font-medium text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
         />
@@ -553,7 +567,7 @@ function GuestContactForm({
         onClick={onSubmit}
         className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-cyan-500 text-sm font-semibold text-white shadow-sm transition hover:bg-cyan-600 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {loading ? "Đang gửi..." : "Gửi"}
+        {loading ? t.sending : t.send}
       </button>
     </div>
   );

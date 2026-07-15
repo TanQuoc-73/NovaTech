@@ -1,11 +1,13 @@
 import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
 import type { AuthenticatedUser } from '../auth/auth.types';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { SupabaseAuthGuard } from '../auth/guards/supabase-auth.guard';
 import { OrdersService } from './orders.service';
-import type { CreateOrderItemReviewPayload } from './orders.types';
+import { CreateReviewDto } from './dto/create-review.dto';
 
+@ApiTags('Orders')
 @Controller('orders')
 @UseGuards(SupabaseAuthGuard)
 export class OrdersController {
@@ -28,7 +30,7 @@ export class OrdersController {
   reviewOrderItem(
     @CurrentUser() user: AuthenticatedUser,
     @Param('itemId') itemId: string,
-    @Body() payload: CreateOrderItemReviewPayload,
+    @Body() payload: CreateReviewDto,
   ) {
     return this.ordersService.reviewOrderItem(user.id, itemId, payload);
   }

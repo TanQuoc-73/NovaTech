@@ -310,7 +310,15 @@ export function WarrantyContent({
   function handleLookup(event: React.FormEvent) {
     event.preventDefault();
     if (lookupQuery.trim().length < 3) return;
-    setLookupResult(Math.random() > 0.3 ? "found" : "not-found");
+
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3001"}/catalog/warranty/lookup?q=${encodeURIComponent(lookupQuery.trim())}`)
+      .then((res) => res.json())
+      .then((data: { found: boolean }) => {
+        setLookupResult(data.found ? "found" : "not-found");
+      })
+      .catch(() => {
+        setLookupResult("not-found");
+      });
   }
 
   return (

@@ -13,6 +13,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 
 import { Roles } from '../auth/decorators/roles.decorator';
+import { ApiTags } from '@nestjs/swagger';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { SupabaseAuthGuard } from '../auth/guards/supabase-auth.guard';
 import { AdminService } from './admin.service';
@@ -37,6 +38,7 @@ type UploadedImageFile = {
   size: number;
 };
 
+@ApiTags('Admin')
 @Controller('admin')
 @UseGuards(SupabaseAuthGuard, RolesGuard)
 @Roles('admin')

@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
+import { useSearchParams } from "next/navigation";
 
 import {
   getCurrentProfile,
   getRoleHomePath,
   type UserRole,
 } from "../model/auth-client";
+import { getDictionary, resolveLocale } from "@/shared/i18n";
 
 type RoleGateProps = {
   allowedRoles: UserRole[];
@@ -15,6 +17,9 @@ type RoleGateProps = {
 };
 
 export function RoleGate({ allowedRoles, children }: RoleGateProps) {
+  const searchParams = useSearchParams();
+  const locale = resolveLocale(searchParams?.get("lang") ?? undefined);
+  const t = getDictionary(locale).ui.roleGate;
   const [status, setStatus] = useState<"checking" | "allowed" | "denied">(
     "checking",
   );
@@ -62,7 +67,7 @@ export function RoleGate({ allowedRoles, children }: RoleGateProps) {
             <img src="/NovaTech_nightmode.png" alt="" className="logo-dark h-12 w-auto" />
             <span className="absolute inset-0 -m-3 animate-spin rounded-full border-2 border-transparent border-t-[var(--primary)]" />
           </div>
-          <p className="text-sm text-[var(--muted)]">Đang xác thực...</p>
+          <p className="text-sm text-[var(--muted)]">{t.checking}</p>
         </div>
       </main>
     );
@@ -71,7 +76,7 @@ export function RoleGate({ allowedRoles, children }: RoleGateProps) {
   return (
     <main className="grid min-h-screen place-items-center bg-[var(--background)] px-6">
       <p className="text-sm text-[var(--muted)]">
-        Không có quyền truy cập.
+        {t.denied}
       </p>
     </main>
   );

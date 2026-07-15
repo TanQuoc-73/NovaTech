@@ -1,65 +1,33 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import type { ReactNode } from "react";
 import { BarChart3, Boxes, Contact, CreditCard, Home, MessageCircle, Megaphone, ReceiptText, Users } from "lucide-react";
 
 import { LogoutButton } from "@/features/auth";
+import { getDictionary, resolveLocale } from "@/shared/i18n";
 
-const adminNavItems = [
-  {
-    href: "/admin/dashboard",
-    label: "Tổng quan",
-    description: "Doanh số và vận hành",
-    icon: BarChart3,
-  },
-  {
-    href: "/admin/catalog",
-    label: "Kho hàng",
-    description: "Sản phẩm, danh mục, thương hiệu",
-    icon: Boxes,
-  },
-  {
-    href: "/admin/orders",
-    label: "Đơn hàng",
-    description: "Xử lý đơn và trạng thái",
-    icon: ReceiptText,
-  },
-  {
-    href: "/admin/payments",
-    label: "Thanh toán",
-    description: "QR test và phương thức",
-    icon: CreditCard,
-  },
-  {
-    href: "/admin/marketing",
-    label: "Marketing",
-    description: "Banner, tin tức và voucher",
-    icon: Megaphone,
-  },
-  {
-    href: "/admin/customers",
-    label: "Khách hàng",
-    description: "Quản lý khách hàng",
-    icon: Contact,
-  },
-  {
-    href: "/admin/users",
-    label: "Người dùng",
-    description: "Quản lý người dùng",
-    icon: Users,
-  },
-  {
-    href: "/admin/chat",
-    label: "Hỗ trợ",
-    description: "Chat với khách hàng",
-    icon: MessageCircle,
-  },
+const adminNavKeys = [
+  { href: "/admin/dashboard", key: "overview" as const, icon: BarChart3 },
+  { href: "/admin/catalog", key: "catalog" as const, icon: Boxes },
+  { href: "/admin/orders", key: "orders" as const, icon: ReceiptText },
+  { href: "/admin/payments", key: "payments" as const, icon: CreditCard },
+  { href: "/admin/marketing", key: "marketing" as const, icon: Megaphone },
+  { href: "/admin/customers", key: "customers" as const, icon: Contact },
+  { href: "/admin/users", key: "users" as const, icon: Users },
+  { href: "/admin/chat", key: "chat" as const, icon: MessageCircle },
 ];
 
 export function AdminShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const locale = resolveLocale(searchParams?.get("lang") ?? undefined);
+  const t = getDictionary(locale).ui.admin;
+  const navItems = adminNavKeys.map((item) => ({
+    ...item,
+    label: t.nav[item.key],
+  }));
 
   return (
     <main className="min-h-screen bg-[#eaf6fb] text-slate-950">
@@ -85,7 +53,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
           </Link>
 
           <nav className="flex flex-1 items-center gap-0.5 overflow-x-auto py-3">
-            {adminNavItems.map((item) => {
+            {navItems.map((item) => {
               const Icon = item.icon;
               const isActive =
                 pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -94,7 +62,6 @@ export function AdminShell({ children }: { children: ReactNode }) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  title={item.description}
                   className={`inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold transition ${
                     isActive
                       ? "bg-cyan-500 text-white shadow-sm"
@@ -117,7 +84,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
             >
               <Home className="h-4 w-4" aria-hidden="true" />
             </Link>
-            <LogoutButton className="h-9 w-9 rounded-lg border-cyan-950/10 bg-white text-slate-600 hover:border-cyan-400 hover:bg-cyan-50" />
+            <LogoutButton className="h-9 w-9 rounded-lg border-cyan-950/10 bg-white text-slate-600 hover:border-cyan-400 hover:bg-cyan-50" dictionary={getDictionary(locale)} />
           </div>
         </div>
       </header>

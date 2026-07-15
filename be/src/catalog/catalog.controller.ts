@@ -1,8 +1,10 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
 import { CatalogService } from './catalog.service';
 import type { CatalogProductSort } from './catalog.types';
 
+@ApiTags('Catalog')
 @Controller('catalog')
 export class CatalogController {
   constructor(private readonly catalogService: CatalogService) {}
@@ -43,6 +45,16 @@ export class CatalogController {
   @Get('products/featured')
   findFeaturedProducts() {
     return this.catalogService.findFeaturedProducts();
+  }
+
+  @Get('warranty/lookup')
+  lookupWarranty(@Query('q') query?: string) {
+    return this.catalogService.lookupWarranty(query);
+  }
+
+  @Get('products/:slug')
+  findProductBySlug(@Param('slug') slug: string) {
+    return this.catalogService.findProductBySlug(slug);
   }
 
   @Get('products')

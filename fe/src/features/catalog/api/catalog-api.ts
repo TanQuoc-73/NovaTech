@@ -143,6 +143,10 @@ export function getFeaturedProducts() {
   return fetchJson<Product[]>("/catalog/products/featured");
 }
 
+export function getProductBySlug(slug: string) {
+  return fetchJson<Product | []>(`/catalog/products/${encodeURIComponent(slug)}`);
+}
+
 export async function getCatalogProducts(filters: CatalogProductFilters = {}) {
   const searchParams = new URLSearchParams();
 

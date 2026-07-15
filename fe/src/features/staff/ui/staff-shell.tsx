@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import type { ReactNode } from "react";
 import {
   ClipboardList,
@@ -14,16 +14,25 @@ import {
 } from "lucide-react";
 
 import { signOut } from "@/features/auth/model/auth-client";
+import { getDictionary, resolveLocale } from "@/shared/i18n";
 
-const staffNavItems = [
-  { href: "/staff/dashboard", label: "Tong quan", icon: LayoutDashboard },
-  { href: "/staff/orders", label: "Xu ly don", icon: ClipboardList },
-  { href: "/staff/inventory", label: "Kiem kho", icon: PackageCheck },
-  { href: "/staff/support", label: "Ho tro", icon: Headphones },
+const staffNavKeys = [
+  { href: "/staff/dashboard", key: "dashboard" as const, icon: LayoutDashboard },
+  { href: "/staff/orders", key: "orders" as const, icon: ClipboardList },
+  { href: "/staff/inventory", key: "inventory" as const, icon: PackageCheck },
+  { href: "/staff/support", key: "support" as const, icon: Headphones },
 ];
 
 export function StaffShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const locale = resolveLocale(searchParams?.get("lang") ?? undefined);
+  const dictionary = getDictionary(locale);
+  const t = dictionary.ui.staff;
+  const navItems = staffNavKeys.map((item) => ({
+    ...item,
+    label: t.nav[item.key],
+  }));
 
   async function handleSignOut() {
     await signOut();
@@ -41,11 +50,11 @@ export function StaffShell({ children }: { children: ReactNode }) {
             <span className="grid h-9 w-9 place-items-center rounded-full bg-amber-400 text-[#2f1d14]">
               <ShieldCheck className="h-5 w-5" aria-hidden="true" />
             </span>
-            <span>NovaTech Staff</span>
+            <span>{t.title}</span>
           </Link>
 
           <nav className="flex flex-1 flex-wrap items-center gap-1">
-            {staffNavItems.map((item) => {
+            {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
 
@@ -71,8 +80,8 @@ export function StaffShell({ children }: { children: ReactNode }) {
             <Link
               href="/"
               className="grid h-10 w-10 place-items-center rounded-full border border-white/15 text-amber-50 transition hover:bg-white/10"
-              aria-label="Ve trang chu"
-              title="Ve trang chu"
+              aria-label={dictionary.ui.admin.logoutAria}
+              title={dictionary.ui.admin.logoutAria}
             >
               <Home className="h-4 w-4" aria-hidden="true" />
             </Link>
@@ -80,8 +89,8 @@ export function StaffShell({ children }: { children: ReactNode }) {
               type="button"
               onClick={handleSignOut}
               className="grid h-10 w-10 place-items-center rounded-full border border-white/15 text-amber-50 transition hover:bg-white/10"
-              aria-label="Dang xuat"
-              title="Dang xuat"
+              aria-label={dictionary.ui.admin.logoutAria}
+              title={dictionary.ui.admin.logoutAria}
             >
               <LogOut className="h-4 w-4" aria-hidden="true" />
             </button>

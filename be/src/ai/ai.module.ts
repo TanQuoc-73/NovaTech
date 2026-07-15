@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from '../auth/auth.module';
 import { SupabaseModule } from '../infrastructure/supabase/supabase.module';
 import { AiController } from './ai.controller';
 import { AiService } from './ai.service';
 import { EmbeddingsService } from './embeddings.service';
 
 @Module({
-  imports: [ConfigModule, SupabaseModule],
+  imports: [ConfigModule, SupabaseModule, AuthModule],
   controllers: [AiController],
   providers: [AiService, EmbeddingsService],
   exports: [AiService, EmbeddingsService],

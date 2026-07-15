@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { AdminModule } from './admin/admin.module';
 import { AdminUsersModule } from './admin-users/admin-users.module';
 import { AppController } from './app.controller';
@@ -24,6 +26,9 @@ import { WishlistModule } from './wishlist/wishlist.module';
       envFilePath: ['.env.local', '.env'],
       validate: validateEnv,
     }),
+    ThrottlerModule.forRoot({
+      throttlers: [{ ttl: 60_000, limit: 60 }],
+    }),
     SupabaseModule,
     AdminModule,
     AdminUsersModule,
@@ -39,6 +44,9 @@ import { WishlistModule } from './wishlist/wishlist.module';
     AiModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+  ],
 })
 export class AppModule {}

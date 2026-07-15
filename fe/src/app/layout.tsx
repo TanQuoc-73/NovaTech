@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import Script from "next/script";
 import { ChatWidgetWrapper } from "@/features/chat/ui/chat-widget-wrapper";
@@ -37,7 +38,9 @@ export default function RootLayout({
       <body className="min-h-full bg-background text-foreground">
         <Script id="theme-init" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: themeScript }} />
         {children}
-        <ChatWidgetWrapper />
+        <Suspense fallback={null}>
+          <ChatWidgetWrapper />
+        </Suspense>
       </body>
     </html>
   );

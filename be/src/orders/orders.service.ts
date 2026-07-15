@@ -2,12 +2,12 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 
 import { SupabaseService } from '../infrastructure/supabase/supabase.service';
 import type {
-  CreateOrderItemReviewPayload,
   CustomerOrderDto,
   CustomerOrderItemDto,
   CustomerOrderItemReviewDto,
   CustomerOrderStatus,
 } from './orders.types';
+import type { CreateReviewDto } from './dto/create-review.dto';
 
 type OrderRow = {
   id: string;
@@ -158,7 +158,7 @@ export class OrdersService {
   async reviewOrderItem(
     userId: string,
     itemId: string,
-    payload: CreateOrderItemReviewPayload,
+    payload: CreateReviewDto,
   ) {
     if (!itemId.trim()) {
       throw new BadRequestException('itemId is required.');

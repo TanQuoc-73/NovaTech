@@ -13,6 +13,7 @@ import { getDictionary, resolveLocale } from "@/shared/i18n";
 export default function ResetPasswordPage() {
   const dictionary = getDictionary(resolveLocale(undefined));
   const t = dictionary.ui.auth;
+  const pw = dictionary.ui.password;
 
   const [status, setStatus] = useState<"loading" | "ready" | "success" | "error">("loading");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -29,12 +30,12 @@ export default function ResetPasswordPage() {
           setStatus("ready");
         } else {
           setStatus("error");
-          setErrorMessage("Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.");
+          setErrorMessage(t.resetPasswordFailed);
         }
       })
       .catch(() => {
         setStatus("error");
-        setErrorMessage("Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.");
+        setErrorMessage(t.resetPasswordFailed);
       });
   }, []);
 
@@ -48,7 +49,7 @@ export default function ResetPasswordPage() {
     }
 
     if (password.length < 8) {
-      setValidationError("Mật khẩu phải có ít nhất 8 ký tự.");
+      setValidationError(pw.minLength);
       return;
     }
 
@@ -93,7 +94,7 @@ export default function ResetPasswordPage() {
           {status === "loading" && (
             <div className="flex flex-col items-center gap-4 py-8">
               <span className="h-10 w-10 animate-spin rounded-full border-4 border-cyan-200 border-t-cyan-600" />
-              <p className="text-sm font-medium text-slate-500">Đang xác thực liên kết...</p>
+              <p className="text-sm font-medium text-slate-500">{t.processing}</p>
             </div>
           )}
 
@@ -104,7 +105,7 @@ export default function ResetPasswordPage() {
                 <ShieldCheck className="h-8 w-8 text-red-500" />
               </span>
               <h1 className="mt-5 text-xl font-semibold text-slate-900">
-                Liên kết không hợp lệ
+                {t.forgotPasswordTitle}
               </h1>
               <p className="mt-2 text-sm leading-6 text-slate-500">
                 {errorMessage}
@@ -113,7 +114,7 @@ export default function ResetPasswordPage() {
                 href="/"
                 className="mt-6 inline-flex h-10 items-center rounded-xl bg-cyan-600 px-5 text-sm font-semibold text-white transition hover:bg-cyan-700"
               >
-                Về trang chủ
+                {t.backToLogin}
               </Link>
             </div>
           )}
@@ -128,13 +129,13 @@ export default function ResetPasswordPage() {
                 {t.resetPasswordSuccess}
               </h1>
               <p className="mt-2 text-sm text-slate-500">
-                Bây giờ bạn có thể đăng nhập bằng mật khẩu mới.
+                {t.loginSuccess}
               </p>
               <Link
                 href="/"
                 className="mt-6 inline-flex h-10 items-center rounded-xl bg-cyan-600 px-5 text-sm font-semibold text-white transition hover:bg-cyan-700"
               >
-                Về trang chủ và đăng nhập
+                {t.backToLogin}
               </Link>
             </div>
           )}
@@ -172,7 +173,7 @@ export default function ResetPasswordPage() {
                       className="min-w-0 flex-1 bg-transparent text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
                     />
                   </span>
-                  <span className="text-xs text-slate-400">Ít nhất 8 ký tự</span>
+                  <span className="text-xs text-slate-400">{pw.minLength}</span>
                 </label>
 
                 <label className="grid gap-1.5">

@@ -1,4 +1,9 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
+import { ApiTags } from '@nestjs/swagger';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { SupabaseAuthGuard } from '../auth/guards/supabase-auth.guard';
 import { AiService } from './ai.service';
 import { EmbeddingsService } from './embeddings.service';
 import type {
@@ -8,7 +13,9 @@ import type {
   AiSearchResponse,
 } from './ai.types';
 
+@ApiTags('AI')
 @Controller('ai')
+@UseGuards(SupabaseAuthGuard)
 export class AiController {
   constructor(
     private readonly aiService: AiService,
@@ -16,12 +23,15 @@ export class AiController {
   ) {}
 
   @Post('chat')
+  @Throttle({ default: { limit: 20, ttl: 60_000 } })
   async chat(@Body() request: AiChatRequest): Promise<AiChatResponse> {
     const reply = await this.aiService.chat(request.messages);
     return { reply };
   }
 
   @Post('embeddings/sync/:productId')
+  @UseGuards(RolesGuard)
+  @Roles('admin')
   async syncEmbedding(
     @Param('productId') productId: string,
   ): Promise<AiEmbeddingResponse> {
@@ -30,6 +40,8 @@ export class AiController {
   }
 
   @Post('embeddings/sync-all')
+  @UseGuards(RolesGuard)
+  @Roles('admin')
   async syncAllEmbeddings(): Promise<{ synced: number; failed: number }> {
     return this.embeddingsService.syncAllProducts();
   }

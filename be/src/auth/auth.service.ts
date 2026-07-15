@@ -2,11 +2,11 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 
 import type {
   AddressDto,
-  AddressPayload,
   AuthenticatedProfile,
   AuthenticatedUser,
-  UpdateProfilePayload,
 } from './auth.types';
+import type { AddressDto as AddressPayloadDto } from './dto/address.dto';
+import type { UpdateProfileDto } from './dto/update-profile.dto';
 import { SupabaseService } from '../infrastructure/supabase/supabase.service';
 
 type AddressRow = {
@@ -91,7 +91,7 @@ export class AuthService {
 
   async updateProfile(
     user: AuthenticatedUser,
-    payload: UpdateProfilePayload,
+    payload: UpdateProfileDto,
   ): Promise<AuthenticatedProfile> {
     const updates: Record<string, string | null> = {
       email: user.email ?? '',
@@ -135,7 +135,7 @@ export class AuthService {
     );
   }
 
-  async createAddress(userId: string, payload: AddressPayload) {
+  async createAddress(userId: string, payload: AddressPayloadDto) {
     const isDefault = this.readOptionalBoolean(payload.isDefault) ?? false;
 
     if (isDefault) {
@@ -166,7 +166,7 @@ export class AuthService {
     return this.getAddresses(userId);
   }
 
-  async updateAddress(userId: string, id: string, payload: AddressPayload) {
+  async updateAddress(userId: string, id: string, payload: AddressPayloadDto) {
     const updates: Record<string, unknown> = {};
 
     this.assignRequiredProfileValue(

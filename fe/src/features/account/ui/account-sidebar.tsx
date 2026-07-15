@@ -3,20 +3,22 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Heart, MapPin, User } from "lucide-react";
+import type { Dictionary } from "@/shared/i18n";
 
 const NAV_ITEMS = [
-  { href: "/account", label: "Hồ sơ", icon: User },
-  { href: "/account/addresses", label: "Địa chỉ", icon: MapPin },
-  { href: "/account/wishlist", label: "Yêu thích", icon: Heart },
+  { href: "/account", icon: User, key: "profile" as const },
+  { href: "/account/addresses", icon: MapPin, key: "addresses" as const },
+  { href: "/account/wishlist", icon: Heart, key: "wishlist" as const },
 ] as const;
 
-export function AccountSidebar() {
+export function AccountSidebar({ dictionary }: { dictionary: Dictionary }) {
   const pathname = usePathname();
+  const t = dictionary.ui.account.sidebar;
 
   return (
     <aside className="rounded-lg border border-amber-900/10 bg-white p-2 shadow-sm">
       <nav className="flex flex-col gap-1">
-        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+        {NAV_ITEMS.map(({ href, icon: Icon, key }) => {
           const isActive =
             href === "/account"
               ? pathname === "/account"
@@ -33,7 +35,7 @@ export function AccountSidebar() {
               }`}
             >
               <Icon className="h-4 w-4" aria-hidden="true" />
-              {label}
+              {t[key]}
             </Link>
           );
         })}

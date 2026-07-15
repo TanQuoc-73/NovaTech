@@ -12,9 +12,12 @@ import {
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { SupabaseAuthGuard } from '../auth/guards/supabase-auth.guard';
 import type { AuthenticatedUser } from '../auth/auth.types';
+import { ApiTags } from '@nestjs/swagger';
 import { CartService } from './cart.service';
-import type { AddCartItemPayload, UpdateCartItemPayload } from './cart.types';
+import { AddCartItemDto } from './dto/add-cart-item.dto';
+import { UpdateCartItemDto } from './dto/update-cart-item.dto';
 
+@ApiTags('Cart')
 @Controller('cart')
 @UseGuards(SupabaseAuthGuard)
 export class CartController {
@@ -28,7 +31,7 @@ export class CartController {
   @Post('items')
   addItem(
     @CurrentUser() user: AuthenticatedUser,
-    @Body() payload: AddCartItemPayload,
+    @Body() payload: AddCartItemDto,
   ) {
     return this.cartService.addItem(user.id, payload);
   }
@@ -37,7 +40,7 @@ export class CartController {
   updateItem(
     @CurrentUser() user: AuthenticatedUser,
     @Param('itemId') itemId: string,
-    @Body() payload: UpdateCartItemPayload,
+    @Body() payload: UpdateCartItemDto,
   ) {
     return this.cartService.updateItem(user.id, itemId, payload);
   }

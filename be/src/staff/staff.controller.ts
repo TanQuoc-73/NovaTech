@@ -3,12 +3,14 @@ import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { SupabaseAuthGuard } from '../auth/guards/supabase-auth.guard';
+import { ApiTags } from '@nestjs/swagger';
 import { StaffService } from './staff.service';
 import type {
   StaffInventoryPayload,
   StaffOrderStatusPayload,
 } from './staff.types';
 
+@ApiTags('Staff')
 @Controller('staff')
 @UseGuards(SupabaseAuthGuard, RolesGuard)
 @Roles('staff')

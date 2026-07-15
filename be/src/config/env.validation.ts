@@ -65,5 +65,7 @@ export function validateEnv(config: Environment): AppEnvironment {
     MOMO_ENDPOINT: config.MOMO_ENDPOINT,
     MOMO_REDIRECT_URL: config.MOMO_REDIRECT_URL,
     MOMO_IPN_URL: config.MOMO_IPN_URL,
+    OPENAI_API_KEY: config.OPENAI_API_KEY,
+    OPENAI_CHAT_MODEL: config.OPENAI_CHAT_MODEL,
   };
 }

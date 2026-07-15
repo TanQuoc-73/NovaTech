@@ -5,10 +5,10 @@ import {
 } from '@nestjs/common';
 
 import { SupabaseService } from '../infrastructure/supabase/supabase.service';
+import type { AddCartItemDto } from './dto/add-cart-item.dto';
+import type { UpdateCartItemDto } from './dto/update-cart-item.dto';
 import type {
-  AddCartItemPayload,
   CartDto,
-  UpdateCartItemPayload,
 } from './cart.types';
 
 type CartRow = {
@@ -153,7 +153,7 @@ export class CartService {
     };
   }
 
-  async addItem(userId: string, payload: AddCartItemPayload): Promise<CartDto> {
+  async addItem(userId: string, payload: AddCartItemDto): Promise<CartDto> {
     const variantId = this.readVariantId(payload.variantId);
     const quantity = this.readQuantity(payload.quantity);
     const cart = await this.ensureCart(userId);
@@ -211,7 +211,7 @@ export class CartService {
   async updateItem(
     userId: string,
     itemId: string,
-    payload: UpdateCartItemPayload,
+    payload: UpdateCartItemDto,
   ): Promise<CartDto> {
     const quantity = this.readQuantity(payload.quantity);
     const cart = await this.ensureCart(userId);

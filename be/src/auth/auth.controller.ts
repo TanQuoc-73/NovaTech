@@ -9,15 +9,16 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
+import { ApiTags } from '@nestjs/swagger';
+
 import { AuthService } from './auth.service';
-import type {
-  AddressPayload,
-  AuthenticatedUser,
-  UpdateProfilePayload,
-} from './auth.types';
+import type { AuthenticatedUser } from './auth.types';
+import { AddressDto } from './dto/address.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { SupabaseAuthGuard } from './guards/supabase-auth.guard';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -38,7 +39,7 @@ export class AuthController {
   @UseGuards(SupabaseAuthGuard)
   updateMe(
     @CurrentUser() user: AuthenticatedUser,
-    @Body() payload: UpdateProfilePayload,
+    @Body() payload: UpdateProfileDto,
   ) {
     return this.authService.updateProfile(user, payload);
   }
@@ -53,7 +54,7 @@ export class AuthController {
   @UseGuards(SupabaseAuthGuard)
   createAddress(
     @CurrentUser() user: AuthenticatedUser,
-    @Body() payload: AddressPayload,
+    @Body() payload: AddressDto,
   ) {
     return this.authService.createAddress(user.id, payload);
   }
@@ -63,7 +64,7 @@ export class AuthController {
   updateAddress(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
-    @Body() payload: AddressPayload,
+    @Body() payload: AddressDto,
   ) {
     return this.authService.updateAddress(user.id, id, payload);
   }

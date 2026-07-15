@@ -12,6 +12,7 @@ import type {
   VoucherValidationDto,
 } from './catalog.types';
 import { SupabaseService } from '../infrastructure/supabase/supabase.service';
+import { mapProducts, type ProductRow } from '../shared/utils/product-mapper.util';
 
 type CategoryRow = {
   id: string;
@@ -66,47 +67,6 @@ type VoucherRow = {
   max_discount_amount: string | number | null;
   usage_limit: number | null;
   used_count: number;
-};
-
-type ProductRow = {
-  id: string;
-  name: string;
-  thumbnail_url: string | null;
-  is_featured: boolean;
-  categories:
-    | { slug: string; name: string }
-    | Array<{ slug: string; name: string }>
-    | null;
-  brands: { name: string } | Array<{ name: string }> | null;
-  product_variants: Array<{
-    id: string;
-    sku: string;
-    name: string;
-    color: string | null;
-    storage: string | null;
-    ram: string | null;
-    price: string | number;
-    compare_at_price: string | number | null;
-    stock_quantity: number;
-    product_variant_images: Array<{
-      id: string;
-      image_url: string;
-      alt_text: string | null;
-      sort_order: number;
-    }>;
-  }>;
-  reviews: Array<{
-    id: string;
-    rating: number;
-    title: string | null;
-    content: string | null;
-    is_approved: boolean;
-    created_at: string;
-    profiles:
-      | { full_name: string | null; email: string | null }
-      | Array<{ full_name: string | null; email: string | null }>
-      | null;
-  }>;
 };
 
 @Injectable()
@@ -286,6 +246,50 @@ export class CatalogService {
     };
   }
 
+  async lookupWarranty(query: string | undefined) {
+    const q = query?.trim();
+    if (!q || q.length < 3) {
+      return { found: false as const };
+    }
+
+    const { data, error } = await this.supabaseService.client
+      .from('orders')
+      .select(`
+        id, order_number, status, created_at,
+        order_items (
+          product_name, variant_name, sku, quantity
+        )
+      `)
+      .or(`order_number.ilike.%${q}%,order_items.sku.ilike.%${q}%`)
+      .limit(1)
+      .maybeSingle();
+
+    if (error || !data) {
+      return { found: false as const };
+    }
+
+    const order = data as {
+      id: string;
+      order_number: string;
+      status: string;
+      created_at: string;
+      order_items: Array<{
+        product_name: string;
+        variant_name: string;
+        sku: string;
+        quantity: number;
+      }>;
+    };
+
+    return {
+      found: true as const,
+      orderNumber: order.order_number,
+      status: order.status,
+      createdAt: order.created_at,
+      items: order.order_items,
+    };
+  }
+
   async findFeaturedProducts(): Promise<CatalogProductDto[]> {
     const { data, error } = await this.supabaseService.client
       .from('products')
@@ -300,7 +304,24 @@ export class CatalogService {
       throw error;
     }
 
-    return this.mapProducts(data ?? []);
+    return mapProducts(data ?? []);
+  }
+
+  async findProductBySlug(slug: string): Promise<CatalogProductDto | null> {
+    const { data, error } = await this.supabaseService.client
+      .from('products')
+      .select(this.productSelect)
+      .eq('slug', slug)
+      .eq('is_active', true)
+      .eq('product_variants.is_active', true)
+      .maybeSingle();
+
+    if (error || !data) {
+      return null;
+    }
+
+    const results = mapProducts([data as unknown as ProductRow]);
+    return results[0] ?? null;
   }
 
   async findProducts(
@@ -417,7 +438,7 @@ export class CatalogService {
       throw error;
     }
 
-    let products = this.mapProducts(data ?? []);
+    let products = mapProducts(data ?? []);
 
     if (sort === 'stock_desc') {
       products.sort((left, right) => right.stock - left.stock);
@@ -463,104 +484,6 @@ export class CatalogService {
       )
     )
   `;
-
-  private mapProducts(products: ProductRow[]): CatalogProductDto[] {
-    return products.flatMap((product) => {
-      const variants = product.product_variants
-        .map((item) => ({
-          id: item.id,
-          sku: item.sku,
-          name: item.name,
-          color: item.color,
-          storage: item.storage,
-          ram: item.ram,
-          price: Number(item.price),
-          compareAtPrice: item.compare_at_price
-            ? Number(item.compare_at_price)
-            : undefined,
-          stock: item.stock_quantity,
-          images: item.product_variant_images
-            .map((image) => ({
-              id: image.id,
-              imageUrl: image.image_url,
-              altText: image.alt_text,
-              sortOrder: image.sort_order,
-            }))
-            .sort((left, right) => left.sortOrder - right.sortOrder),
-        }))
-        .filter((item) => Number.isFinite(item.price))
-        .sort((left, right) => left.price - right.price);
-      const variant = variants[0];
-
-      if (!variant) {
-        return [];
-      }
-
-      const category = Array.isArray(product.categories)
-        ? product.categories[0]
-        : product.categories;
-      const brand = Array.isArray(product.brands)
-        ? product.brands[0]
-        : product.brands;
-      const primaryVariantImage = variants[0]?.images[0]?.imageUrl;
-
-      return {
-        id: product.id,
-        name: product.name,
-        brand: brand?.name ?? 'NovaTech',
-        category: category?.slug ?? 'accessory',
-        price: variant.price,
-        compareAtPrice: variant.compareAtPrice,
-        rating: this.calculateRating(product.reviews),
-        stock: variant.stock,
-        imageUrl: primaryVariantImage ?? product.thumbnail_url ?? '',
-        badges: product.is_featured ? ['bestseller'] : ['new'],
-        variants,
-        reviews: this.mapReviews(product.reviews),
-      };
-    });
-  }
-
-  private mapReviews(reviews: ProductRow['reviews']) {
-    return (reviews ?? [])
-      .sort(
-        (left, right) =>
-          new Date(right.created_at).getTime() -
-          new Date(left.created_at).getTime(),
-      )
-      .map((review) => {
-        const profile = Array.isArray(review.profiles)
-          ? review.profiles[0]
-          : review.profiles;
-
-        return {
-          id: review.id,
-          rating: review.rating,
-          title: review.title,
-          content: review.content,
-          authorName:
-            profile?.full_name?.trim() ||
-            profile?.email?.split('@')[0] ||
-            'Khach hang',
-          createdAt: review.created_at,
-        };
-      });
-  }
-
-  private calculateRating(reviews: ProductRow['reviews']) {
-    const approvedReviews = reviews ?? [];
-
-    if (!approvedReviews.length) {
-      return 5;
-    }
-
-    const total = approvedReviews.reduce(
-      (sum, review) => sum + review.rating,
-      0,
-    );
-
-    return Math.round((total / approvedReviews.length) * 10) / 10;
-  }
 
   private async findVoucherByCode(code: string) {
     const { data, error } = await this.supabaseService.client

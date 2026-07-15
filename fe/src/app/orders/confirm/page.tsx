@@ -91,6 +91,7 @@ function OrderConfirmClient({
 
   const dictionary = getDictionary(locale);
   const t = dictionary.ui.checkout;
+  const oc = dictionary.ui.orderConfirm;
 
   return (
     <main className="min-h-screen bg-[#fff8ed] text-stone-950 flex flex-col justify-between">
@@ -102,7 +103,7 @@ function OrderConfirmClient({
         <div className="flex min-h-[60vh] items-center justify-center">
           <div className="flex flex-col items-center gap-4">
             <span className="h-12 w-12 animate-spin rounded-full border-4 border-amber-200 border-t-amber-700" />
-            <p className="text-sm font-medium text-stone-500">Đang tải thông tin đơn hàng...</p>
+            <p className="text-sm font-medium text-stone-500">{oc.loading}</p>
           </div>
         </div>
       )}
@@ -114,12 +115,12 @@ function OrderConfirmClient({
             <ClipboardList className="h-9 w-9 text-stone-400" />
           </span>
           <h1 className="mt-6 text-2xl font-semibold text-stone-900">
-            {t.confirmNotFound}
+            {oc.notFound}
           </h1>
           <p className="mt-2 text-sm text-stone-500">
             {orderNumber
-              ? `Không tìm thấy đơn hàng "${orderNumber}". Có thể đơn chưa được xác nhận.`
-              : "Không có mã đơn hàng trong URL."}
+              ? oc.notFoundDesc.replace("{orderNumber}", orderNumber)
+              : oc.noOrderCode}
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link
@@ -175,7 +176,7 @@ function OrderConfirmClient({
                 <p className="mt-2 max-w-lg text-sm leading-6 text-white/80">
                   {paymentSuccess
                     ? t.confirmSubtitle
-                    : "Vui lòng kiểm tra lại phương thức thanh toán hoặc liên hệ NovaTech để được hỗ trợ."}
+                    : oc.paymentFailedDesc}
                 </p>
               </div>
             </div>
@@ -210,7 +211,7 @@ function OrderConfirmClient({
               {paymentSuccess && (
                 <div className="rounded-2xl border border-amber-900/10 bg-white p-6 shadow-sm">
                   <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-amber-800">
-                    Tiến trình đơn hàng
+                    {oc.orderProgress}
                   </h2>
                   <div className="mt-5 flex items-start gap-0">
                     {(t.confirmSteps as unknown as Array<{ title: string; desc: string }>).map(
@@ -264,7 +265,7 @@ function OrderConfirmClient({
                   <ShoppingBag className="h-5 w-5 text-amber-700" aria-hidden="true" />
                   <h2 className="font-semibold text-stone-900">{t.confirmItems}</h2>
                   <span className="ml-auto rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-900">
-                    {order.items.length} sản phẩm
+                    {order.items.length} {oc.itemsLabel}
                   </span>
                 </div>
 
@@ -308,7 +309,7 @@ function OrderConfirmClient({
               <div className="rounded-2xl border border-amber-900/10 bg-white p-6 shadow-sm">
                 <div className="flex items-center gap-2.5">
                   <MapPin className="h-5 w-5 text-amber-700" aria-hidden="true" />
-                  <h2 className="font-semibold text-stone-900">Địa chỉ giao hàng</h2>
+                  <h2 className="font-semibold text-stone-900">{oc.shippingAddress}</h2>
                 </div>
                 <p className="mt-4 text-sm leading-6 text-stone-600">
                   {order.shippingAddress}
@@ -320,17 +321,17 @@ function OrderConfirmClient({
                 <h2 className="font-semibold text-stone-900">{t.confirmPayment}</h2>
                 <div className="mt-4 space-y-3">
                   <ConfirmRow
-                    label="Hình thức"
+                    label={oc.paymentLabel}
                     value={readablePaymentMethod(order.paymentMethod, t)}
                   />
                   <ConfirmRow
-                    label="Trạng thái thanh toán"
+                    label={oc.paymentStatus}
                     value={
                       order.paymentStatus === "paid"
-                        ? "Đã thanh toán"
+                        ? oc.paymentPaid
                         : order.paymentStatus === "failed"
-                          ? "Thất bại"
-                          : "Chờ thanh toán"
+                          ? oc.paymentFailed
+                          : oc.paymentPending
                     }
                     accent={
                       order.paymentStatus === "paid"
@@ -341,7 +342,7 @@ function OrderConfirmClient({
                     }
                   />
                   <ConfirmRow
-                    label="Trạng thái đơn"
+                    label={oc.orderStatus}
                     value={t.confirmStatusPending}
                     accent="amber"
                   />

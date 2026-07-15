@@ -370,13 +370,13 @@ export function AuthModal({
                     className="auth-form-btn-secondary flex h-11 w-full items-center justify-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] text-sm font-semibold text-[var(--foreground)] shadow-sm transition hover:bg-[var(--surface-soft)] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <GoogleIcon className="h-5 w-5 shrink-0" />
-                    Tiếp tục với Google
+                    {dictionary.ui.auth.continueWithGoogle}
                   </button>
 
                   <div className="my-5 flex items-center gap-3">
                     <span className="h-px flex-1 bg-[var(--border)]" />
                     <span className="text-xs font-semibold text-[var(--muted)]">
-                      hoặc dùng email
+                      {dictionary.ui.auth.orUseEmail}
                     </span>
                     <span className="h-px flex-1 bg-[var(--border)]" />
                   </div>
